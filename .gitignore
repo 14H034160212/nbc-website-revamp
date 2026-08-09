@@ -19,3 +19,6 @@ cp*/
 .claude/
 src/live/
 src/mirror/
+
+# npm (the Anthropic SDK; Cloudflare bundles it into the Function at deploy)
+node_modules/

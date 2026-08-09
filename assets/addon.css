@@ -348,3 +348,50 @@ mark.todo {
 	border-left: 2px solid var(--nbc-blue);
 	font-size: .93rem; line-height: 1.7; max-width: 62ch;
 }
+
+/* ---- AI question box --------------------------------------------------- */
+.ai-box { margin: 0 0 26px; max-width: 44rem; }
+.ai-box__label {
+	display: block; margin-bottom: 8px;
+	font-family: 'Source Sans Pro', Arial, sans-serif; font-size: .95rem;
+	color: var(--nbc-ink);
+}
+.ai-box textarea {
+	width: 100%; padding: 12px 15px; font-family: inherit; font-size: 1rem;
+	line-height: 1.6; color: var(--nbc-ink); background: #fff;
+	border: 1px solid var(--nbc-line); border-radius: 3px; resize: vertical;
+}
+.ai-box__row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 10px; }
+.ai-box__go {
+	min-height: 44px; padding: 0 22px;
+	font-family: 'Fjalla One', Arial, sans-serif; font-size: .92rem;
+	letter-spacing: .06em; text-transform: uppercase;
+	color: #fff; background: var(--nbc-red); border: 0; border-radius: 3px; cursor: pointer;
+}
+.ai-box__go:hover { background: var(--nbc-red-dk); }
+.ai-box__go[disabled] { opacity: .55; cursor: default; }
+.ai-box__note { font-size: .82rem; line-height: 1.5; color: var(--nbc-mut); flex: 1 1 16rem; }
+
+.ai-off {
+	margin: 0 0 26px; padding: 14px 18px; max-width: 44rem;
+	background: #fff4d6; border-left: 2px solid #c9a227;
+	font-size: .9rem; line-height: 1.65; color: #6b5316;
+}
+
+.ai-out { margin: 0 0 30px; }
+.ai-framing {
+	font-family: 'Crimson Text', Georgia, serif; font-size: 1.14rem; line-height: 1.75;
+	color: #3f4049; background: #f7f7f9; border-left: 3px solid var(--nbc-blue);
+	padding: 16px 20px; margin: 0 0 20px; max-width: 62ch;
+}
+[lang^="zh"] .ai-framing, [lang^="ko"] .ai-framing { font-family: inherit; line-height: 1.9; }
+.ai-why {
+	font-size: .86rem; color: var(--nbc-mut); margin: 0 0 10px; font-style: italic;
+}
+.ai-human {
+	margin: 22px 0 0; padding: 16px 20px; max-width: 62ch;
+	background: #fff; border: 1px solid var(--nbc-line); border-left: 3px solid var(--nbc-red);
+	font-size: .95rem; line-height: 1.7;
+}
+.ai-human a { color: var(--nbc-blue); }
+.ai-error { color: var(--nbc-red); font-size: .95rem; margin: 0; }

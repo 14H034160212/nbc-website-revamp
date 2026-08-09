@@ -1,17 +1,20 @@
 /* ===========================================================================
-   Find a passage — topical scripture finder, multilingual.
+   Find a passage — two ways in, one guarantee.
 
-   WHAT THIS IS
-     A curated topical index. Pick a real-life question ("I am anxious",
-     "someone has died") and it pulls the passages a pastor would point you
-     to, in your language and in English side by side.
+   1. A CURATED TOPICAL INDEX. Pick a real-life question ("I am anxious",
+      "someone has died") and it pulls a hand-picked list of references — the
+      same list a printed topical index would give you. Nothing about it is
+      generated, so nothing can be invented.
 
-   WHAT THIS IS NOT
-     It is not an AI answering questions about the Bible, and it does not
-     pretend to be. Every question maps to a hand-picked list of references —
-     the same list a printed topical index would give you. Nothing is
-     generated, so nothing can be invented. For a church, that matters:
-     a confident wrong answer about scripture is worse than no answer.
+   2. A FREE-TEXT QUESTION BOX, answered by an AI assistant via /api/ask. The
+      model does exactly one job: read what the person wrote and choose which
+      passages speak to it, plus a short framing in their language.
+
+   THE GUARANTEE THAT SPANS BOTH
+      The model never writes scripture. Every verse on this page — curated or
+      AI-chosen — is fetched from api.getbible.net by the code below. Language
+      models paraphrase scripture confidently and wrongly, so that job is taken
+      away from the model entirely. See functions/api/_ask-core.js.
 
    Passage text comes from api.getbible.net (free, no key, CORS-open,
    public-domain translations). Verse ranges are sliced client-side because
@@ -37,6 +40,17 @@
   /* ---- interface strings ------------------------------------------------ */
   var UI = {
     'en': {
+      h1: 'Find a Passage',
+      aiLabel: 'Or describe what is going on, in your own words.',
+      aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
+      aiGo: 'Ask',
+      aiNote: 'Answers are written by an AI assistant and point you to passages; the passages themselves come from a real translation. It is not pastoral advice.',
+      aiThinking: 'Looking…',
+      aiFailed: 'Something went wrong. Please try again, or pick a question above.',
+      aiBusy: 'A lot of people are asking right now. Please try again shortly.',
+      aiLimited: 'You have asked a few questions in a short time. Please try again later.',
+      aiOff: 'The question box is not switched on for this deployment. The curated questions below work without it.',
+      aiHuman: 'Some things are better talked through with a person. You can reach the church office on <a href="tel:+6494807064">(09) 480 7064</a> or <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> any weekday.',
       lead: 'Pick what is going on. We will show you where the Bible speaks to it.',
       ph: 'Or type a reference — John 3:16',
       go: 'Go',
@@ -48,6 +62,17 @@
       pastoral: 'These passages are a starting point, not a diagnosis. If you are going through something hard, please talk to someone — you can reach the church office any weekday.'
     },
     'zh-Hans': {
+      h1: '按主题查经',
+      aiLabel: '或者用你自己的话，说说此刻的处境。',
+      aiPlaceholder: '例如：我要做一个很难的决定，不知道该怎么祷告',
+      aiGo: '提问',
+      aiNote: '回应由 AI 助手撰写，只负责指出相关经文；经文原文来自真实译本。这不是牧养辅导。',
+      aiThinking: '正在查找…',
+      aiFailed: '出了点问题，请重试，或从上面的问题里选一个。',
+      aiBusy: '现在提问的人有点多，请稍后再试。',
+      aiLimited: '你在短时间内问了几次，请稍后再试。',
+      aiOff: '这个部署没有开启提问框。下面的常见处境查经不需要它也能用。',
+      aiHuman: '有些事更适合和人聊聊。平日都可以联系教会办公室：<a href="tel:+6494807064">(09) 480 7064</a> 或 <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>。',
       lead: '选一个此刻的处境，我们把圣经里相关的经文找出来给你。',
       ph: '或直接输入经文地址 —— 约翰福音 3:16',
       go: '查找',
@@ -59,6 +84,17 @@
       pastoral: '这些经文是一个起点，不是答案的全部。如果你正经历难处，请找人聊聊 —— 平日都可以联系教会办公室。'
     },
     'ko': {
+      h1: '주제별 말씀 찾기',
+      aiLabel: '또는 지금의 상황을 직접 적어 주셔도 됩니다.',
+      aiPlaceholder: '예: 어려운 결정을 앞두고 있는데 어떻게 기도해야 할지 모르겠습니다',
+      aiGo: '질문하기',
+      aiNote: '답변은 AI 도우미가 작성하며 관련 본문을 안내할 뿐입니다. 본문 자체는 실제 역본에서 가져옵니다. 목회 상담이 아닙니다.',
+      aiThinking: '찾는 중…',
+      aiFailed: '문제가 발생했습니다. 다시 시도하시거나 위의 질문 중에서 골라 주십시오.',
+      aiBusy: '지금 이용자가 많습니다. 잠시 후 다시 시도해 주십시오.',
+      aiLimited: '짧은 시간에 여러 번 질문하셨습니다. 잠시 후 다시 시도해 주십시오.',
+      aiOff: '이 배포에서는 질문 상자가 켜져 있지 않습니다. 아래 주제별 찾기는 그대로 사용하실 수 있습니다.',
+      aiHuman: '어떤 이야기는 사람과 나누는 편이 좋습니다. 평일에 교회 사무실로 연락하실 수 있습니다: <a href="tel:+6494807064">(09) 480 7064</a>, <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>.',
       lead: '지금의 상황을 골라 주십시오. 성경이 무엇이라 말하는지 찾아 드립니다.',
       ph: '또는 성경 구절 입력 — 요한복음 3:16',
       go: '찾기',
@@ -70,6 +106,17 @@
       pastoral: '이 말씀들은 시작점이며 전부는 아닙니다. 어려운 일을 지나고 계시다면 누군가와 이야기해 주십시오. 평일에 교회 사무실로 연락하실 수 있습니다.'
     },
     'mi': {
+      h1: 'Rapua he kupu',
+      aiLabel: 'Or describe what is going on, in your own words.',
+      aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
+      aiGo: 'Pātai',
+      aiNote: 'Answers are written by an AI assistant and point you to passages; the passages themselves come from a real translation. It is not pastoral advice.',
+      aiThinking: 'Looking…',
+      aiFailed: 'Something went wrong. Please try again, or pick a question above.',
+      aiBusy: 'A lot of people are asking right now. Please try again shortly.',
+      aiLimited: 'You have asked a few questions in a short time. Please try again later.',
+      aiOff: 'The question box is not switched on for this deployment. The curated questions below work without it.',
+      aiHuman: 'Some things are better talked through with a person. You can reach the church office on <a href="tel:+6494807064">(09) 480 7064</a> or <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> any weekday.',
       lead: 'Pick what is going on. We will show you where the Bible speaks to it.',
       ph: 'Or type a reference — Hoani 3:16',
       go: 'Rapua',
@@ -362,6 +409,122 @@
     show([ref], null, true);
   });
 
+  /* ---- AI question box -------------------------------------------------
+     The model chooses references and writes the framing; the verse text is
+     fetched from getBible by the same code the curated finder uses. A model
+     never supplies scripture here — see functions/api/_ask-core.js. */
+  var elAiForm  = root.querySelector('[data-ai-form]');
+  var elAiLabel = root.querySelector('[data-ai-label]');
+  var elAiInput = root.querySelector('[data-ai-input]');
+  var elAiGo    = root.querySelector('[data-ai-go]');
+  var elAiNote  = root.querySelector('[data-ai-note]');
+  var elAiOff   = root.querySelector('[data-ai-off]');
+  var elAiOut   = root.querySelector('[data-ai-out]');
+  var aiEnabled = false;
+
+  function paintAi() {
+    // The page shell renders one h1 for all languages; keep it in step with
+    // the selector so a Chinese reader is not met by an English heading.
+    var h1 = document.querySelector('.cmsmasters_heading');
+    if (h1) h1.textContent = t('h1');
+
+    elAiLabel.textContent = t('aiLabel');
+    elAiInput.placeholder = t('aiPlaceholder');
+    elAiInput.setAttribute('aria-label', t('aiLabel'));
+    elAiGo.textContent = t('aiGo');
+    elAiNote.textContent = t('aiNote');
+    if (!aiEnabled) elAiOff.textContent = t('aiOff');
+  }
+
+  // Ask the endpoint whether a key is configured. No key -> the box stays
+  // hidden and the curated finder below is the whole feature.
+  fetch('/api/ask', { method: 'GET' })
+    .then(function (r) { return r.ok ? r.json() : { enabled: false }; })
+    .catch(function () { return { enabled: false }; })
+    .then(function (info) {
+      aiEnabled = Boolean(info && info.enabled);
+      elAiForm.hidden = !aiEnabled;
+      elAiOff.hidden = aiEnabled;
+      paintAi();
+      aiFromUrl();
+    });
+
+  function aiError(key) {
+    elAiOut.innerHTML = '<p class="ai-error">' + t(key) + '</p>';
+    elAiOut.hidden = false;
+  }
+
+  function renderAi(data) {
+    elAiOut.innerHTML = '';
+
+    var framing = document.createElement('p');
+    framing.className = 'ai-framing';
+    framing.textContent = data.framing;
+    elAiOut.appendChild(framing);
+
+    data.references.forEach(function (r) {
+      var card = card_for(r);
+      elAiOut.appendChild(card);
+    });
+
+    if (data.talk_to_someone) {
+      var human = document.createElement('div');
+      human.className = 'ai-human';
+      human.innerHTML = t('aiHuman');
+      elAiOut.appendChild(human);
+    }
+    elAiOut.hidden = false;
+  }
+
+  // Reuse the passage card, adding the model's one-line reason above it.
+  function card_for(r) {
+    var wrap = document.createElement('div');
+    if (r.why) {
+      var why = document.createElement('p');
+      why.className = 'ai-why';
+      why.textContent = r.why;
+      wrap.appendChild(why);
+    }
+    wrap.appendChild(card([r.book, r.chapter, r.from, r.to]));
+    return wrap;
+  }
+
+  /* Deep link: ask/?q=... prefills and submits, so a question can be shared
+     or linked from a notice sheet the same way ?topic= can. */
+  function aiFromUrl() {
+    var q = new URLSearchParams(location.search).get('q');
+    if (!q || !aiEnabled) return;
+    elAiInput.value = q;
+    elAiForm.dispatchEvent(new Event('submit', { cancelable: true }));
+  }
+
+  elAiForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var question = elAiInput.value.trim();
+    if (question.length < 4) return;
+
+    elAiGo.disabled = true;
+    elAiOut.hidden = false;
+    elAiOut.innerHTML = '<p class="ask-card__loading">' + t('aiThinking') + '</p>';
+
+    fetch('/api/ask', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ question: question, lang: lang })
+    }).then(function (r) {
+      return r.json().then(function (body) { return { status: r.status, body: body }; });
+    }).then(function (res) {
+      if (res.status === 429) return aiError(String(res.body.error).indexOf('day') > -1 ? 'aiBusy' : 'aiLimited');
+      if (res.status === 503) return aiError('aiBusy');
+      if (res.body && res.body.error) return aiError('aiFailed');
+      renderAi(res.body);
+    }).catch(function () {
+      aiError('aiFailed');
+    }).then(function () {
+      elAiGo.disabled = false;
+    });
+  });
+
   /* ---- language: self-contained, no dependency on the rest of the page ---
      The prototype's header switcher navigates between the /zh/, /ko/ and /mi/
      landing pages, the way Polylang would on the real site. This page is
@@ -396,6 +559,7 @@
     try { localStorage.setItem(LS, lang); } catch (e) {}
 
     paint();
+    paintAi();
     elOut.hidden = true;
     elOut.innerHTML = '';
     elFoot.hidden = true;
