@@ -333,9 +333,10 @@ height:300px !important;
      first, before anything else.
 
      All facts below were taken from nbc.org.nz/services/ and
-     nbc.org.nz/ministries/kids/ — nothing is invented. Items wrapped
-     in {{ }} could not be found anywhere on the site and need someone
-     at the church to fill them in.
+     nbc.org.nz/ministries/kids/ — nothing is invented. The street
+     address is the one exception: the website has never published one,
+     so it comes from the church's Google listing, cross-checked against
+     OpenStreetMap and several NZ directories. Worth confirming.
 
      PASTE INTO: a "Custom HTML" block on the new page.
      ============================================================ -->
@@ -355,14 +356,14 @@ height:300px !important;
     </div>
     <div class="nbc-fact">
       <span class="nbc-fact__label">장소</span>
-      <!-- <mark class="todo">주소는 추후 기재</mark> — the street address is not published anywhere
-           on the current site. Please add it here and in functions.php. -->
-      <p class="nbc-fact__value"><mark class="todo">주소는 추후 기재</mark><br>오클랜드 힐크레스트</p>
+      <!-- Address cross-checked against the church's Google listing, OpenStreetMap
+           and several NZ directories. Worth one glance from the church. -->
+      <p class="nbc-fact__value">67 Eban Avenue<br>오클랜드 힐크레스트</p>
     </div>
     <div class="nbc-fact">
       <span class="nbc-fact__label">주차</span>
-      <!-- <mark class="todo">주차 안내는 추후 기재</mark> — e.g. "On-site car park, plus street parking on ___" -->
-      <p class="nbc-fact__value"><mark class="todo">주차 안내는 추후 기재</mark></p>
+      
+      <p class="nbc-fact__value">교회 주차장이 있으며, 장애인 주차구역과 무장애 출입구가 마련되어 있습니다</p>
     </div>
     <div class="nbc-fact">
       <span class="nbc-fact__label">문의</span>
@@ -418,7 +419,7 @@ height:300px !important;
   </div>
 
   <p class="nbc-visit__cta">
-    <a class="nbc-btn nbc-btn--primary" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland">오시는 길</a>
+    <a class="nbc-btn nbc-btn--primary" href="https://www.google.com/maps/search/?api=1&query=67+Eban+Avenue%2C+Hillcrest%2C+Auckland+0627%2C+New+Zealand">오시는 길</a>
     <a class="nbc-btn nbc-btn--outline" href="/contact/">문의하기</a>
   </p>
 
@@ -538,7 +539,7 @@ var simcal_default_calendar = {"ajax_url":"\/wp-admin\/admin-ajax.php","nonce":"
 <script fetchpriority="high" type="text/javascript" src="../../wp-content/plugins/google-calendar-events/assets/generated/vendor/imagesloaded.pkgd.min.js" id="simplecalendar-imagesloaded-js"></script>
 <script>jQuery(document).ready(function(e){e("body").hasClass("logged-in")||e("a").not('[href*="#"],[href*="?"]').hover(function(){"undefined"!=typeof e(this).attr("href")&&e(this).delay(120).queue(function(){prefetch_link=e(this).attr("href");var t=jQuery(location).attr("hostname"),n=prefetch_link.replace(t,"");(-1!==prefetch_link.indexOf(t)||prefetch_link.startsWith("/"))&&-1===n.indexOf(".")&&-1===n.indexOf("wp-admin")&&e("<link />",{rel:"prefetch",href:prefetch_link}).appendTo("head")})},function(){e(this).finish()}),e("body").on("touchstart","a",function(){if(!e("body").hasClass("logged-in")){prefetch_link=e(this).attr("href");var t=jQuery(location).attr("hostname"),t=jQuery(location).attr("hostname");if("undefined"==typeof prefetch_link||-1===prefetch_link.indexOf(t)&&!prefetch_link.startsWith("/"))return;var n=prefetch_link.replace(t,"");-1===n.indexOf("?")&&-1===prefetch_link.indexOf("#")&&-1===n.indexOf(".")&&-1===n.indexOf("wp-admin")&&e("<link />",{rel:"prefetch",href:prefetch_link}).appendTo("head")}})});</script><nav class="nbc-actionbar" aria-label="Quick links">
 <a class="nbc-actionbar__link" href="/services/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Sunday 10am</span></a>
-<a class="nbc-actionbar__link" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Find us</span></a>
+<a class="nbc-actionbar__link" href="https://www.google.com/maps/search/?api=1&query=67+Eban+Avenue%2C+Hillcrest%2C+Auckland+0627%2C+New+Zealand" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Find us</span></a>
 <a class="nbc-actionbar__link" href="/give-2/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg><span>Give</span></a>
 </nav></body>
 </html>

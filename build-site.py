@@ -86,12 +86,11 @@ OUR_PAGES = ["/bible/", "/ask/", "/first-visit/"]
 # rather than invented — a made-up address on a church site is worse than an
 # obvious gap.
 FILLS = {
-    "STREET_ADDRESS": '<mark class="todo">Street address to be supplied</mark>',
-    "PARKING": '<mark class="todo">Parking details to be supplied</mark>',
+    "STREET_ADDRESS": "67 Eban Avenue",
+    "PARKING": "On-site car park, with a wheelchair-accessible park and entrance",
     "OFFICE_HOURS": '<mark class="todo">Office hours to be supplied</mark>',
     "BANK_ACCOUNT": '<mark class="todo">Account number — see nbc.org.nz/give-2</mark>',
-    "MAP_URL": "https://www.google.com/maps/search/?api=1&query="
-               "Northcote+Baptist+Church+Hillcrest+Auckland",
+    "MAP_URL": "https://www.google.com/maps/search/?api=1&query=67+Eban+Avenue%2C+Hillcrest%2C+Auckland+0627%2C+New+Zealand",
     "TE REO": "",
 }
 

@@ -29,13 +29,18 @@ defined( 'ABSPATH' ) || exit;
    church needs to supply them.
    ================================================================== */
 
-/** Street address. TODO — the site does not publish one today. */
-define( 'NBC_STREET', '' );                      // e.g. '2 Rugby Road'
+/**
+ * Street address. The website itself has never published one — this came from
+ * the church's Google Business listing and is corroborated by OpenStreetMap,
+ * which carries the building as a place_of_worship at these coordinates.
+ * Worth one glance from someone at the church before it goes live.
+ */
+define( 'NBC_STREET', '67 Eban Avenue' );
 define( 'NBC_SUBURB', 'Hillcrest' );
 define( 'NBC_CITY',   'Auckland' );
-define( 'NBC_POSTCODE', '' );                    // TODO
-define( 'NBC_LAT',    '' );                      // TODO, e.g. '-36.7924'
-define( 'NBC_LNG',    '' );                      // TODO, e.g. '174.7451'
+define( 'NBC_POSTCODE', '0627' );
+define( 'NBC_LAT',    '-36.7954715' );
+define( 'NBC_LNG',    '174.7360854' );
 
 define( 'NBC_PHONE',  '+64 9 480 7064' );        // displayed as (09) 480 7064
 define( 'NBC_EMAIL',  'office@nbc.org.nz' );

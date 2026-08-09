@@ -33,6 +33,29 @@ index.html sunday.html …     生成物：可直接部署的静态原型
 
 —— 以下是真正要进 WordPress 的东西 ——
 
+nbc-bible-reader.html          在线圣经，粘进「自定义 HTML」区块即可
+nbc-proposal.html              提案文档
+
+my-religion-child/
+  style.css                    子主题样式（含 NBC 定制段落，原文件只有主题头注释）
+  functions.php                子主题功能（全新文件，原本不存在）
+
+pages/                         每个文件 = 一个「自定义 HTML」区块，整段粘贴
+  vision-mission-values.html   替换 NBC_vision-mission-values.jpg 等三张图
+  creed.html                   替换 Creed.jpg，轮盘改为内联 SVG
+  strategic-principles.html    替换 NBC-Strategic-Principles.jpg
+  first-visit.html             新页面：第一次来
+  welcome-zh/ko/mi.html        三个母语落地页（Tier-0 方案，见下）
+
+functions/                     Cloudflare Pages Function：圣经 AI 问答
+  api/ask.js  api/_ask-core.mjs
+  README.md                    部署、选型与教会需要拍板的事
+scripts/                       本地测试与开发服务器
+
+content/
+  alt-text.md                  首页 15 张缺 alt 图片的替代文本，逐张写好
+```
+
 ## 关于站点原型
 
 `https://nbc-website-revamp.pages.dev/` 是**改造后网站的可点原型**。它刻意**不重新设计**：
@@ -155,10 +178,15 @@ Instagram、YouTube、Twitter、Contact Form 7 的 CSS/JS。句柄名是从线�
 
 | 标记 | 说明 | 出现在 |
 |---|---|---|
-| `{{STREET_ADDRESS}}` | 街道地址。**整个网站目前没有公布过地址**——首页页尾没有，Contact 页也没有，只有「Hillcrest, North Shore」。第一次来的人根本找不到门 | 4 个页面 + `functions.php` 的 `NBC_STREET` |
-| `{{MAP_URL}}` | Google 地图链接。填了地址后 `functions.php` 会自动生成，页面里的按钮需要手填 | 4 个页面 |
-| `{{PARKING}}` | 停车信息（场内车位？路边？） | `first-visit.html` |
-| `NBC_POSTCODE` / `NBC_LAT` / `NBC_LNG` | 邮编与经纬度，用于结构化数据 | `functions.php` |
+| `{{OFFICE_HOURS}}` | 办公室开放时间 | `contact.html` |
+| ~~`{{STREET_ADDRESS}}`~~ | ✅ **已补**：67 Eban Avenue, Hillcrest, Auckland 0627 | — |
+| ~~`{{PARKING}}`~~ | ✅ **已补**：场内停车场，含无障碍车位与入口 | — |
+| ~~`NBC_LAT` / `NBC_LNG`~~ | ✅ **已补**：-36.7954715, 174.7360854 | — |
+
+> **地址来源需教会过目一眼。** 网站本身从未公布过地址；这个地址来自教会的
+> Google 商家资料，并经 OpenStreetMap（该建筑标记为 place_of_worship）、
+> Zenbu、Kompass 等多个独立目录交叉验证，电话也一致。仍建议上线前让教会确认。
+> 停车信息来自 Google 的无障碍属性，同样建议确认是否还有路边停车等细节。
 
 `functions.php` 的结构化数据做了保护：地址为空时**不会**输出空的 address 字段——
 输出一个空地址比不输出更糟。

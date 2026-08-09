@@ -7,9 +7,10 @@
      first, before anything else.
 
      All facts below were taken from nbc.org.nz/services/ and
-     nbc.org.nz/ministries/kids/ — nothing is invented. Items wrapped
-     in {{ }} could not be found anywhere on the site and need someone
-     at the church to fill them in.
+     nbc.org.nz/ministries/kids/ — nothing is invented. The street
+     address is the one exception: the website has never published one,
+     so it comes from the church's Google listing, cross-checked against
+     OpenStreetMap and several NZ directories. Worth confirming.
 
      PASTE INTO: a "Custom HTML" block on the new page.
      ============================================================ -->
@@ -31,14 +32,14 @@
     </div>
     <div class="nbc-fact">
       <span class="nbc-fact__label">Where</span>
-      <!-- {{STREET_ADDRESS}} — the street address is not published anywhere
-           on the current site. Please add it here and in functions.php. -->
-      <p class="nbc-fact__value">{{STREET_ADDRESS}}<br>Hillcrest, Auckland</p>
+      <!-- Address cross-checked against the church's Google listing, OpenStreetMap
+           and several NZ directories. Worth one glance from the church. -->
+      <p class="nbc-fact__value">67 Eban Avenue<br>Hillcrest, Auckland</p>
     </div>
     <div class="nbc-fact">
       <span class="nbc-fact__label">Parking</span>
-      <!-- {{PARKING}} — e.g. "On-site car park, plus street parking on ___" -->
-      <p class="nbc-fact__value">{{PARKING}}</p>
+      
+      <p class="nbc-fact__value">On-site car park, with a wheelchair-accessible park and entrance</p>
     </div>
     <div class="nbc-fact">
       <span class="nbc-fact__label">Questions</span>
@@ -110,7 +111,7 @@
   </div>
 
   <p class="nbc-visit__cta">
-    <a class="nbc-btn nbc-btn--primary" href="{{MAP_URL}}">Get directions</a>
+    <a class="nbc-btn nbc-btn--primary" href="https://www.google.com/maps/search/?api=1&query=67+Eban+Avenue%2C+Hillcrest%2C+Auckland+0627%2C+New+Zealand">Get directions</a>
     <a class="nbc-btn nbc-btn--outline" href="/contact/">Ask us a question</a>
   </p>
 

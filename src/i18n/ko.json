@@ -117,10 +117,8 @@
   "Sundays, 10:00am": "매주 일요일 오전 10시",
   "Finishes around 11:15am": "약 11시 15분에 마칩니다",
   "Where": "장소",
-  "Street address to be supplied": "주소는 추후 기재",
   "Hillcrest, Auckland": "오클랜드 힐크레스트",
   "Parking": "주차",
-  "Parking details to be supplied": "주차 안내는 추후 기재",
   "Questions": "문의",
   "What actually happens?": "예배는 어떻게 진행되나요?",
   "About an hour and a quarter: a mix of traditional and contemporary worship songs, prayer, and a message from the Bible. We share communion on the first Sunday of the month, and we usually take a few minutes to hear what is happening in the church family, in our local community, and with the people we support overseas.": "약 1시간 15분 동안 전통 찬송과 현대 찬양, 기도, 그리고 성경 말씀으로 드립니다. 매월 첫째 주일에는 성찬을 나누며, 교회 공동체와 지역사회, 그리고 저희가 후원하는 해외 사역자들의 소식도 잠시 나눕니다.",
@@ -143,5 +141,6 @@
   "Am I expected to give money?": "헌금을 해야 하나요?",
   "No. Giving is something our church family does, not something visitors are asked to do. Nobody will pass anything to you.": "아닙니다. 헌금은 교회 성도들이 드리는 것이며 방문하신 분께 요청하지 않습니다. 무엇도 건네지 않습니다.",
   "Get directions": "오시는 길",
-  "Ask us a question": "문의하기"
+  "Ask us a question": "문의하기",
+  "On-site car park, with a wheelchair-accessible park and entrance": "교회 주차장이 있으며, 장애인 주차구역과 무장애 출입구가 마련되어 있습니다"
 }
