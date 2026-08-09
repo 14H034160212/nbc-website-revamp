@@ -16,7 +16,14 @@
 
 ## 目录
 
+在线预览：**https://nbc-website-revamp.pages.dev/**
+
 ```
+index.html                     预览站落地页（不用于 WordPress）
+bible.html                     在线圣经的独立演示页  ← build-site.py 生成
+preview.html                   全部粘贴区块的渲染预览  ← build-site.py 生成
+build-site.py                  从下面的片段生成上面两个独立页面
+
 nbc-bible-reader.html          在线圣经，22 KB，粘进「自定义 HTML」区块即可
 nbc-proposal.html              提案文档（已发布为在线页面）
 
@@ -36,6 +43,12 @@ pages/                         每个文件 = 一个「自定义 HTML」区块�
 content/
   alt-text.md                  首页 15 张缺 alt 图片的替代文本，逐张写好
 ```
+
+> `pages/` 里的文件和 `nbc-bible-reader.html` 是**片段**——它们是给 WordPress
+> 「自定义 HTML」区块用的，本身没有 `<!doctype>`、`<head>`、viewport。
+> 浏览器直接打开也能渲染，但会进入 quirks mode 且手机不缩放，所以预览站上的
+> `bible.html` / `preview.html` 由 `build-site.py` 包一层真正的文档结构。
+> 改了片段之后重新跑一次 `python3 build-site.py` 即可。
 
 ---
 

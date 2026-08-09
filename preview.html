@@ -1,0 +1,1473 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paste-in blocks — preview</title>
+<meta name="description" content="Every Custom HTML block in the package, rendered with the child theme stylesheet.">
+<meta name="robots" content="index, follow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>🧩</text></svg>">
+<style>
+/* This demo has no Google Fonts link, so the theme's Fjalla One and
+   Crimson Text fall back to system faces. On the real site those webfonts
+   are already loaded by the parent theme. */
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: #fff; color: #5c5d69;
+       font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
+                    'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+.demo-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 11px clamp(16px, 4vw, 34px);
+  background: #22242d; color: #c3c8d6;
+  font-size: 13px; line-height: 1.4;
+}
+.demo-bar a { color: #8fbde0; }
+.demo-bar strong { color: #fff; font-weight: 600; }
+.demo-bar span { margin-left: auto; opacity: .7; }
+.demo-wrap { padding: clamp(24px, 5vw, 52px) clamp(16px, 4vw, 34px) 80px; }
+</style>
+<style>
+/*
+Theme Name: My Religion Child
+Theme URI: http://cmsmasters.net/my-religion-child/
+Author: cmsmasters
+Author URI: http://cmsmasters.net/
+Description: My Religion Child Theme
+Template: my-religion
+Version: 1.1.0
+License:
+License URI:
+Text Domain: my-religion-child
+Tags: one-column, two-columns, three-columns, four-columns, left-sidebar, right-sidebar, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-image-header, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready
+*/
+
+/* ============================================================================
+   NBC customisations.  Everything below this line was added on top of the
+   stock (empty) child theme.  Nothing here modifies the parent theme, so
+   `my-religion` can still be updated safely.
+
+   The parent theme's palette is reused as-is:
+     #d14f42  primary (brick red)      #98433a  primary hover
+     #216ea3  secondary (slate blue)   #3b3d4a  headings
+     #71727f  body text                #e4e4e4  rules
+
+   Order of sections:
+     1  Tokens
+     2  Readability            typography, measure, contrast
+     3  Accessibility          focus, skip link
+     4  Language switcher      header, works with or without Polylang
+     5  Mobile action bar      Sunday / map / give
+     6  First-visit hero       static replacement for the slider
+     7  Pasted content blocks  vision-mission-values, creed, principles
+   ========================================================================= */
+
+:root {
+	--nbc-red: #d14f42;
+	--nbc-red-dk: #98433a;
+	--nbc-blue: #216ea3;
+	--nbc-ink: #3b3d4a;
+	--nbc-body: #5c5d69;   /* was #71727f: 4.4:1 on white, below AA for small text */
+	--nbc-line: #e4e4e4;
+	--nbc-bar-h: 58px;     /* mobile action bar height */
+}
+
+
+/* ---------------------------------------------------------------------------
+   2  READABILITY
+   The congregation is intergenerational; the stock Crimson Text setting is
+   small and the measure runs the full column width. These three numbers —
+   size, leading, measure — do more for legibility than anything else here.
+------------------------------------------------------------------------- */
+
+.entry-content,
+.cmsmasters_text,
+.cmsmasters_featured_block .featured_block_text {
+	font-size: 18px;
+	line-height: 1.75;
+	color: var(--nbc-body);
+}
+
+/* Cap the line length. Anything past ~70 characters is measurably harder to
+   read, and full-width rows on a 1600px monitor run to 140+. */
+.entry-content > p,
+.entry-content > ul,
+.entry-content > ol,
+.entry-content > blockquote,
+.cmsmasters_text > p {
+	max-width: 68ch;
+}
+
+/* Centred rows keep their centring when the measure is capped. */
+.cmsmasters_heading_align_center + .cmsmasters_text > p,
+.aligncenter .cmsmasters_text > p {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.entry-content p { margin-bottom: 1.15em; }
+
+.entry-content h2,
+.entry-content h3,
+.entry-content h4 {
+	color: var(--nbc-ink);
+	text-wrap: balance;
+}
+
+/* Give headings room above and keep them tight to the text they introduce. */
+.entry-content h2 { margin-top: 2em; margin-bottom: .55em; }
+.entry-content h3 { margin-top: 1.7em; margin-bottom: .5em; }
+
+.entry-content a {
+	color: var(--nbc-blue);
+	text-decoration: underline;
+	text-underline-offset: .16em;
+	text-decoration-thickness: 1px;
+}
+.entry-content a:hover { color: var(--nbc-red-dk); }
+
+/* Long words (URLs, Māori and Korean compounds) must not overflow on mobile. */
+.entry-content { overflow-wrap: break-word; }
+
+/* Tables and embeds scroll inside themselves rather than pushing the page. */
+.entry-content table,
+.entry-content pre { display: block; max-width: 100%; overflow-x: auto; }
+
+
+/* ---------------------------------------------------------------------------
+   3  ACCESSIBILITY
+------------------------------------------------------------------------- */
+
+/* The parent theme removes focus outlines in several places. Put one back —
+   this is what keyboard and screen-reader users navigate by. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+	outline: 3px solid var(--nbc-blue);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* Skip link — rendered by functions.php, hidden until focused. */
+.nbc-skip {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100000;
+	padding: 12px 20px;
+	background: var(--nbc-ink);
+	color: #fff;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 15px;
+	text-decoration: none;
+}
+.nbc-skip:focus {
+	left: 12px;
+	top: 12px;
+}
+
+/* Decorative images added by the theme should not announce themselves. */
+.nbc-decorative { pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: .001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: .001ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+
+/* ---------------------------------------------------------------------------
+   4  LANGUAGE SWITCHER
+   Sits in the header, on the same line as GIVE. Labels are written in each
+   language's own script — the people who need to switch are exactly the
+   people who cannot read the English label. No flags: a flag is a country,
+   not a language, and Auckland's Chinese community comes from several.
+------------------------------------------------------------------------- */
+
+/* The strip the switcher sits in when it is not inside a nav menu. */
+.nbc-langbar {
+	background: #f7f7f9;
+	border-bottom: 1px solid var(--nbc-line);
+}
+.nbc-langbar__inner {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 20px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.nbc-lang {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+
+/* When placed inside the theme's nav menu instead of its own strip. */
+.nbc-lang-menu-item { display: flex; align-items: center; }
+.nbc-lang-menu-item .nbc-lang { padding: 0 0 0 14px; }
+
+.nbc-lang__item { display: block; }
+
+.nbc-lang__link {
+	display: block;
+	padding: 5px 10px;
+	font-size: 14px;
+	line-height: 1.2;
+	color: var(--nbc-ink);
+	text-decoration: none;
+	border-radius: 3px;
+	white-space: nowrap;
+}
+.nbc-lang__link:hover { background: #f2f2f4; color: var(--nbc-red); }
+
+.nbc-lang__item.is-current .nbc-lang__link {
+	color: var(--nbc-red);
+	font-weight: 600;
+	box-shadow: inset 0 -2px 0 var(--nbc-red);
+	border-radius: 0;
+}
+
+/* Separator between languages, but not before the first one. */
+.nbc-lang__item + .nbc-lang__item { border-left: 1px solid var(--nbc-line); }
+
+@media (max-width: 1024px) {
+	/* Full width with bigger tap targets. 44px is the minimum comfortable
+	   touch target. */
+	.nbc-langbar__inner { justify-content: stretch; padding: 0; }
+	.nbc-lang {
+		flex-wrap: wrap;
+		gap: 6px;
+		width: 100%;
+		padding: 10px 14px;
+	}
+	.nbc-lang__item { flex: 1 1 auto; border-left: 0 !important; }
+	.nbc-lang__link {
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid var(--nbc-line);
+		font-size: 15px;
+	}
+}
+
+
+/* ---------------------------------------------------------------------------
+   5  MOBILE ACTION BAR
+   Three things a phone visitor actually wants: when is the service, how do
+   I get there, how do I give. Fixed to the bottom, mobile only.
+------------------------------------------------------------------------- */
+
+.nbc-actionbar {
+	display: none;
+}
+
+@media (max-width: 767px) {
+	.nbc-actionbar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 9990;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		background: #fff;
+		border-top: 1px solid var(--nbc-line);
+		box-shadow: 0 -2px 14px rgba(59, 61, 74, .10);
+		padding-bottom: env(safe-area-inset-bottom, 0);
+	}
+
+	.nbc-actionbar__link {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 3px;
+		min-height: var(--nbc-bar-h);
+		padding: 7px 4px;
+		font-family: 'Source Sans Pro', Arial, sans-serif;
+		font-size: 12px;
+		line-height: 1.25;
+		text-align: center;
+		color: var(--nbc-ink);
+		text-decoration: none;
+	}
+	.nbc-actionbar__link + .nbc-actionbar__link { border-left: 1px solid var(--nbc-line); }
+	.nbc-actionbar__link:active { background: #faf3f2; }
+
+	.nbc-actionbar__link svg {
+		width: 19px;
+		height: 19px;
+		fill: none;
+		stroke: var(--nbc-red);
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	/* The bar covers the last ~58px of the page; give the footer room so
+	   nothing is permanently hidden behind it. */
+	body.nbc-has-actionbar #footer,
+	body.nbc-has-actionbar .footer_wrap {
+		padding-bottom: calc(var(--nbc-bar-h) + env(safe-area-inset-bottom, 0px));
+	}
+}
+
+
+/* ---------------------------------------------------------------------------
+   6  FIRST-VISIT HERO
+   A static replacement for the LayerSlider carousel. A first-time visitor
+   needs four facts — when, where, what about the kids, what do I wear —
+   and a carousel rotates them out of view before they are read.
+------------------------------------------------------------------------- */
+
+.nbc-hero {
+	position: relative;
+	display: flex;
+	align-items: flex-end;
+	min-height: clamp(340px, 52vh, 560px);
+	padding: clamp(28px, 5vw, 66px);
+	background: var(--nbc-ink) center/cover no-repeat;
+	color: #fff;
+	overflow: hidden;
+}
+.nbc-hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(30, 32, 40, .12) 0%, rgba(30, 32, 40, .78) 100%);
+}
+.nbc-hero__inner { position: relative; z-index: 1; max-width: 34rem; }
+
+.nbc-hero__kicker {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: clamp(.78rem, 1.5vw, .9rem);
+	letter-spacing: .17em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, .88);
+	margin: 0 0 12px;
+}
+.nbc-hero h1 {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: clamp(1.9rem, 5vw, 3.1rem);
+	line-height: 1.1;
+	color: #fff;
+	margin: 0 0 14px;
+	text-wrap: balance;
+}
+.nbc-hero__sub {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: clamp(1rem, 2vw, 1.15rem);
+	line-height: 1.55;
+	color: rgba(255, 255, 255, .93);
+	margin: 0 0 24px;
+	max-width: 30rem;
+}
+.nbc-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.nbc-btn {
+	display: inline-flex;
+	align-items: center;
+	min-height: 46px;
+	padding: 0 24px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .95rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	text-decoration: none;
+	border-radius: 3px;
+	border: 1px solid transparent;
+	transition: background .15s, color .15s, border-color .15s;
+}
+/* Buttons are links, so they inherit the underline and blue from the
+   `.entry-content a` rule in section 2. These selectors are written with
+   matching specificity so the button styling wins wherever it is used —
+   inside post content or out of it. */
+a.nbc-btn,
+.entry-content a.nbc-btn { text-decoration: none; }
+
+a.nbc-btn--primary,
+.entry-content a.nbc-btn--primary { background: var(--nbc-red); color: #fff; }
+a.nbc-btn--primary:hover,
+.entry-content a.nbc-btn--primary:hover { background: var(--nbc-red-dk); color: #fff; }
+
+a.nbc-btn--ghost,
+.entry-content a.nbc-btn--ghost { border-color: rgba(255, 255, 255, .65); color: #fff; }
+a.nbc-btn--ghost:hover,
+.entry-content a.nbc-btn--ghost:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+
+a.nbc-btn--outline,
+.entry-content a.nbc-btn--outline { border-color: var(--nbc-red); color: var(--nbc-red); background: transparent; }
+a.nbc-btn--outline:hover,
+.entry-content a.nbc-btn--outline:hover { background: var(--nbc-red); color: #fff; }
+
+
+/* ---------------------------------------------------------------------------
+   7  PASTED CONTENT BLOCKS
+   Shared bits for the Custom HTML blocks in /pages/. Each of those files
+   ships with its own <style> so it works the moment it is pasted; once
+   you have checked them on staging, delete those blocks and keep only
+   what you have moved here.
+------------------------------------------------------------------------- */
+
+/* Fact rows used on the first-visit and welcome pages.
+   Dividers come from the cells' own borders rather than a grid gap over a
+   coloured background — with four cells in a three-column row, the gap
+   technique leaves the empty fourth cell showing as a grey block. */
+.nbc-facts {
+	display: grid;
+	gap: 0;
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	margin: 26px 0;
+	overflow: hidden;
+}
+@media (min-width: 620px) {
+	.nbc-facts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+}
+.nbc-fact {
+	background: #fff;
+	padding: 18px 20px;
+	border-top: 1px solid var(--nbc-line);
+	border-left: 1px solid var(--nbc-line);
+	margin: -1px 0 0 -1px;
+}
+.nbc-fact__label {
+	display: block;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .72rem;
+	letter-spacing: .13em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	margin-bottom: 6px;
+}
+.nbc-fact__value {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 1.02rem;
+	line-height: 1.45;
+	color: var(--nbc-ink);
+	margin: 0;
+}
+
+/* Question-and-answer list, used on the first-visit and welcome pages. */
+.nbc-qa { margin: 26px 0; }
+.nbc-qa__q {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-weight: 700;
+	font-size: 1.05rem;
+	color: var(--nbc-ink);
+	margin: 22px 0 6px;
+}
+.nbc-qa__a { margin: 0; max-width: 68ch; }
+
+/* Copy-to-clipboard row for bank details on the giving page. */
+.nbc-copy {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 16px;
+	background: #f7f7f9;
+	border: 1px solid var(--nbc-line);
+	border-radius: 3px;
+	margin: 14px 0;
+}
+.nbc-copy__value {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 1.05rem;
+	letter-spacing: .02em;
+	color: var(--nbc-ink);
+	font-variant-numeric: tabular-nums;
+}
+.nbc-copy__btn {
+	margin-left: auto;
+	min-height: 38px;
+	padding: 0 16px;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .88rem;
+	color: #fff;
+	background: var(--nbc-blue);
+	border: 0;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.nbc-copy__btn:hover { background: #1a577f; }
+
+</style>
+<style>
+.blk-head{position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;padding:10px clamp(16px,4vw,34px);background:#eff1f5;border-top:1px solid #dce0e8;border-bottom:1px solid #dce0e8}
+.blk-head code{font:12px/1.4 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#22242d;background:#fff;border:1px solid #dce0e8;border-radius:3px;padding:2px 7px}
+.blk-head em{font-style:normal;font-size:13px;color:#6b7186}
+.blk-body{padding:clamp(22px,4vw,44px) clamp(16px,4vw,34px) clamp(34px,5vw,60px)}
+</style>
+
+</head>
+<body>
+<p class="demo-bar">
+  <strong>Block previews</strong>
+  <a href="./">← Back to the package</a>
+  <a href="https://github.com/14H034160212/nbc-website-revamp">Source on GitHub</a>
+  <span>Rendered with my-religion-child/style.css applied</span>
+</p>
+
+<div class="blk-head"><code>pages/vision-mission-values.html</code><em>Replaces NBC_vision-mission-values.jpg and two more — the text is now real text</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     Vision / Mission / Values  —  real HTML, not a JPEG
+     ------------------------------------------------------------
+     REPLACES: NBC_vision-mission-values.jpg, NBC_vision.jpg, NBC_values.jpg
+     Text transcribed verbatim from those images.
+
+     WHY THIS MATTERS
+       The current version is a picture. That means: translation
+       plugins cannot see it, Google cannot index it, screen readers
+       read nothing, and it cannot be selected or copied. This block
+       is identical to look at but is real text.
+
+     HOW TO USE
+       Edit the page -> replace the image block with a
+       "Custom HTML" block -> paste this in.
+       Keep the photo as a CSS background (set below), or delete the
+       background rules to use the theme's own section background.
+     ============================================================ -->
+
+<section class="nbc-vmv" aria-labelledby="nbc-vmv-title">
+  <h2 id="nbc-vmv-title" class="nbc-vmv__title">Vision, Mission &amp; Values</h2>
+
+  <div class="nbc-vmv__grid">
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Vision</h3>
+      <p class="nbc-vmv__lead">
+        We are a community of faith that loves God,<br>
+        is united in Christ, makes disciples<br>
+        and serves boldly
+      </p>
+    </div>
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Mission</h3>
+      <p class="nbc-vmv__lead">
+        To make disciples of Jesus<br>
+        from every generation and culture,<br>
+        growing in Him and serving our world
+      </p>
+    </div>
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Values</h3>
+      <dl class="nbc-vmv__values">
+        <div><dt>Love</dt><dd lang="mi">Aroha</dd></div>
+        <div><dt>Connect</dt><dd lang="mi">Whanaungatanga</dd></div>
+        <div><dt>Serve</dt><dd lang="mi">Manaakitanga</dd></div>
+        <div><dt>Truth</dt><dd lang="mi">Pono</dd></div>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* Move these rules into my-religion-child/style.css once you are happy
+   with them, and delete this <style> block. They live here so the
+   snippet works the moment you paste it. */
+.nbc-vmv{
+  --nbc-red:#d14f42;
+  position:relative;
+  padding:clamp(38px,6vw,64px) clamp(20px,4vw,52px);
+  /* NOT the original NBC_vision-mission-values.jpg — that file already has
+     the vision, mission and values printed onto it, so using it here would
+     show every line twice. Two ways to bring the photo back:
+       a) crop the text off the existing photo and use the clean half, or
+       b) ask the photographer for the plain building shot.
+     Then swap the gradient below for:
+       background:#2b5f96 url('.../clean-photo.jpg') center/cover no-repeat;
+     and keep the ::before overlay so the text stays legible. */
+  background:linear-gradient(135deg,#2f7fd1 0%,#2464a8 55%,#1d5089 100%);
+  color:#fff;
+  overflow:hidden;
+}
+/* Overlay for when a photo is used. Harmless over the flat gradient. */
+.nbc-vmv::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(20,60,110,.32) 0%,rgba(20,60,110,.10) 60%,transparent 100%);
+}
+.nbc-vmv > *{position:relative}
+
+.nbc-vmv .nbc-vmv__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.4rem,2.6vw,1.9rem);letter-spacing:.02em;
+  color:#fff;margin:0 0 clamp(24px,3vw,36px);
+}
+.nbc-vmv__grid{display:grid;gap:clamp(24px,3vw,34px)}
+.nbc-vmv .nbc-vmv__label{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:.86rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);margin:0 0 8px;
+}
+.nbc-vmv .nbc-vmv__lead{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:clamp(1.18rem,2.4vw,1.75rem);line-height:1.32;
+  color:#fff;margin:0;text-wrap:balance;
+}
+.nbc-vmv__values{margin:0;display:grid;gap:6px}
+.nbc-vmv__values > div{display:flex;align-items:baseline;gap:.55em;flex-wrap:wrap}
+.nbc-vmv__values dt{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:700;
+  font-size:clamp(1.18rem,2.4vw,1.7rem);color:#fff;
+}
+.nbc-vmv__values dt::after{content:" |";font-weight:400;opacity:.55}
+.nbc-vmv__values dd{
+  margin:0;font-family:'Source Sans Pro',Arial,sans-serif;font-weight:300;
+  font-size:clamp(1.12rem,2.2vw,1.6rem);color:rgba(255,255,255,.95);
+}
+@media (min-width:900px){
+  .nbc-vmv__grid{grid-template-columns:1fr 1fr;gap:34px 56px}
+  /* Values sits under Mission in the right-hand column; Vision leads. */
+  .nbc-vmv__item:first-child{grid-column:1 / -1}
+}
+</style>
+
+</div>
+
+<div class="blk-head"><code>pages/creed.html</code><em>Replaces Creed.jpg — a 2 KB inline SVG instead of a 39 KB photograph</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     CREED for Mission Effectiveness  —  real HTML + inline SVG
+     ------------------------------------------------------------
+     REPLACES: Creed.jpg
+     The five words are transcribed verbatim from that image.
+
+     The wheel is now inline SVG instead of a photograph, so it stays
+     sharp on retina screens, weighs ~2 KB instead of 39 KB, and the
+     five labels sit beside it as real text that can be translated,
+     searched and read aloud.
+
+     PASTE INTO: a "Custom HTML" block on /what-we-believe/ (or
+     wherever Creed.jpg currently sits).
+     ============================================================ -->
+
+<section class="nbc-creed" aria-labelledby="nbc-creed-title">
+
+  <h2 id="nbc-creed-title" class="nbc-creed__title">CREED for Mission Effectiveness</h2>
+
+  <div class="nbc-creed__layout">
+
+    <svg class="nbc-creed__wheel" viewBox="0 0 300 300" role="img"
+         aria-label="A five-part wheel around a cross: Contact, Relate, Educate, Evangelise, Disciple.">
+      <g>
+        <circle cx="150" cy="150" r="139" fill="#f2f2f4"/>
+        <path d="M150.0 18.0 A132 132 0 0 1 275.5 109.2 L195.7 135.2 A48 48 0 0 0 150.0 102.0 Z" fill="#9C2C8E"/>
+        <path d="M275.5 109.2 A132 132 0 0 1 227.6 256.8 L178.2 188.8 A48 48 0 0 0 195.7 135.2 Z" fill="#4B4CAE"/>
+        <path d="M227.6 256.8 A132 132 0 0 1 72.4 256.8 L121.8 188.8 A48 48 0 0 0 178.2 188.8 Z" fill="#6DB52E"/>
+        <path d="M72.4 256.8 A132 132 0 0 1 24.5 109.2 L104.3 135.2 A48 48 0 0 0 121.8 188.8 Z" fill="#EF8A1C"/>
+        <path d="M24.5 109.2 A132 132 0 0 1 150.0 18.0 L150.0 102.0 A48 48 0 0 0 104.3 135.2 Z" fill="#DF272C"/>
+
+        <circle cx="150" cy="150" r="44" fill="#fff"/>
+        <path d="M144 122h12v20h18v12h-18v34h-12v-34h-18v-12h18z" fill="#c9ccd4"/>
+
+        <circle cx="227.6" cy="43.2" r="17" fill="#fff"/>
+        <text x="227.6" y="43.2" fill="#9C2C8E" class="nbc-creed__letter">C</text>
+        <circle cx="275.5" cy="190.8" r="17" fill="#fff"/>
+        <text x="275.5" y="190.8" fill="#4B4CAE" class="nbc-creed__letter">R</text>
+        <circle cx="150.0" cy="282.0" r="17" fill="#fff"/>
+        <text x="150.0" y="282.0" fill="#6DB52E" class="nbc-creed__letter">E</text>
+        <circle cx="24.5" cy="190.8" r="17" fill="#fff"/>
+        <text x="24.5" y="190.8" fill="#EF8A1C" class="nbc-creed__letter">E</text>
+        <circle cx="72.4" cy="43.2" r="17" fill="#fff"/>
+        <text x="72.4" y="43.2" fill="#DF272C" class="nbc-creed__letter">D</text>
+      </g>
+    </svg>
+
+    <ol class="nbc-creed__list">
+      <li style="--c:#9C2C8E"><b>C</b><span>Contact</span></li>
+      <li style="--c:#4B4CAE"><b>R</b><span>Relate</span></li>
+      <li style="--c:#6DB52E"><b>E</b><span>Educate</span></li>
+      <li style="--c:#EF8A1C"><b>E</b><span>Evangelise</span></li>
+      <li style="--c:#DF272C"><b>D</b><span>Disciple</span></li>
+    </ol>
+
+  </div>
+</section>
+
+<style>
+/* Move into my-religion-child/style.css when you are happy with it. */
+.nbc-creed{
+  background:#3a1113;
+  color:#fff;
+  padding:clamp(30px,5vw,54px) clamp(20px,4vw,48px);
+}
+.nbc-creed .nbc-creed__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.25rem,2.4vw,1.7rem);letter-spacing:.03em;
+  color:#fff;margin:0 0 clamp(22px,3vw,34px);text-align:center;
+}
+.nbc-creed__layout{
+  display:flex;flex-wrap:wrap;gap:clamp(26px,5vw,58px);
+  align-items:center;justify-content:center;
+}
+.nbc-creed__wheel{width:min(300px,72vw);height:auto;flex:0 0 auto}
+.nbc-creed__letter{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:19px;
+  text-anchor:middle;dominant-baseline:central;
+}
+.nbc-creed__list{
+  list-style:none;margin:0;padding:0;
+  display:grid;gap:11px;flex:0 1 260px;
+}
+.nbc-creed__list li{display:flex;align-items:center;gap:14px}
+.nbc-creed .nbc-creed__list b{
+  flex:0 0 34px;height:34px;border-radius:50%;
+  background:var(--c);color:#fff;
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;font-size:1.05rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.nbc-creed .nbc-creed__list span{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:1.12rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;
+}
+@media (max-width:560px){
+  .nbc-creed__layout{flex-direction:column}
+  .nbc-creed__list{flex:1 1 auto;width:min(260px,80vw)}
+}
+</style>
+
+</div>
+
+<div class="blk-head"><code>pages/strategic-principles.html</code><em>Replaces NBC-Strategic-Principles.jpg — all six principles as real text</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     Strategic Principles  —  real HTML, not a JPEG
+     ------------------------------------------------------------
+     REPLACES: NBC-Strategic-Principles.jpg
+     All six principles transcribed verbatim from that image.
+     (The original is set in all-caps; here the text is sentence-case
+     in the markup and uppercased with CSS, so screen readers and
+     translation tools get readable words rather than shouted ones.)
+
+     PASTE INTO: a "Custom HTML" block wherever the JPEG sits today.
+     ============================================================ -->
+
+<section class="nbc-principles" aria-labelledby="nbc-principles-title">
+  <h2 id="nbc-principles-title" class="nbc-principles__title">Strategic Principles</h2>
+
+  <dl class="nbc-principles__list">
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Prayerful dependence:</span> everything begins with prayer</dt>
+      <dd>Recognises that our church&rsquo;s life and fruitfulness depend on God, not just planning</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Discipleship first:</span> prioritize spiritual growth and life-on-life discipling</dt>
+      <dd>Puts disciple-making at the centre of every ministry, not as an add-on</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Intergenerational connection:</span> build bridges between generations and cultures</dt>
+      <dd>Ensures we intentionally create a church that values and learns from diversity in age and culture</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Mission outward:</span> engage meaningfully with our local and global community</dt>
+      <dd>A posture of reaching beyond the church walls, not just caring for those inside</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Stewardship:</span> use our people, property, and resources for kingdom purposes</dt>
+      <dd>Encourages wise use of what God has entrusted to our church</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Truth shaped:</span> grounded in God&rsquo;s Word and led by His Spirit in all we do</dt>
+      <dd>Anchors all we do in Scripture and in the guidance of the Holy Spirit</dd>
+    </div>
+
+  </dl>
+</section>
+
+<style>
+/* Move into my-religion-child/style.css when you are happy with it. */
+.nbc-principles{
+  background:#f7d64a;
+  color:#2b2a22;
+  padding:clamp(32px,5vw,58px) clamp(20px,4vw,52px);
+}
+.nbc-principles .nbc-principles__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:.04em;text-transform:uppercase;
+  color:#2b2a22;text-align:center;margin:0 0 clamp(24px,3vw,38px);
+}
+.nbc-principles__list{
+  margin:0 auto;max-width:60rem;
+  display:grid;gap:clamp(18px,2.4vw,28px);
+}
+.nbc-principles__item{text-align:center}
+.nbc-principles .nbc-principles__item dt{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:clamp(.98rem,1.9vw,1.18rem);line-height:1.35;
+  letter-spacing:.03em;text-transform:uppercase;color:#2b2a22;
+  text-wrap:balance;margin:0 0 5px;
+}
+.nbc-principles__key{font-weight:800}
+.nbc-principles .nbc-principles__item dd{
+  margin:0;font-family:'Source Sans Pro',Arial,sans-serif;font-weight:400;
+  font-size:clamp(.86rem,1.6vw,1rem);line-height:1.45;
+  letter-spacing:.03em;text-transform:uppercase;color:#4a4736;
+  text-wrap:balance;
+}
+/* Two columns once there is room; the list is a set, not a sequence,
+   so reading order across columns does not matter. */
+@media (min-width:920px){
+  .nbc-principles__list{grid-template-columns:1fr 1fr;gap:30px 46px}
+}
+</style>
+
+</div>
+
+<div class="blk-head"><code>pages/first-visit.html</code><em>New page. The one a first-time visitor looks for and the site does not have</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     Planning your first visit  (English)
+     ------------------------------------------------------------
+     NEW PAGE — suggested slug: /first-visit/
+     This is the page a first-time visitor looks for and the site does
+     not currently have. It is also the page that should be translated
+     first, before anything else.
+
+     All facts below were taken from nbc.org.nz/services/ and
+     nbc.org.nz/ministries/kids/ — nothing is invented. Items wrapped
+     in {{ }} could not be found anywhere on the site and need someone
+     at the church to fill them in.
+
+     PASTE INTO: a "Custom HTML" block on the new page.
+     ============================================================ -->
+
+<div class="nbc-visit">
+
+  <p class="nbc-visit__kicker">First time?</p>
+  <h2 class="nbc-visit__title">Everything you need to know before Sunday</h2>
+  <p class="nbc-visit__lead">
+    You do not need to know anyone, believe anything in particular, or dress a
+    certain way. Come as you are, sit wherever you like, and stay for a cup of
+    tea afterwards if you feel like it.
+  </p>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">When</span>
+      <p class="nbc-fact__value">Sundays, 10:00am<br>Finishes around 11:15am</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Where</span>
+      <!-- {{STREET_ADDRESS}} — the street address is not published anywhere
+           on the current site. Please add it here and in functions.php. -->
+      <p class="nbc-fact__value">{{STREET_ADDRESS}}<br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Parking</span>
+      <!-- {{PARKING}} — e.g. "On-site car park, plus street parking on ___" -->
+      <p class="nbc-fact__value">{{PARKING}}</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Questions</span>
+      <p class="nbc-fact__value">
+        <a href="tel:+6494807064">(09) 480 7064</a><br>
+        <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+
+    <h3 class="nbc-qa__q">What actually happens?</h3>
+    <p class="nbc-qa__a">
+      About an hour and a quarter: a mix of traditional and contemporary worship
+      songs, prayer, and a message from the Bible. We share communion on the first
+      Sunday of the month, and we usually take a few minutes to hear what is
+      happening in the church family, in our local community, and with the people
+      we support overseas.
+    </p>
+
+    <h3 class="nbc-qa__q">What do I wear?</h3>
+    <p class="nbc-qa__a">
+      Whatever you are comfortable in. You will see everything from jeans to a
+      jacket, and nobody will notice which one you picked.
+    </p>
+
+    <h3 class="nbc-qa__q">What happens with my children?</h3>
+    <p class="nbc-qa__a">
+      Children start the service with the adults and then head out to their own
+      programmes, which run during school term time from pre-school up to Year 9.
+      Kids Rock (school years 1&ndash;6) finishes around 11:15am. During school
+      holidays and long weekends we have activity packs instead, so children stay
+      in with you.
+    </p>
+
+    <h3 class="nbc-qa__q">I have a baby. Is that a problem?</h3>
+    <p class="nbc-qa__a">
+      Not at all &mdash; babies are welcome in the service. There is also a
+      dedicated Mum and Baby space with a kitchenette and a live video feed, so
+      you can step out without missing anything.
+    </p>
+
+    <h3 class="nbc-qa__q">Will someone talk to me?</h3>
+    <p class="nbc-qa__a">
+      Yes, but only as much as you want. Morning tea runs after the service and
+      we would love to meet you. If you would rather slip away quietly, that is
+      completely fine too.
+    </p>
+
+    <h3 class="nbc-qa__q">English is not my first language.</h3>
+    <p class="nbc-qa__a">
+      You are very welcome. We are a multicultural church and several languages
+      are spoken here on a Sunday.
+      <a href="/zh/">中文</a> &middot;
+      <a href="/ko/">한국어</a> &middot;
+      <a href="/mi/">Te Reo Māori</a>.
+      We also run <a href="/kays-english-class/">Kay&rsquo;s English Class</a>
+      during the week, and our
+      <a href="/bible/">online Bible</a> can show two languages side by side.
+    </p>
+
+    <h3 class="nbc-qa__q">Am I expected to give money?</h3>
+    <p class="nbc-qa__a">
+      No. Giving is something our church family does, not something visitors are
+      asked to do. Nobody will pass anything to you.
+    </p>
+
+  </div>
+
+  <p class="nbc-visit__cta">
+    <a class="nbc-btn nbc-btn--primary" href="{{MAP_URL}}">Get directions</a>
+    <a class="nbc-btn nbc-btn--outline" href="/contact/">Ask us a question</a>
+  </p>
+
+</div>
+
+<style>
+/* Move into my-religion-child/style.css once you are happy with it.
+   .nbc-facts, .nbc-fact, .nbc-qa and .nbc-btn already live there. */
+.nbc-visit{max-width:70ch;margin:0 auto}
+.nbc-visit .nbc-visit__kicker{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.76rem;
+  letter-spacing:.16em;text-transform:uppercase;color:#d14f42;margin:0 0 10px;
+}
+.nbc-visit .nbc-visit__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.6rem,3.6vw,2.3rem);line-height:1.16;
+  color:#3b3d4a;margin:0 0 14px;text-wrap:balance;
+}
+.nbc-visit .nbc-visit__lead{
+  font-family:'Crimson Text',Georgia,serif;
+  font-size:1.22rem;line-height:1.65;color:#5c5d69;margin:0;
+}
+.nbc-visit__cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 0}
+/* .nbc-btn--outline now lives in my-religion-child/style.css, where it can
+   out-specify the theme's link styling. */
+</style>
+
+</div>
+
+<div class="blk-head"><code>pages/welcome-zh.html</code><em>New page at /zh/ — translated from the church's own service and kids pages</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     中文欢迎页  Chinese landing page
+     ------------------------------------------------------------
+     NEW PAGE — suggested slug: /zh/  (page title: 中文)
+     Set the page's language attribute to zh-Hans if using Polylang.
+
+     Everything here is translated from nbc.org.nz/services/,
+     /ministries/kids/ and /give-2/. Nothing is invented. Items in
+     {{ }} need someone at the church to fill in.
+
+     TRANSLATION NOTE
+       Simplified Chinese, written for mainland-Chinese and
+       Malaysian/Singaporean readers, who are the majority of Auckland's
+       Mandarin-speaking population. Church vocabulary follows 和合本
+       conventions (主日 / 聚会 / 团契 / 奉献). A Traditional-Chinese
+       version for Taiwanese and Hong Kong families is a straightforward
+       conversion — ask before publishing, the word choices differ
+       slightly (聚會 / 團契 / 奉獻 are the same, but 短信/簡訊 etc. are not).
+
+     PASTE INTO: a "Custom HTML" block on the new page.
+     ============================================================ -->
+
+<div class="nbc-welcome" lang="zh-Hans">
+
+  <p class="nbc-welcome__kicker">Northcote Baptist Church</p>
+  <h2 class="nbc-welcome__title">欢迎你来北岸浸信会</h2>
+  <p class="nbc-welcome__lead">
+    我们是一间位于奥克兰北岸 Hillcrest 的教会，会众来自不同年龄、不同国家。
+    第一次来不需要认识任何人，也不需要事先了解什么，穿平常的衣服来就好。
+  </p>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">主日聚会</span>
+      <p class="nbc-fact__value">每周日上午 10:00<br>约 11:15 结束</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">地址</span>
+      <!-- {{STREET_ADDRESS}} 现网站未公布街道地址，请补上 -->
+      <p class="nbc-fact__value">{{STREET_ADDRESS}}<br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">语言</span>
+      <p class="nbc-fact__value">聚会以英文进行<br>现场有会讲中文的弟兄姊妹</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">联系我们</span>
+      <p class="nbc-fact__value">
+        <a href="tel:+6494807064">(09) 480 7064</a><br>
+        <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+
+    <h3 class="nbc-qa__q">主日聚会是什么样的？</h3>
+    <p class="nbc-qa__a">
+      大约一个小时十五分钟：唱诗（传统诗歌与现代敬拜诗歌都有）、祷告、讲道。
+      每月第一个主日守圣餐。聚会中也会分享教会、社区以及海外宣教同工的近况。
+    </p>
+
+    <h3 class="nbc-qa__q">孩子怎么安排？</h3>
+    <p class="nbc-qa__a">
+      孩子先和大人一起参加聚会，之后到各自的儿童班。
+      学期期间开设从学龄前到 Year 9 的儿童与青少年课程；
+      Kids Rock（小学 1&ndash;6 年级）约在 11:15 结束。
+      学校放假和长周末期间不开课，我们会准备活动包，孩子留在聚会里和你一起。
+    </p>
+
+    <h3 class="nbc-qa__q">带着婴儿方便吗？</h3>
+    <p class="nbc-qa__a">
+      完全没问题，婴儿可以留在聚会中。教会另设有母婴室，内有小厨房和聚会实时视频，
+      需要暂时离开时不会错过讲道。
+    </p>
+
+    <h3 class="nbc-qa__q">我的英文不好，能听懂吗？</h3>
+    <p class="nbc-qa__a">
+      聚会以英文进行。如果你希望有人陪同、或需要在聚会前后用中文交流，
+      请提前发邮件到 <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      并注明「中文」，我们会安排会讲中文的弟兄姊妹在门口接待你。
+      <br><br>
+      教会平日也开设
+      <a href="/kays-english-class/">Kay&rsquo;s English Class 英文班</a>，
+      面向社区免费开放，很多新移民家庭是从这里开始认识我们的。
+      我们的<a href="/bible/">在线圣经</a>支持中英对照阅读，
+      有和合本简体、繁体与新译本。
+    </p>
+
+    <h3 class="nbc-qa__q">聚会后有什么？</h3>
+    <p class="nbc-qa__a">
+      聚会结束后有茶点时间（morning tea），欢迎留下来聊聊。
+      如果你想安静地先离开，也完全没有问题，不会有人拦你。
+    </p>
+
+    <h3 class="nbc-qa__q">需要奉献吗？</h3>
+    <p class="nbc-qa__a">
+      不需要。奉献是教会家人的事，不会向来访的朋友提出，
+      聚会中也不会传递奉献袋。若你日后愿意参与，可参考
+      <a href="/give-2/">奉献页面</a>。
+    </p>
+
+    <h3 class="nbc-qa__q">除了主日，平时还有什么？</h3>
+    <p class="nbc-qa__a">
+      教会有多个<a href="/home-group/">家庭小组（Home Group）</a>在周间聚会，
+      在小组里更容易认识人。此外还有儿童、青少年、青年、社区服务与
+      Christians Against Poverty (CAP) 免费理财辅导等事工。
+    </p>
+
+  </div>
+
+  <p class="nbc-welcome__cta">
+    <a class="nbc-btn nbc-btn--primary" href="{{MAP_URL}}">查看地图与路线</a>
+    <a class="nbc-btn nbc-btn--outline" href="/contact/">写信给我们</a>
+  </p>
+
+  <p class="nbc-welcome__foot">
+    本页为中文摘要。网站其余部分目前仅有英文版本 &middot;
+    <a href="/">English site</a>
+  </p>
+
+</div>
+
+<style>
+/* Move into my-religion-child/style.css once you are happy with it.
+   Shared with welcome-ko.html and welcome-mi.html. */
+.nbc-welcome{max-width:70ch;margin:0 auto}
+.nbc-welcome .nbc-welcome__kicker{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.74rem;
+  letter-spacing:.16em;text-transform:uppercase;color:#d14f42;margin:0 0 10px;
+}
+.nbc-welcome .nbc-welcome__title{
+  font-weight:700;
+  font-size:clamp(1.6rem,3.6vw,2.25rem);line-height:1.24;
+  color:#3b3d4a;margin:0 0 14px;text-wrap:balance;
+}
+.nbc-welcome .nbc-welcome__lead{
+  font-size:1.12rem;line-height:1.85;color:#5c5d69;margin:0;
+}
+.nbc-welcome__cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 0}
+.nbc-welcome__foot{
+  margin:30px 0 0;padding-top:16px;border-top:1px solid #e4e4e4;
+  font-size:.88rem;color:#8b8b95;
+}
+/* CJK text needs a little more leading than the Latin default, and the
+   serif body face has no Chinese glyphs — use the system CJK stack. */
+.nbc-welcome[lang^="zh"],
+.nbc-welcome[lang^="ko"]{
+  font-family:'Source Sans Pro',-apple-system,'PingFang SC','Hiragino Sans GB',
+              'Noto Sans CJK SC','Microsoft YaHei','Apple SD Gothic Neo',
+              'Noto Sans CJK KR','Malgun Gothic',Arial,sans-serif;
+}
+.nbc-welcome[lang^="zh"] .nbc-qa__a,
+.nbc-welcome[lang^="ko"] .nbc-qa__a{line-height:1.9}
+/* .nbc-btn--outline now lives in my-religion-child/style.css, where it can
+   out-specify the theme's link styling. */
+</style>
+
+</div>
+
+<div class="blk-head"><code>pages/welcome-ko.html</code><em>New page at /ko/ — have a Korean speaker check the tone before publishing</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     한국어 환영 페이지  Korean landing page
+     ------------------------------------------------------------
+     NEW PAGE — suggested slug: /ko/  (page title: 한국어)
+
+     Content translated from nbc.org.nz/services/, /ministries/kids/
+     and /give-2/. Nothing is invented. Items in {{ }} need someone at
+     the church to fill in.
+
+     >>> PLEASE HAVE A KOREAN SPEAKER IN THE CONGREGATION READ THIS
+         BEFORE PUBLISHING. The facts are correct and the register is
+         intentionally polite-formal (합니다체), which is the norm for
+         Korean church communication — but a native speaker should
+         check the tone, and confirm the ministry names below read
+         naturally rather than as literal translations.
+
+     PASTE INTO: a "Custom HTML" block on the new page.
+     ============================================================ -->
+
+<div class="nbc-welcome" lang="ko">
+
+  <p class="nbc-welcome__kicker">Northcote Baptist Church</p>
+  <h2 class="nbc-welcome__title">노스코트 뱁티스트 교회에 오신 것을 환영합니다</h2>
+  <p class="nbc-welcome__lead">
+    저희는 오클랜드 노스쇼어 힐크레스트(Hillcrest)에 있는 교회이며,
+    여러 세대와 여러 나라에서 온 성도들이 함께 모입니다.
+    처음 오실 때 아는 사람이 없어도 괜찮고, 미리 준비하실 것도 없습니다.
+    평소 입으시는 옷 그대로 오시면 됩니다.
+  </p>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">주일예배</span>
+      <p class="nbc-fact__value">매주 일요일 오전 10시<br>약 11시 15분에 마칩니다</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">주소</span>
+      <!-- {{STREET_ADDRESS}} — not published on the current site -->
+      <p class="nbc-fact__value">{{STREET_ADDRESS}}<br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">언어</span>
+      <p class="nbc-fact__value">예배는 영어로 드립니다<br>한국어가 가능한 성도가 있습니다</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">문의</span>
+      <p class="nbc-fact__value">
+        <a href="tel:+6494807064">(09) 480 7064</a><br>
+        <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+
+    <h3 class="nbc-qa__q">예배는 어떻게 진행되나요?</h3>
+    <p class="nbc-qa__a">
+      약 1시간 15분 동안 찬양(전통 찬송가와 현대 찬양을 함께 부릅니다), 기도,
+      말씀으로 드립니다. 매월 첫째 주일에는 성찬을 나눕니다.
+      교회와 지역사회, 그리고 해외 선교사들의 소식도 함께 나눕니다.
+    </p>
+
+    <h3 class="nbc-qa__q">아이들은 어떻게 하나요?</h3>
+    <p class="nbc-qa__a">
+      아이들은 어른들과 함께 예배를 시작한 뒤 각 부서로 이동합니다.
+      학기 중에는 미취학 아동부터 Year 9까지 프로그램이 진행되며,
+      Kids Rock(초등 1&ndash;6학년)은 11시 15분경에 마칩니다.
+      방학과 연휴 기간에는 부서 모임 대신 활동 꾸러미를 준비하여
+      아이들이 부모님과 함께 예배에 참여합니다.
+    </p>
+
+    <h3 class="nbc-qa__q">아기와 함께 가도 될까요?</h3>
+    <p class="nbc-qa__a">
+      물론입니다. 아기와 함께 예배를 드리셔도 좋습니다.
+      간이 주방과 예배 실시간 영상이 갖춰진 수유·육아실이 따로 마련되어 있어,
+      잠시 나가시더라도 예배를 놓치지 않으실 수 있습니다.
+    </p>
+
+    <h3 class="nbc-qa__q">영어가 어려운데 괜찮을까요?</h3>
+    <p class="nbc-qa__a">
+      예배는 영어로 진행됩니다. 처음 오실 때 안내가 필요하시거나
+      예배 전후에 한국어로 이야기 나누고 싶으시면
+      <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> 로
+      &ldquo;Korean&rdquo; 이라고 적어 미리 연락해 주십시오.
+      한국어가 가능한 성도가 입구에서 맞이해 드리겠습니다.
+      <br><br>
+      주중에는 지역 주민을 위한 무료 영어 교실
+      <a href="/kays-english-class/">Kay&rsquo;s English Class</a> 도 운영하고 있습니다.
+      <a href="/bible/">온라인 성경</a>에서는 한국어와 영어를
+      나란히 놓고 읽으실 수 있습니다.
+    </p>
+
+    <h3 class="nbc-qa__q">예배가 끝난 뒤에는요?</h3>
+    <p class="nbc-qa__a">
+      예배 후에 차와 다과를 나누는 시간이 있습니다. 함께 남아 인사 나누시면 좋겠습니다.
+      조용히 돌아가기를 원하셔도 전혀 괜찮습니다.
+    </p>
+
+    <h3 class="nbc-qa__q">헌금을 해야 하나요?</h3>
+    <p class="nbc-qa__a">
+      아닙니다. 헌금은 교회 성도들이 드리는 것이며 방문하신 분께 요청하지 않습니다.
+      예배 중에 헌금 바구니를 돌리지도 않습니다.
+      나중에 함께하기를 원하시면 <a href="/give-2/">헌금 안내</a>를 참고하십시오.
+    </p>
+
+    <h3 class="nbc-qa__q">주일 외에 다른 모임도 있나요?</h3>
+    <p class="nbc-qa__a">
+      주중에 여러 <a href="/home-group/">가정 모임(Home Group)</a>이 있습니다.
+      작은 모임에서 서로를 알아가기가 더 쉽습니다.
+      그 밖에 어린이·청소년·청년 사역과 지역 봉사,
+      무료 재정 상담(Christians Against Poverty) 등을 함께 하고 있습니다.
+    </p>
+
+  </div>
+
+  <p class="nbc-welcome__cta">
+    <a class="nbc-btn nbc-btn--primary" href="{{MAP_URL}}">지도 및 오시는 길</a>
+    <a class="nbc-btn nbc-btn--outline" href="/contact/">문의하기</a>
+  </p>
+
+  <p class="nbc-welcome__foot">
+    이 페이지는 한국어 요약입니다. 나머지 페이지는 현재 영어로만 제공됩니다 &middot;
+    <a href="/">English site</a>
+  </p>
+
+</div>
+
+<style>
+/* Shared with welcome-zh.html — if you have already pasted that page and
+   moved its styles into style.css, delete this block. */
+.nbc-welcome{max-width:70ch;margin:0 auto}
+.nbc-welcome .nbc-welcome__kicker{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.74rem;
+  letter-spacing:.16em;text-transform:uppercase;color:#d14f42;margin:0 0 10px;
+}
+.nbc-welcome .nbc-welcome__title{
+  font-weight:700;
+  font-size:clamp(1.5rem,3.4vw,2.1rem);line-height:1.28;
+  color:#3b3d4a;margin:0 0 14px;text-wrap:balance;
+}
+.nbc-welcome .nbc-welcome__lead{font-size:1.1rem;line-height:1.85;color:#5c5d69;margin:0}
+.nbc-welcome__cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 0}
+.nbc-welcome__foot{
+  margin:30px 0 0;padding-top:16px;border-top:1px solid #e4e4e4;
+  font-size:.88rem;color:#8b8b95;
+}
+.nbc-welcome[lang^="ko"]{
+  font-family:'Source Sans Pro',-apple-system,'Apple SD Gothic Neo',
+              'Noto Sans CJK KR','Malgun Gothic',Arial,sans-serif;
+}
+.nbc-welcome[lang^="ko"] .nbc-qa__a{line-height:1.9}
+/* Korean does not break inside words the way English does; keep-all stops
+   mid-word wraps that look broken to a Korean reader. */
+.nbc-welcome[lang^="ko"]{word-break:keep-all}
+/* .nbc-btn--outline now lives in my-religion-child/style.css, where it can
+   out-specify the theme's link styling. */
+</style>
+
+</div>
+
+<div class="blk-head"><code>pages/welcome-mi.html</code><em>New page at /mi/ — deliberately bilingual; see the note inside the file</em></div>
+<div class="blk-body entry-content">
+<!-- ============================================================
+     Te Reo Māori landing page
+     ------------------------------------------------------------
+     NEW PAGE — suggested slug: /mi/  (page title: Te Reo Māori)
+
+     >>> READ THIS BEFORE PUBLISHING <<<
+
+     This page is deliberately BILINGUAL rather than fully translated.
+
+     Reason: te reo Māori is a taonga and an official language of
+     Aotearoa. Machine translation and non-speaker translation of te reo
+     is widely — and rightly — regarded as disrespectful, and errors in a
+     church's own words about faith would be worse than leaving the
+     English in place. So the headings and greetings below use only
+     phrases that are standard and safe, and the body copy stays in
+     English until a speaker translates it.
+
+     WHAT TO DO NEXT
+       1. Ask whether anyone in the congregation, or in a neighbouring
+          parish, speaks te reo and would translate the body copy.
+       2. Failing that, Te Taura Whiri i te reo Māori (the Māori
+          Language Commission) maintains a list of certified
+          translators: tetaurawhiri.govt.nz
+       3. Replace each {{TE REO}} marker as translations come back.
+          The page is useful and publishable in the meantime.
+
+     Note the church's four values are already in te reo on the current
+     site — Aroha, Whanaungatanga, Manaakitanga, Pono — so this page
+     continues something that has already begun rather than starting
+     something new.
+
+     PASTE INTO: a "Custom HTML" block on the new page.
+     ============================================================ -->
+
+<div class="nbc-welcome nbc-welcome--mi">
+
+  <p class="nbc-welcome__kicker">Northcote Baptist Church</p>
+  <h2 class="nbc-welcome__title" lang="mi">Nau mai, haere mai</h2>
+  <p class="nbc-welcome__lead">
+    Welcome to Northcote Baptist Church in Hillcrest, on Auckland&rsquo;s North
+    Shore. We are an intergenerational, multicultural church, and our values are
+    ones we already name in te reo: <b lang="mi">Aroha</b>,
+    <b lang="mi">Whanaungatanga</b>, <b lang="mi">Manaakitanga</b> and
+    <b lang="mi">Pono</b> &mdash; love, connection, service and truth.
+  </p>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label" lang="mi">Te wā &middot; When</span>
+      <p class="nbc-fact__value">Sundays, 10:00am<br>Finishes around 11:15am</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label" lang="mi">Kei hea &middot; Where</span>
+      <!-- {{STREET_ADDRESS}} — not published on the current site -->
+      <p class="nbc-fact__value">{{STREET_ADDRESS}}<br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label" lang="mi">Ngā tamariki &middot; Children</span>
+      <p class="nbc-fact__value">Programmes from pre-school to Year 9 during term time</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label" lang="mi">He pātai? &middot; Questions</span>
+      <p class="nbc-fact__value">
+        <a href="tel:+6494807064">(09) 480 7064</a><br>
+        <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+
+    <h3 class="nbc-qa__q" lang="mi">Te karakia o te Rātapu <span>&middot; Our Sunday service</span></h3>
+    <p class="nbc-qa__a">
+      <!-- {{TE REO}} -->
+      About an hour and a quarter: a mix of traditional and contemporary worship
+      songs, prayer, and a message from the Bible. Communion is shared on the
+      first Sunday of the month. Everyone is welcome, whoever you are and
+      wherever you are from.
+    </p>
+
+    <h3 class="nbc-qa__q" lang="mi">Ngā tamariki <span>&middot; Your children</span></h3>
+    <p class="nbc-qa__a">
+      <!-- {{TE REO}} -->
+      Children begin the service with the adults and then go out to their own
+      programmes, which run during school term time. There is a dedicated space
+      for parents with babies, with a kitchenette and a live video feed of the
+      service.
+    </p>
+
+    <h3 class="nbc-qa__q" lang="mi">Te Paipera Tapu <span>&middot; The Bible in te reo</span></h3>
+    <p class="nbc-qa__a">
+      Our <a href="/bible/">online Bible</a> includes Te Paipera Tapu, and can
+      show it beside an English translation, verse by verse. It is free to use
+      and needs no account.
+    </p>
+
+    <h3 class="nbc-qa__q" lang="mi">Whakapā mai <span>&middot; Get in touch</span></h3>
+    <p class="nbc-qa__a">
+      <!-- {{TE REO}} -->
+      If you would like someone to meet you at the door on your first Sunday,
+      email <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> and we will
+      arrange it.
+    </p>
+
+  </div>
+
+  <p class="nbc-welcome__cta">
+    <a class="nbc-btn nbc-btn--primary" href="{{MAP_URL}}">Get directions</a>
+    <a class="nbc-btn nbc-btn--outline" href="/contact/">Contact us</a>
+  </p>
+
+  <p class="nbc-welcome__note">
+    <b lang="mi">He kupu whakamārama</b> &middot; This page is part te reo Māori
+    and part English. We would rather publish a small amount of te reo well than
+    a large amount badly. If you speak te reo and would help us translate the
+    rest, we would love to hear from you &mdash;
+    <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>.
+  </p>
+
+  <p class="nbc-welcome__foot">
+    <a href="/">English site</a> &middot;
+    <a href="/zh/">中文</a> &middot;
+    <a href="/ko/">한국어</a>
+  </p>
+
+</div>
+
+<style>
+/* Shared with welcome-zh.html and welcome-ko.html — if you have already
+   moved those styles into style.css, keep only the --mi rules here. */
+.nbc-welcome{max-width:70ch;margin:0 auto}
+.nbc-welcome .nbc-welcome__kicker{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.74rem;
+  letter-spacing:.16em;text-transform:uppercase;color:#d14f42;margin:0 0 10px;
+}
+.nbc-welcome .nbc-welcome__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.7rem,3.8vw,2.4rem);line-height:1.16;
+  color:#3b3d4a;margin:0 0 14px;text-wrap:balance;
+}
+.nbc-welcome .nbc-welcome__lead{
+  font-family:'Crimson Text',Georgia,serif;
+  font-size:1.2rem;line-height:1.7;color:#5c5d69;margin:0;
+}
+.nbc-welcome__cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 0}
+.nbc-welcome__foot{
+  margin:22px 0 0;font-size:.88rem;color:#8b8b95;
+}
+.nbc-welcome__note{
+  margin:32px 0 0;padding:16px 20px;
+  border-left:2px solid #216ea3;background:#f7f8fa;
+  font-size:.92rem;line-height:1.65;color:#5c5d69;
+}
+/* Bilingual headings: te reo leads, the English gloss follows quietly. */
+.nbc-welcome--mi .nbc-qa__q span{
+  font-weight:400;color:#8b8b95;
+}
+/* .nbc-btn--outline now lives in my-religion-child/style.css, where it can
+   out-specify the theme's link styling. */
+</style>
+
+</div>
+
+</body>
+</html>

@@ -8,3 +8,7 @@ Thumbs.db
 # scratch
 *.log
 tmp/
+
+# stray local artefacts
+cp*/
+*.png

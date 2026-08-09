@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nbc.org.nz 改造包 — 多语言、UI 与在线圣经</title>
+<meta name="description" content="给一个 WordPress 教会网站的最小改动改造包：可直接粘贴的多语言在线圣经、子主题定制、以及替换图片文案的内容区块。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>⛪</text></svg>">
+
+<style>
+:root{
+  --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EFF1F5;
+  --ink:#22242D; --ink-2:#454A5C; --muted:#6B7186;
+  --rule:#DCE0E8; --rule-soft:#E8EBF0;
+  --accent:#B93F34; --accent-soft:#FBEFEE; --link:#1B6091;
+  --f-display:Georgia,'Iowan Old Style','Noto Serif CJK SC','Source Han Serif SC','Songti SC',serif;
+  --f-body:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#14161C; --surface:#1B1E26; --surface-2:#232732;
+    --ink:#E8EAF0; --ink-2:#C3C8D6; --muted:#949BB0;
+    --rule:#2E3341; --rule-soft:#262B36;
+    --accent:#E58376; --accent-soft:#2A1F1E; --link:#79B0DA;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#14161C; --surface:#1B1E26; --surface-2:#232732;
+  --ink:#E8EAF0; --ink-2:#C3C8D6; --muted:#949BB0;
+  --rule:#2E3341; --rule-soft:#262B36;
+  --accent:#E58376; --accent-soft:#2A1F1E; --link:#79B0DA;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--ground);color:var(--ink-2);
+  font-family:var(--f-body);font-size:16.5px;line-height:1.75;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:62rem;margin:0 auto;padding:0 clamp(18px,4vw,40px) 90px}
+.col{max-width:42rem}
+
+a{color:var(--link);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--link) 30%,transparent)}
+a:hover{border-bottom-color:var(--link)}
+a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:2px}
+strong{color:var(--ink);font-weight:650}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--surface-2);padding:.12em .4em;border-radius:3px;color:var(--ink)}
+
+/* ---- masthead ---- */
+.masthead{padding:clamp(46px,8vw,84px) 0 clamp(28px,4vw,40px);border-bottom:1px solid var(--rule)}
+.eyebrow{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:650;margin:0 0 16px}
+h1{
+  font-family:var(--f-display);font-weight:400;
+  font-size:clamp(1.95rem,5vw,3rem);line-height:1.16;letter-spacing:-.01em;
+  color:var(--ink);text-wrap:balance;margin:0 0 18px;
+}
+.standfirst{font-size:1.08rem;line-height:1.7;color:var(--muted);max-width:38rem;margin:0 0 26px}
+.repo-link{
+  display:inline-flex;align-items:center;gap:9px;
+  padding:9px 17px;border:1px solid var(--rule);border-radius:4px;
+  background:var(--surface);color:var(--ink);font-size:.9rem;
+}
+.repo-link:hover{border-color:var(--accent);color:var(--accent)}
+.repo-link svg{width:17px;height:17px;fill:currentColor}
+
+/* ---- disclaimer ---- */
+.disclaimer{
+  margin:26px 0 0;padding:15px 20px;
+  border-left:2px solid var(--accent);background:var(--surface);
+  font-size:.9rem;line-height:1.65;max-width:44rem;
+}
+.disclaimer p{margin:0}
+
+/* ---- sections ---- */
+section{padding-top:clamp(42px,6vw,68px)}
+.sec-label{display:flex;align-items:baseline;gap:12px;margin:0 0 10px}
+.sec-label span{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.sec-label::after{content:"";flex:1;height:1px;background:var(--rule)}
+h2{
+  font-family:var(--f-display);font-weight:400;
+  font-size:clamp(1.5rem,3.2vw,2rem);line-height:1.22;
+  color:var(--ink);text-wrap:balance;margin:0 0 14px;
+}
+p{margin:0 0 15px}
+
+/* ---- demo cards ---- */
+.cards{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0 0}
+@media (min-width:760px){.cards{grid-template-columns:1fr 1fr}}
+.card{
+  display:flex;flex-direction:column;gap:9px;
+  background:var(--surface);padding:24px 22px 26px;
+  border:0;color:inherit;
+}
+.card:hover{background:var(--surface-2);border:0}
+.card__tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
+.card__title{font-size:1.08rem;font-weight:660;color:var(--ink);margin:0;line-height:1.35}
+.card__desc{font-size:.92rem;line-height:1.6;color:var(--muted);margin:0}
+.card__go{margin-top:auto;padding-top:12px;font-size:.86rem;color:var(--link)}
+.card--wide{grid-column:1 / -1}
+
+/* ---- file table ---- */
+.scroller{overflow-x:auto;margin:24px 0 8px}
+table{width:100%;min-width:600px;border-collapse:collapse;font-size:.9rem}
+thead th{
+  text-align:left;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:650;padding:0 14px 9px 0;border-bottom:1px solid var(--rule);
+}
+tbody td{padding:12px 14px 12px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
+tbody tr td:first-child{width:17rem}
+tbody tr td:first-child code{font-size:.82em}
+
+/* ---- steps ---- */
+.steps{border-top:1px solid var(--rule);margin:22px 0 0}
+.step{display:grid;grid-template-columns:2.2rem 1fr;gap:0 20px;padding:18px 0;border-bottom:1px solid var(--rule-soft)}
+.step__n{font-family:var(--f-mono);font-size:.82rem;color:var(--accent);padding-top:3px}
+.step h3{margin:0 0 5px;font-size:.99rem;font-weight:660;color:var(--ink)}
+.step p{margin:0;font-size:.91rem;color:var(--muted)}
+
+.foot{margin-top:60px;padding-top:22px;border-top:1px solid var(--rule);font-size:.82rem;color:var(--muted)}
+
+@media (max-width:600px){
+  .step{grid-template-columns:1fr;gap:4px}
+  .step__n{padding-top:0}
+  tbody tr td:first-child{width:auto}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Northcote Baptist Church · 网站改造包</p>
+  <h1>一个多语言的门，一间多语言的教会</h1>
+  <p class="standfirst">
+    给一个跑在 WordPress + CMSMasters <code>my-religion</code> 主题上的教会网站做的
+    <strong>最小改动</strong>改造包：不换主题、不重做站点、父主题一行不碰。
+    下面每一样都能直接点开看。
+  </p>
+  <a class="repo-link" href="https://github.com/14H034160212/nbc-website-revamp">
+    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+    14H034160212/nbc-website-revamp
+  </a>
+
+  <div class="disclaimer">
+    <p>
+      <strong>说明</strong>：这是一份未经委托的第三方改造提案，与 Northcote Baptist Church
+      没有隶属关系，也未经其审阅或采用。对现网站的技术描述均来自公开可见的页面源码。
+      其中的多语言在线圣经是通用组件，任何教会网站都可以直接使用。
+    </p>
+  </div>
+</header>
+
+<section>
+  <p class="sec-label"><span>可以直接点开</span></p>
+  <h2>三个演示</h2>
+  <div class="col">
+    <p>在线圣经连的是真实 API，不是录像；提案文档里也嵌了一个可操作的读经器。</p>
+  </div>
+
+  <div class="cards">
+
+    <a class="card card--wide" href="./bible.html">
+      <span class="card__tag">Live · 连接真实 API</span>
+      <h3 class="card__title">多语言在线圣经</h3>
+      <p class="card__desc">
+        双语并排阅读、四语界面（English / 中文 / 한국어 / Te Reo Māori）、
+        A− A+ 字号调节、← → 翻章、点击复制经节、自动记住上次读到哪里。
+        数据来自 getBible API v2：免费、无需 API key、全本 66 卷、117 个译本，
+        含和合本简繁、新译本、개역、Te Paipera Tapu、Tagalog。
+        22 KB 单文件，粘进 WordPress「自定义 HTML」区块就能上线。
+      </p>
+      <span class="card__go">打开读经器 →</span>
+    </a>
+
+    <a class="card" href="./nbc-proposal.html">
+      <span class="card__tag">文档</span>
+      <h3 class="card__title">完整改造提案</h3>
+      <p class="card__desc">
+        现状体检、分层多语言策略、只改子主题的 UI 方案、四周路线图。
+        含一个内嵌的可操作读经器演示。
+      </p>
+      <span class="card__go">阅读提案 →</span>
+    </a>
+
+    <a class="card" href="./preview.html">
+      <span class="card__tag">预览</span>
+      <h3 class="card__title">7 个粘贴区块</h3>
+      <p class="card__desc">
+        每个「自定义 HTML」区块配上子主题样式渲染出来的实际效果，
+        粘贴到 WordPress 之前先看一眼。
+      </p>
+      <span class="card__go">查看区块 →</span>
+    </a>
+
+  </div>
+</section>
+
+<section>
+  <p class="sec-label"><span>包里有什么</span></p>
+  <h2>每个文件的作用</h2>
+
+  <div class="scroller">
+  <table>
+    <thead><tr><th>文件</th><th>作用</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>nbc-bible-reader.html</code></td>
+        <td>多语言在线圣经。零插件、零主题改动、零构建工具</td>
+      </tr>
+      <tr>
+        <td><code>my-religion-child/style.css</code></td>
+        <td>排版与对比度、语言切换器、移动端底部操作条、焦点样式。原文件只有主题头注释</td>
+      </tr>
+      <tr>
+        <td><code>my-religion-child/functions.php</code></td>
+        <td>语言切换器（有无 Polylang 都能用）、hreflang、schema.org Church 标记、按页卸载多余脚本、管理员专用的资源调试助手。<strong>这个文件原本不存在</strong></td>
+      </tr>
+      <tr>
+        <td><code>pages/vision-mission-values.html</code><br><code>pages/creed.html</code><br><code>pages/strategic-principles.html</code></td>
+        <td>把写死在 JPEG 里的文案还原成真 HTML。CREED 轮盘改成 2 KB 内联 SVG，取代 39 KB 的图片。<strong>这是多语言的前提</strong>——翻译插件看不见图片里的字</td>
+      </tr>
+      <tr>
+        <td><code>pages/first-visit.html</code></td>
+        <td>「第一次来」页面。教会网站上被点最多、而现站没有的一页</td>
+      </tr>
+      <tr>
+        <td><code>pages/welcome-zh.html</code><br><code>pages/welcome-ko.html</code><br><code>pages/welcome-mi.html</code></td>
+        <td>三个母语落地页。内容全部译自教会自己的 <code>/services/</code>、<code>/ministries/kids/</code>、<code>/give-2/</code>，没有编造</td>
+      </tr>
+      <tr>
+        <td><code>content/alt-text.md</code></td>
+        <td>首页 15 张缺 alt 图片的替代文本，逐张写好</td>
+      </tr>
+      <tr>
+        <td><code>README.md</code></td>
+        <td>逐步上线说明、需要教会补齐的信息、回滚方案</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section>
+  <p class="sec-label"><span>上线顺序</span></p>
+  <h2>先做零风险的，再动内容和插件</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step__n">0</div>
+      <div>
+        <h3>整站备份 + 建 staging</h3>
+        <p>下面每一步都先在 staging 走一遍。不要跳过。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__n">1</div>
+      <div>
+        <h3>在线圣经</h3>
+        <p>新建页面 → 插入「自定义 HTML」→ 粘贴 → 发布。想撤回就删掉这个页面，站点其余部分完全不受影响。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__n">2</div>
+      <div>
+        <h3>三个母语落地页</h3>
+        <p>同样是粘贴区块。发布前把 <code>{{STREET_ADDRESS}}</code> 和 <code>{{MAP_URL}}</code> 换成真实值。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__n">3</div>
+      <div>
+        <h3>子主题：先 style.css，确认没问题再 functions.php</h3>
+        <p>用 FTP 上传，不要用后台的主题文件编辑器——PHP 出错时你会连后台一起进不去。上传前务必跑一次 <code>php -l</code>。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__n">4</div>
+      <div>
+        <h3>拆掉图片里的文字，补 alt</h3>
+        <p>把 Vision/Values/Creed 三张图换成 HTML 区块，按 <code>content/alt-text.md</code> 逐张补 alt。</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step__n">5</div>
+      <div>
+        <h3>性能瘦身，逐条验证</h3>
+        <p>一个小节一个小节地放开 <code>nbc_slim_assets</code>，每放开一节把站点点一遍。用 <code>?nbc_debug=assets</code> 看某页实际加载了什么。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<p class="foot">
+  提案依据：2026 年 8 月对 nbc.org.nz 线上 HTML、主题样式表与资源清单的实际勘察。
+  在线圣经组件已完成端到端验证（KJV 单栏、和合本简体 × Te Reo Māori 双栏对照）。
+  <br>
+  <code>bible.html</code> 与 <code>preview.html</code> 由 <code>build-site.py</code> 从源文件生成——
+  <code>pages/</code> 里的文件是给 WordPress 粘贴用的片段，本身没有 <code>&lt;!doctype&gt;</code>。
+</p>
+
+</div>
+</body>
+</html>
