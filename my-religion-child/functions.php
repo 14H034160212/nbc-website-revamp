@@ -50,7 +50,7 @@ define( 'NBC_SERVICE_TIME',  '10:00' );
 define( 'NBC_SERVICE_ENDS',  '11:15' );
 
 /**
- * Office hours, from the church's Google listing.
+ * Office hours, confirmed by the church (they match the Google listing).
  *
  * Distinct from the service: the listing also shows Sunday 10:00-12:30, but
  * that is the building being open for the service and morning tea, not the
