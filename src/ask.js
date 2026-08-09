@@ -338,7 +338,10 @@
 
       var more = document.createElement('a');
       more.className = 'ask-card__more';
-      more.href = 'bible.html?ref=' + book + '.' + chap;
+      // Root-absolute, and in the reader's language: this page is a directory
+      // (/ask/ or /zh/ask/), so a relative 'bible.html' resolves to a URL that
+      // has never existed. The reader lives at /bible/ and /zh/bible/.
+      more.href = biblePath() + '?ref=' + book + '.' + chap;
       more.textContent = t('whole') + ' →';
       art.appendChild(more);
 
@@ -409,6 +412,13 @@
   }
 
   /* ---- painting the controls -------------------------------------------- */
+  // Which copy of the Bible reader to link to. zh-Hant has no page of its own
+  // — the Simplified page carries the widget, which switches script itself.
+  var BIBLE_PATH = { 'en': '/bible/', 'zh-Hans': '/zh/bible/', 'zh-Hant': '/zh/bible/',
+                     'ko': '/ko/bible/', 'mi': '/mi/bible/' };
+
+  function biblePath() { return BIBLE_PATH[lang] || '/bible/'; }
+
   function paint() {
     elLead.textContent = t('lead');
     elInput.placeholder = t('ph');
@@ -487,6 +497,18 @@
     if (!aiEnabled) elAiOff.textContent = t('aiOff');
   }
 
+  /* Static prose in the page markup — the "How this works" section, which
+     includes the AI disclosure. The markup carries only the keys, so without
+     this pass the section renders as a heading above four empty paragraphs. */
+  function paintProse() {
+    document.querySelectorAll('[data-i18n]').forEach(function (n) {
+      n.textContent = t(n.getAttribute('data-i18n'));
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function (n) {
+      n.innerHTML = t(n.getAttribute('data-i18n-html'));
+    });
+  }
+
   // Ask the endpoint whether a key is configured. No key -> the box stays
   // hidden and the curated finder below is the whole feature.
   fetch('/api/ask', { method: 'GET' })
@@ -540,13 +562,16 @@
     return wrap;
   }
 
-  /* Deep link: ask/?q=... prefills and submits, so a question can be shared
-     or linked from a notice sheet the same way ?topic= can. */
+  /* Deep link: ask/?q=... prefills the box and puts the cursor in it, so a
+     question can be shared or linked from a notice sheet the same way ?topic=
+     can. It deliberately does NOT submit. Auto-submitting would spend a paid
+     request on every page load — a link preview, a prefetch, a refresh, a
+     crawler — and one shared URL could drain the daily cap for everyone. */
   function aiFromUrl() {
     var q = new URLSearchParams(location.search).get('q');
     if (!q || !aiEnabled) return;
     elAiInput.value = q;
-    elAiForm.dispatchEvent(new Event('submit', { cancelable: true }));
+    elAiInput.focus();
   }
 
   elAiForm.addEventListener('submit', function (e) {
@@ -614,6 +639,7 @@
 
     paint();
     paintAi();
+    paintProse();
     elOut.hidden = true;
     elOut.innerHTML = '';
     elFoot.hidden = true;

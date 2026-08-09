@@ -45,6 +45,10 @@ export const CHAPTERS = [
 export const LANGUAGES = {
   en: "English",
   "zh-Hans": "Simplified Chinese (简体中文)",
+  // The widget offers 繁體中文, and a missing entry here does not fail loudly —
+  // it falls through to English, so the page is Traditional Chinese and the
+  // answer under it is English, with nothing to explain why.
+  "zh-Hant": "Traditional Chinese (繁體中文)",
   ko: "Korean (한국어)",
   mi: "English",  // see the note in SYSTEM_PROMPT
 };
@@ -172,8 +176,11 @@ export function checkQuestion(question) {
 export async function askClaude({ apiKey }, { question, lang, model = MODEL, effort = "medium" }) {
   const body = {
     model,
-    max_tokens: 3000,          // thinking shares max_tokens with the reply on
-                               // current models — leave room for both
+    // Adaptive thinking is on by default on Opus 5 and shares this budget with
+    // the reply. The reply itself is small (a framing plus five short `why`
+    // lines), so the headroom is almost entirely for thinking; 3000 was tight
+    // enough that a question worth thinking about could truncate the JSON.
+    max_tokens: 8000,
     system: SYSTEM_PROMPT,
     messages: [{ role: "user", content: userPrompt(question, lang) }],
     output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
@@ -219,5 +226,22 @@ export async function askClaude({ apiKey }, { question, lang, model = MODEL, eff
   const text = response.content.find((b) => b.type === "text")?.text;
   if (!text) return { refused: true, response };
 
-  return { result: validate(JSON.parse(text)), response };
+  // Truncated output is not malformed JSON to be puzzled over — say what
+  // happened, so the log names the cause instead of a SyntaxError at column N.
+  if (response.stop_reason === "max_tokens") {
+    const err = new Error(`response hit max_tokens (${body.max_tokens}); raise it`);
+    err.status = "max_tokens";
+    throw err;
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    const err = new Error(`model returned unparseable JSON: ${text.slice(0, 200)}`);
+    err.status = "bad_json";
+    throw err;
+  }
+
+  return { result: validate(parsed), response };
 }

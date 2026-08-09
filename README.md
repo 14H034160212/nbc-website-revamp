@@ -63,18 +63,24 @@ content/
 - **底稿就是 nbc.org.nz 的真实页面**。`build-site.py --fetch` 抓下首页、
   On Sunday、Who We Are、Contact、Give 的原始 HTML，加载官网自己的样式表，
   只注入五样东西：① 原型声明条 ② 语言切换栏 ③ 导航里多出的一个 Bible 菜单
-  （子项：Read the Bible / Find a Passage）④ 移动端底部操作条 ⑤ noindex + canonical。
+  （子项：Read the Bible / Find a Passage），外加 About Us 子菜单里的「第一次来」
+  ④ 移动端底部操作条 ⑤ noindex + canonical。
   现有页面的其余部分**一行不改**。
 - **多语言不是另做页面，是同一页只换文字**。`/zh/who-we-are/` 与 `/who-we-are/`
   是同一份 HTML：同样的照片、版式、字体、样式表，只有可见文本节点被替换成译文。
   URL 结构与 Polylang 一致（`/zh/services/`、`/ko/give-2/`），并输出 hreflang。
   译文在 `src/i18n/*.json`，按英文原文精确匹配——**没有机器翻译**，
   未翻译的字符串构建时会逐条列出来，不会悄悄漏掉。
-  目前覆盖 5 个核心页面 × 3 种语言，其余页面回落英文（提案里的分层策略）。
+  目前覆盖 5 个镜像页面 + 3 个自建页面，各 × 3 种语言，其余页面回落英文
+  （提案里的分层策略）。声明条、跳过链接、移动操作条这些**我们自己加的外壳**
+  不走词典（它们是在翻译之后注入的），字符串在 `build-site.py` 的 `CHROME` 里，
+  同样按语言给。
 - **新页面**（在线圣经、按主题查经、第一次来）用主题自己的
   页面外壳渲染，所以看起来是原生的，不像外挂上去的。
-- **导航只加一项**，不是两项：现有 7 项在 1280px 下已经顶到右边缘，
+- **顶级导航只加一项**，不是两项：现有 7 项在 1280px 下已经顶到右边缘，
   再加两个顶级项会溢出。用一个带子菜单的父项，跟 About Us / Community 的组织方式一致。
+  「第一次来」不占顶级位置，挂在 About Us 子菜单里 —— 它本来就该和
+  Who We Are、On Sunday 放在一起。
 - **首页的 Vision / CREED / Strategic Principles 图没有换成 HTML**——
   它们是 LayerSlider 的幻灯片，替换属于后台内容编辑，不是标记注入。
   HTML 版本在 `pages/` 里，可以在 `/preview` 查看。

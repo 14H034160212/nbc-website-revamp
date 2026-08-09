@@ -62,8 +62,10 @@ TOO_BIG = 25 * 1024 * 1024
 # Our own pages, and the page whose markup is borrowed as their shell.
 SHELL_PAGE = "contact/index.html"
 
-# New menu entries, as root-absolute paths so they work at every depth.
-NEW_PAGES = [("/bible/", "Read the Bible"), ("/ask/", "Find a Passage")]
+# The About Us submenu is where a first-visit page belongs, and it costs no
+# top-level slot (see nav_extra for why there is only room for one). Anchored
+# on the theme's own menu-item id, which is stable across the mirror.
+ABOUT_SUBMENU = 'id="menu-item-4920"'
 
 LANGS = [
     ("en", "English", ""),
@@ -78,9 +80,35 @@ LANGS = [
 TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
               "/bible/", "/ask/", "/first-visit/"]
 
-# The two feature pages are ours, not mirrored, so they are built first in
+# The three feature pages are ours, not mirrored, so they are built first in
 # English and then copied per language from that output.
 OUR_PAGES = ["/bible/", "/ask/", "/first-visit/"]
+
+# Titles for those pages. The mirrored pages get theirs from the dictionaries;
+# ours are not in the source site, so they are listed here — otherwise a
+# translated page keeps an English tab label, which is the same
+# "content translated, chrome not" defect the nav fix removed.
+OUR_TITLES = {
+    "/bible/": {
+        "en": "Online Bible", "zh-Hans": "在线圣经",
+        "ko": "온라인 성경", "mi": "Te Paipera Tapu ā-ipurangi",
+    },
+    "/ask/": {
+        "en": "Find a Passage", "zh-Hans": "按主题查经",
+        "ko": "주제별 말씀 찾기", "mi": "Rapua he kupu",
+    },
+    "/first-visit/": {
+        "en": "Planning your first visit", "zh-Hans": "第一次来",
+        "ko": "첫 방문 안내", "mi": "Tō haerenga tuatahi",
+    },
+}
+SITE_NAME = {"en": "Northcote Baptist Church", "zh-Hans": "北岸浸信会",
+             "ko": "노스코트 뱁티스트 교회", "mi": "Northcote Baptist Church"}
+
+
+def our_title(url_path, lang):
+    title = f"{OUR_TITLES[url_path][lang]} - {SITE_NAME[lang]}"
+    return title + " (prototype)" if lang == "en" else title
 
 # Values the live site does not publish anywhere. Shown as a visible marker
 # rather than invented — a made-up address on a church site is worse than an
@@ -222,14 +250,64 @@ def drop_oversized(site_root):
 # step 2b: the five additions
 # ==========================================================================
 
-def banner():
+# Chrome we add ourselves. It is injected after the translation pass, so it is
+# not covered by the dictionaries and has to carry its own strings — otherwise
+# a Korean page gets an English mobile bar, which is the same "content
+# translated, chrome not" complaint twice over.
+CHROME = {
+    "en": {
+        "proto": "Prototype",
+        "disclaimer": "Unofficial redesign proposal &mdash; not affiliated with, "
+                      "reviewed by, or adopted by Northcote Baptist Church.",
+        "real": "The real site &rarr;",
+        "about": "About this package",
+        "skip": "Skip to content",
+        "sunday": "Sunday 10am", "findus": "Find us", "give": "Give",
+    },
+    "zh-Hans": {
+        "proto": "原型",
+        "disclaimer": "非官方改版提案 &mdash; 与 Northcote Baptist Church 无关联，"
+                      "未经其审阅或采用。",
+        "real": "访问真实网站 &rarr;",
+        "about": "关于这份方案",
+        "skip": "跳到正文",
+        "sunday": "主日 10:00", "findus": "地图", "give": "奉献",
+    },
+    "ko": {
+        "proto": "프로토타입",
+        "disclaimer": "비공식 리디자인 제안입니다 &mdash; Northcote Baptist Church와 "
+                      "제휴 관계가 없으며 검토하거나 채택한 바 없습니다.",
+        "real": "실제 웹사이트 &rarr;",
+        "about": "이 제안에 대하여",
+        "skip": "본문으로 건너뛰기",
+        "sunday": "주일 오전 10시", "findus": "찾아오는 길", "give": "헌금",
+    },
+    # te reo entries are the ones a native speaker confirmed; the rest stay
+    # English rather than being guessed. See MI_NOTE.
+    "mi": {
+        "proto": "Prototype",
+        "disclaimer": "Unofficial redesign proposal &mdash; not affiliated with, "
+                      "reviewed by, or adopted by Northcote Baptist Church.",
+        "real": "The real site &rarr;",
+        "about": "About this package",
+        "skip": "Peke ki te ihirangi",
+        "sunday": "Rātapu 10am", "findus": "Kimihia mātou", "give": "Koha",
+    },
+}
+
+
+def chrome(lang, key):
+    return CHROME.get(lang, CHROME["en"]).get(key, CHROME["en"][key])
+
+
+def banner(lang="en"):
     return (
         '<div class="proto"><div class="proto__inner">'
-        "<b>Prototype</b>"
-        "<span>Unofficial redesign proposal &mdash; not affiliated with, reviewed by, "
-        "or adopted by Northcote Baptist Church.</span>"
-        f'<span class="proto__spacer"><a href="{REAL}/" rel="noopener">The real site &rarr;</a></span>'
-        '<span><a href="/package.html">About this package</a></span>'
+        f"<b>{chrome(lang, 'proto')}</b>"
+        f"<span>{chrome(lang, 'disclaimer')}</span>"
+        f'<span class="proto__spacer"><a href="{REAL}/" rel="noopener">'
+        f"{chrome(lang, 'real')}</a></span>"
+        f'<span><a href="/package.html">{chrome(lang, "about")}</a></span>'
         "</div></div>"
     )
 
@@ -286,11 +364,12 @@ def langbar(url_path, lang="en"):
     )
 
 
-def actionbar(prefix=""):
+def actionbar(prefix="", lang="en"):
+    c = lambda k: chrome(lang, k)
     return f"""<nav class="nbc-actionbar" aria-label="Quick links">
-<a class="nbc-actionbar__link" href="{prefix}/services/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Sunday 10am</span></a>
-<a class="nbc-actionbar__link" href="{FILLS['MAP_URL']}" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Find us</span></a>
-<a class="nbc-actionbar__link" href="{prefix}/give-2/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg><span>Give</span></a>
+<a class="nbc-actionbar__link" href="{prefix}/services/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>{c('sunday')}</span></a>
+<a class="nbc-actionbar__link" href="{FILLS['MAP_URL']}" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>{c('findus')}</span></a>
+<a class="nbc-actionbar__link" href="{prefix}/give-2/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg><span>{c('give')}</span></a>
 </nav>"""
 
 
@@ -336,6 +415,35 @@ def nav_extra(current, lang="en"):
     )
 
 
+def about_child(html, current, lang="en"):
+    """
+    Add "Planning your first visit" as the first child of the About Us submenu.
+
+    Without this the page is built in four languages, advertised in the langbar
+    and in hreflang, and reachable only by typing the URL. It cannot be a ninth
+    top-level item (see nav_extra), and About Us is where a church would file it
+    anyway — beside Who We Are and On Sunday.
+    """
+    prefix = next((p for c, _, p in LANGS if c == lang and p), "")
+    href = f"{prefix}/first-visit/"
+    label = OUR_TITLES["/first-visit/"][lang]
+    item = (
+        f'<li class="menu-item menu-item-type-post_type menu-item-object-page '
+        f'menu-item-depth-1 nbc-new{" current-menu-item" if href == current else ""}">'
+        f'<a href="{href}"><span class="nav_item_wrap"><span class="nav_title">{label}'
+        f"</span></span></a></li>"
+    )
+    # Anchored on the About Us <li>, then its first sub-menu open tag.
+    i = html.find(ABOUT_SUBMENU)
+    if i == -1:
+        return html
+    j = html.find('<ul class="sub-menu">', i)
+    if j == -1:
+        return html
+    j += len('<ul class="sub-menu">')
+    return html[:j] + item + html[j:]
+
+
 HEAD_EXTRA = (
     '<meta name="robots" content="noindex, nofollow">\n'
     '<link rel="canonical" href="{canonical}">\n'
@@ -362,17 +470,18 @@ def inject(html, url_path, canonical, title=None, lang="en"):
                if 'class="' in tag else tag[:-1] + ' class="nbc-has-actionbar">')
         html = html.replace(
             tag,
-            new + '<a class="nbc-skip" href="#middle">Skip to content</a>'
-                + banner() + langbar(url_path, lang),
+            new + f'<a class="nbc-skip" href="#middle">{chrome(lang, "skip")}</a>'
+                + banner(lang) + langbar(url_path, lang),
             1,
         )
 
     # The theme closes its menu with </ul></div></nav>.
     html = html.replace("</ul></div></nav>", nav_extra(url_path, lang) + "</ul></div></nav>", 1)
+    html = about_child(html, url_path, lang)
     # /services/ and /give-2/ are both translated, so the mobile bar can stay
     # in-language on a translated page.
     lang_prefix = next((p for c, _, p in LANGS if c == lang and p), "")
-    html = html.replace("</body>", actionbar(lang_prefix) + "</body>", 1)
+    html = html.replace("</body>", actionbar(lang_prefix, lang) + "</body>", 1)
     return html
 
 
@@ -459,7 +568,37 @@ def translate_page(html, table, stats):
 
 COVERAGE = {}
 
-REL_ASSET = re.compile(r'((?:href|src)=)(["\'])((?!https?:|//|#|mailto:|tel:|data:|/)[^"\']*)\2')
+# Strings the report should not flag, because something other than the
+# dictionaries is responsible for them. Without this the report cries wolf on
+# 20-odd entries and stops being read — which is how a real miss hides.
+WIDGET_STRINGS = {
+    # Swapped client-side by the Bible reader / passage finder from their own
+    # tables, so the English in the markup is only what a reader sees for the
+    # few milliseconds before the widget paints.
+    "Book", "Chapter", "Version", "Interface", "Language", "Side by side",
+    "English", "Scripture text served by", "getBible API", "How this works",
+    "Online Bible", "Find a Passage",
+    # Injected after the translation pass, from CHROME / NAV_LABELS / OUR_TITLES.
+    "Prototype", "The real site →", "About this package", "Skip to content",
+    "Sunday 10am", "Find us", "Give", "Bible", "Read the Bible",
+    "Planning your first visit",
+    "Unofficial redesign proposal — not affiliated with, reviewed by, "
+    "or adopted by Northcote Baptist Church.",
+    # Proper nouns and data that are the same in every language.
+    "Northcote Baptist Church", "Anna Hart Photography", "office@nbc.org.nz",
+    "67 Eban Avenue", "Aroha", "Whanaungatanga", "Manaakitanga", "Pono",
+}
+
+
+def deliberately_english(s):
+    # Page titles are built from OUR_TITLES, not the dictionaries.
+    return s in WIDGET_STRINGS or s.endswith(("(prototype)", "Baptist Church"))
+
+# `javascript:` must be excluded for the same reason PAGE_LINK excludes it: the
+# theme uses href="javascript:void(0);" for four inert controls, and shifting
+# one by a ../ turns an inert control into a link to a path that 404s.
+REL_ASSET = re.compile(
+    r'((?:href|src)=)(["\'])((?!https?:|//|#|mailto:|tel:|data:|javascript:|/)[^"\']*)\2')
 
 # Background images live in inline style attributes and in the theme's own
 # <style> blocks, not just href/src — a page whose hero photo silently vanishes
@@ -578,6 +717,17 @@ def fragment(path, own_heading=False):
 def new_page(out_dir, title, h1, body, lang="en", extra_js=""):
     """`out_dir` is a directory like "bible" -> /bible/index.html."""
     shell = (ROOT / SHELL_PAGE).read_text(encoding="utf-8")
+
+    # The shell is /contact/, and its nav links are relative to /contact/. A
+    # feature page is a sibling directory, so `href="index.html"` — the Contact
+    # item's self-link — would quietly resolve to /ask/, /bible/ or
+    # /first-visit/: the Contact menu item pointing at the page you are on.
+    # Resolving against /contact/ and emitting root-absolute settles it at
+    # every depth, and in every language once relink runs again downstream.
+    shell = relink_within_language(shell, "", "/" + SHELL_PAGE[: -len("index.html")])
+    # ...and its "you are here" markers belong to /contact/, not to us.
+    shell = shell.replace(" current-menu-item page_item page-item-347 current_page_item", "")
+
     a, b = shell.index(START), shell.index(FINISH)
 
     page = (
@@ -598,7 +748,12 @@ def new_page(out_dir, title, h1, body, lang="en", extra_js=""):
     # per-page bits (title, canonical, current language, current menu item).
     page = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", page, count=1, flags=re.S)
     page = re.sub(r'<link rel="canonical"[^>]*>',
-                  f'<link rel="canonical" href="{REAL}/">', page, count=1)
+                  f'<link rel="canonical" href="{REAL}/{out_dir}/">', page, count=1)
+    # The shell is /contact/, so its alternates point there. Swap in this
+    # page's own set — otherwise every feature page declares itself a
+    # duplicate of the home page and an alternate of the contact page.
+    page = re.sub(r'<link rel="alternate" hreflang="[^"]*"[^>]*>\n?', "", page)
+    page = page.replace("</head>", hreflang_links(f"/{out_dir}/") + "</head>", 1)
     page = re.sub(r'<div class="nbc-langbar">.*?</div></div>', langbar(f"/{out_dir}/"),
                   page, count=1, flags=re.S)
     page = re.sub(r'<li class="menu-item menu-item-type-custom menu-item-object-custom '
@@ -703,7 +858,6 @@ def build():
 
         # Translated copies first, from the same source markup.
         if url_path in TRANSLATED:
-            depth = url_path.count("/") - 1
             for code, _, prefix in LANGS:
                 if not prefix:
                     continue
@@ -730,32 +884,24 @@ def build():
 
     print(f"  mirrored {len(pages)} pages, renamed {renamed} query-string assets, "
           f"rewrote {touched} stylesheets")
+    mirrored_translated = len([p for p in TRANSLATED if p not in OUR_PAGES])
     print(f"  built {translated_count} translated pages "
-          f"({len(TRANSLATED)} pages x {len(LANGS) - 1} languages)")
-    for code in COVERAGE:
-        hit, miss = COVERAGE[code]["hit"], COVERAGE[code]["miss"]
-        total = len(hit) + len(miss)
-        print(f"    {code:8s} {len(hit):3d}/{total} strings translated")
-        if miss and code != "mi":
-            for k in sorted(miss)[:6]:
-                print(f"             untranslated: {k[:70]}")
+          f"({mirrored_translated} mirrored pages x {len(LANGS) - 1} languages)")
     if dropped:
         for gone in dropped:
             print(f"  left on the church's server (over {TOO_BIG // 1024 // 1024} MB): {gone}")
 
     # -- our own pages ------------------------------------------------------
     made = [
-        new_page("bible", "Online Bible — Northcote Baptist Church (prototype)",
-                 "Online Bible",
+        new_page("bible", our_title("/bible/", "en"), "Online Bible",
                  "<p>Read any chapter in two languages side by side. Free to use, no "
                  "account needed. Choose a version on the left and, if you want a "
                  "parallel column, a second one beside it.</p>"
                  + fragment(ROOT / "nbc-bible-reader.html")),
-        new_page("ask", "Find a Passage — Northcote Baptist Church (prototype)",
+        new_page("ask", our_title("/ask/", "en"),
                  "Find a Passage", fragment(SRC / "ask.html"),
                  extra_js='<script src="/assets/ask.js"></script>'),
-        new_page("first-visit",
-                 "Planning your first visit — Northcote Baptist Church (prototype)",
+        new_page("first-visit", our_title("/first-visit/", "en"),
                  None, fragment(ROOT / "pages" / "first-visit.html", own_heading=True)),
     ]
     # No bespoke /zh/ /ko/ /mi/ landing pages: those are now translated copies
@@ -774,21 +920,59 @@ def build():
             table = load_dictionary(code)
             stats = {"hit": set(), "miss": set()}
             out = translate_page(english, table, stats)
+            # Same two steps, in the same order, as the mirror loop above:
+            # page links resolved against the ORIGINAL url and emitted
+            # root-absolute, then assets shifted one level deeper. Skipping
+            # the first left the nav on these pages pointing at English pages
+            # and turned the theme's inert href="#" parents into links home.
+            out = relink_within_language(out, prefix, url_path)
             out = fix_depth(out, 1)
             # The widget reads this to pick its own interface and edition.
             out = out.replace("<body ", f'<body data-page-lang="{code}" ', 1)
             # The English copy already carries the injections; swap the
             # per-language bits rather than injecting a second time.
+            out = re.sub(r"<title>.*?</title>",
+                         f"<title>{our_title(url_path, code)}</title>",
+                         out, count=1, flags=re.S)
+            out = re.sub(r'<link rel="canonical"[^>]*>',
+                         f'<link rel="canonical" href="{REAL}{prefix}{url_path}">',
+                         out, count=1)
             out = re.sub(r'<div class="nbc-langbar">.*?</div></div>',
                          langbar(prefix + url_path, code), out, count=1, flags=re.S)
             out = re.sub(r'<li class="menu-item menu-item-type-custom menu-item-object-custom '
                          r'menu-item-has-children menu-item-depth-0 nbc-new.*?</ul></li>',
                          nav_extra(prefix + url_path, code), out, count=1, flags=re.S)
+            out = re.sub(r'<li class="menu-item menu-item-type-post_type '
+                         r'menu-item-object-page menu-item-depth-1 nbc-new.*?</li>',
+                         "", out, count=1, flags=re.S)
+            out = about_child(out, prefix + url_path, code)
+            out = re.sub(r'<nav class="nbc-actionbar".*?</nav>',
+                         lambda _: actionbar(prefix, code), out, count=1, flags=re.S)
+            out = re.sub(r'<div class="proto">.*?</div></div>', lambda _: banner(code),
+                         out, count=1, flags=re.S)
+            out = re.sub(r'(<a class="nbc-skip" href="#middle">)[^<]*',
+                         lambda m: m.group(1) + chrome(code, "skip"), out, count=1)
             out = re.sub(r'<html([^>]*?)\slang="[^"]*"', r'<html\1 lang="%s"' % code, out, count=1)
+            if code == "mi":
+                out = out.replace("</body>", MI_NOTE + "</body>", 1)
             target = ROOT / (prefix + url_path).strip("/") / "index.html"
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_text(out, encoding="utf-8")
+            COVERAGE.setdefault(code, {"hit": set(), "miss": set()})
+            COVERAGE[code]["hit"] |= stats["hit"]
+            COVERAGE[code]["miss"] |= stats["miss"]
         print(f"  language copies {url_path:12s} x{len(LANGS) - 1}")
+
+    # Reported last, so it covers our own pages too — they carry the newest
+    # copy and are exactly where an untranslated string is most likely to hide.
+    for code in COVERAGE:
+        hit, miss = COVERAGE[code]["hit"], COVERAGE[code]["miss"]
+        miss = {k for k in miss if not deliberately_english(k)}
+        total = len(hit) + len(miss)
+        print(f"    {code:8s} {len(hit):3d}/{total} strings translated")
+        if miss and code != "mi":
+            for k in sorted(miss)[:8]:
+                print(f"             untranslated: {k[:70]}")
 
 
 def build_preview():

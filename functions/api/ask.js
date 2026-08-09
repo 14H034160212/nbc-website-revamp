@@ -43,6 +43,21 @@ function tooManyFromMemory(ip) {
   return hits.length > PER_IP_PER_HOUR;
 }
 
+/**
+ * KV-backed limiter. Read-then-write, which is not atomic and cannot be —
+ * Workers KV has no compare-and-swap, and reads are eventually consistent
+ * (up to ~60s). Two consequences worth stating plainly rather than trusting:
+ *
+ *   * A burst of N simultaneous requests all read the same count, all pass,
+ *     and all write count+1 — so the counter advances by 1 while N calls bill.
+ *   * A single IP hammering faster than KV converges can read a stale count.
+ *
+ * It is a good throttle for ordinary traffic and useless against someone
+ * deliberately racing it. The only hard limit on what the key can spend is a
+ * monthly spend cap set on the Anthropic Console — set one; do not rely on
+ * this for that. Making it exact needs a Durable Object, which is a bigger
+ * dependency than this feature warrants.
+ */
 async function tooManyFromKV(kv, ip, dailyCap) {
   const hourKey = `ip:${ip}:${Math.floor(Date.now() / 3600_000)}`;
   const dayKey = `all:${new Date().toISOString().slice(0, 10)}`;
@@ -84,9 +99,16 @@ export async function onRequestPost({ request, env }) {
 
   // Same-origin only. This endpoint exists for one page on this site; there is
   // no reason for another origin to reach it, and no CORS headers are sent.
+  // An opaque origin arrives as the literal string "null" (sandboxed iframe,
+  // file://, some privacy proxies). new URL("null") throws, and this runs
+  // outside the try below, so an unguarded parse turns a 403 into a 500.
   const origin = request.headers.get("origin");
-  if (origin && new URL(origin).host !== new URL(request.url).host) {
-    return json({ error: "forbidden" }, 403);
+  if (origin) {
+    let host = null;
+    try { host = new URL(origin).host; } catch { /* opaque or malformed */ }
+    if (host !== new URL(request.url).host) {
+      return json({ error: "forbidden" }, 403);
+    }
   }
 
   let body;
@@ -103,7 +125,15 @@ export async function onRequestPost({ request, env }) {
   if (problem) return json({ error: "invalid_question", message: problem }, 400);
 
   const ip = request.headers.get("cf-connecting-ip") || "unknown";
-  const dailyCap = parseInt(env.ASK_DAILY_CAP || DEFAULT_DAILY_CAP, 10);
+  // A typo'd cap must not silently become "no cap": every comparison against
+  // NaN is false, so `dayCount >= NaN` would never fire and the one thing
+  // protecting the key from a traffic spike would be off with no symptom.
+  const configured = parseInt(env.ASK_DAILY_CAP, 10);
+  let dailyCap = DEFAULT_DAILY_CAP;
+  if (env.ASK_DAILY_CAP != null && env.ASK_DAILY_CAP !== "") {
+    if (Number.isFinite(configured) && configured > 0) dailyCap = configured;
+    else console.error(`ASK_DAILY_CAP is not a positive number (${env.ASK_DAILY_CAP}); using ${DEFAULT_DAILY_CAP}`);
+  }
 
   if (env.ASK_RATELIMIT) {
     const limited = await tooManyFromKV(env.ASK_RATELIMIT, ip, dailyCap);
