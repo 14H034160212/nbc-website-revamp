@@ -747,6 +747,13 @@ def new_page(out_dir, title, h1, body, lang="en", extra_js=""):
     )
     page = re.sub(r'<html([^>]*)\slang="[^"]*"', r'<html\1 lang="%s"' % lang, page, count=1)
 
+    # The widget reads this to pick its interface and its edition. The English
+    # page needs it as much as the translated ones: without it the widget falls
+    # back to the language remembered in localStorage, so a reader who looked at
+    # /zh/ask/ earlier opens /ask/ and gets 和合本 under an English heading.
+    # Now that each language has its own URL, the URL is the answer.
+    page = page.replace("<body ", f'<body data-page-lang="{lang}" ', 1)
+
     # The shell already carries the injections from the mirrored page; swap the
     # per-page bits (title, canonical, current language, current menu item).
     page = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", page, count=1, flags=re.S)
@@ -930,8 +937,11 @@ def build():
             # and turned the theme's inert href="#" parents into links home.
             out = relink_within_language(out, prefix, url_path)
             out = fix_depth(out, 1)
-            # The widget reads this to pick its own interface and edition.
-            out = out.replace("<body ", f'<body data-page-lang="{code}" ', 1)
+            # The widget reads this to pick its own interface and edition. The
+            # English copy already carries data-page-lang="en"; swap the value
+            # rather than prepending a second, duplicate attribute.
+            out = re.sub(r'(<body[^>]*?)data-page-lang="[^"]*"',
+                         r'\1data-page-lang="%s"' % code, out, count=1)
             # The English copy already carries the injections; swap the
             # per-language bits rather than injecting a second time.
             out = re.sub(r"<title>.*?</title>",
