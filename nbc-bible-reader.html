@@ -1,0 +1,415 @@
+<!-- ============================================================
+     NBC Online Bible  —  drop-in widget for nbc.org.nz
+     ------------------------------------------------------------
+     HOW TO USE (no theme edit, no plugin, no build step):
+       1. WordPress admin -> Pages -> Add New -> title "Bible"
+       2. Add a block -> "Custom HTML"
+       3. Paste this whole file into the block. Publish.
+     Data source: api.getbible.net (v2) - free, no API key, CORS-open,
+     public-domain / freely-licensed translations.
+     Styling is scoped to #nbc-bible-app and uses the My Religion
+     theme palette + fonts, so it inherits the site look.
+     ============================================================ -->
+
+<div id="nbc-bible-app" data-default-translation="kjv">
+
+  <div class="nbc-bar">
+    <label class="nbc-field nbc-field--ui">
+      <span class="nbc-lbl" data-i18n="ui">Interface</span>
+      <select class="nbc-sel" id="nbc-ui-lang"></select>
+    </label>
+
+    <label class="nbc-field">
+      <span class="nbc-lbl" data-i18n="version">Version</span>
+      <select class="nbc-sel" id="nbc-trans-a"></select>
+    </label>
+
+    <label class="nbc-field">
+      <span class="nbc-lbl" data-i18n="parallel">Side by side</span>
+      <select class="nbc-sel" id="nbc-trans-b"></select>
+    </label>
+
+    <label class="nbc-field nbc-field--book">
+      <span class="nbc-lbl" data-i18n="book">Book</span>
+      <select class="nbc-sel" id="nbc-book"></select>
+    </label>
+
+    <label class="nbc-field nbc-field--chap">
+      <span class="nbc-lbl" data-i18n="chapter">Chapter</span>
+      <select class="nbc-sel" id="nbc-chapter"></select>
+    </label>
+
+    <div class="nbc-tools">
+      <button type="button" class="nbc-btn" id="nbc-smaller" title="A-" aria-label="Decrease text size">A&minus;</button>
+      <button type="button" class="nbc-btn" id="nbc-bigger"  title="A+" aria-label="Increase text size">A+</button>
+    </div>
+  </div>
+
+  <div class="nbc-stage">
+    <button type="button" class="nbc-nav nbc-nav--prev" id="nbc-prev" aria-label="Previous chapter">&#8249;</button>
+
+    <div class="nbc-reader" id="nbc-reader" aria-live="polite">
+      <div class="nbc-skel"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <button type="button" class="nbc-nav nbc-nav--next" id="nbc-next" aria-label="Next chapter">&#8250;</button>
+  </div>
+
+  <p class="nbc-credit">
+    <span data-i18n="credit">Scripture text served by</span>
+    <a href="https://api.getbible.net/" rel="noopener" target="_blank">getBible API</a>
+    &middot; <span id="nbc-license"></span>
+  </p>
+
+  <div class="nbc-toast" id="nbc-toast" role="status"></div>
+</div>
+
+<style>
+#nbc-bible-app{
+  --nbc-red:#d14f42;      /* theme primary   */
+  --nbc-red-dk:#98433a;   /* theme primary hover */
+  --nbc-blue:#216ea3;     /* theme secondary */
+  --nbc-ink:#3b3d4a;      /* theme heading   */
+  --nbc-mut:#71727f;      /* theme body      */
+  --nbc-line:#e4e4e4;
+  --nbc-bg:#fcfcfc;
+  --nbc-size:1.125rem;
+  color:var(--nbc-mut);
+  max-width:1100px;
+  margin:0 auto;
+  font-family:'Source Sans Pro',Arial,Helvetica,sans-serif;
+}
+#nbc-bible-app *,#nbc-bible-app *:before,#nbc-bible-app *:after{box-sizing:border-box}
+
+/* ---------- toolbar ---------- */
+#nbc-bible-app .nbc-bar{
+  display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;
+  padding:16px 18px;background:var(--nbc-bg);
+  border:1px solid var(--nbc-line);border-radius:4px;
+}
+#nbc-bible-app .nbc-field{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 150px}
+#nbc-bible-app .nbc-field--chap{flex:0 0 90px}
+#nbc-bible-app .nbc-field--ui{flex:0 0 120px}
+#nbc-bible-app .nbc-lbl{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.72rem;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--nbc-ink);opacity:.7;
+}
+#nbc-bible-app .nbc-sel{
+  width:100%;padding:9px 30px 9px 11px;font-size:.95rem;line-height:1.3;
+  color:var(--nbc-ink);background:#fff;border:1px solid var(--nbc-line);border-radius:3px;
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%2371727f' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;background-size:9px;
+}
+#nbc-bible-app .nbc-sel:focus-visible,
+#nbc-bible-app .nbc-btn:focus-visible,
+#nbc-bible-app .nbc-nav:focus-visible{outline:2px solid var(--nbc-blue);outline-offset:2px}
+#nbc-bible-app .nbc-tools{display:flex;gap:6px;flex:0 0 auto}
+#nbc-bible-app .nbc-btn{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.85rem;
+  padding:9px 12px;color:var(--nbc-ink);background:#fff;
+  border:1px solid var(--nbc-line);border-radius:3px;cursor:pointer;
+}
+#nbc-bible-app .nbc-btn:hover{border-color:var(--nbc-red);color:var(--nbc-red)}
+
+/* ---------- stage ---------- */
+#nbc-bible-app .nbc-stage{position:relative;margin-top:22px}
+#nbc-bible-app .nbc-nav{
+  position:absolute;top:52px;width:38px;height:38px;line-height:1;
+  font-size:1.5rem;color:var(--nbc-mut);background:#fff;
+  border:1px solid var(--nbc-line);border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;z-index:2;
+}
+#nbc-bible-app .nbc-nav:hover{background:var(--nbc-red);border-color:var(--nbc-red);color:#fff}
+#nbc-bible-app .nbc-nav[disabled]{opacity:.3;cursor:default}
+#nbc-bible-app .nbc-nav--prev{left:-52px}
+#nbc-bible-app .nbc-nav--next{right:-52px}
+
+#nbc-bible-app .nbc-cols{display:grid;grid-template-columns:1fr;gap:34px}
+#nbc-bible-app .nbc-cols.is-parallel{grid-template-columns:1fr 1fr}
+
+#nbc-bible-app .nbc-col h2{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:1.5rem;line-height:1.2;color:var(--nbc-ink);
+  margin:0 0 4px;padding:0;
+}
+#nbc-bible-app .nbc-col .nbc-edition{
+  display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--nbc-red);margin-bottom:14px;
+}
+#nbc-bible-app .nbc-verses{
+  font-family:'Crimson Text',Georgia,serif;
+  font-size:var(--nbc-size);line-height:1.85;color:#4a4b57;
+}
+#nbc-bible-app .nbc-v{
+  display:block;padding:2px 8px;margin:0 -8px;border-radius:3px;
+  cursor:pointer;transition:background .15s;
+}
+#nbc-bible-app .nbc-v:hover{background:#fdf3f2}
+#nbc-bible-app .nbc-v.is-on{background:#fdf3f2;box-shadow:inset 3px 0 0 var(--nbc-red)}
+#nbc-bible-app .nbc-n{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.7em;
+  color:var(--nbc-red);vertical-align:.45em;margin-right:.45em;user-select:none;
+}
+
+/* ---------- states ---------- */
+#nbc-bible-app .nbc-skel i{
+  display:block;height:16px;margin-bottom:14px;border-radius:3px;
+  background:linear-gradient(90deg,#eee 25%,#f6f6f6 50%,#eee 75%);
+  background-size:400% 100%;animation:nbc-sh 1.3s ease infinite;
+}
+#nbc-bible-app .nbc-skel i:nth-child(2){width:92%}
+#nbc-bible-app .nbc-skel i:nth-child(4){width:78%}
+@keyframes nbc-sh{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){#nbc-bible-app .nbc-skel i{animation:none}}
+#nbc-bible-app .nbc-error{
+  padding:22px;border:1px solid var(--nbc-line);border-left:3px solid var(--nbc-red);
+  background:var(--nbc-bg);color:var(--nbc-ink);
+}
+#nbc-bible-app .nbc-credit{font-size:.78rem;color:#9a9aa5;margin:26px 0 0;text-align:center}
+#nbc-bible-app .nbc-credit a{color:var(--nbc-blue)}
+#nbc-bible-app .nbc-toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);
+  padding:10px 20px;background:var(--nbc-ink);color:#fff;border-radius:3px;
+  font-size:.85rem;opacity:0;pointer-events:none;transition:.22s;z-index:9999;
+}
+#nbc-bible-app .nbc-toast.is-on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1220px){
+  #nbc-bible-app .nbc-nav--prev{left:-8px}
+  #nbc-bible-app .nbc-nav--next{right:-8px}
+  #nbc-bible-app .nbc-cols{padding:0 42px}
+}
+@media (max-width:780px){
+  #nbc-bible-app .nbc-cols.is-parallel{grid-template-columns:1fr;gap:26px}
+  #nbc-bible-app .nbc-field{flex:1 1 100%}
+  #nbc-bible-app .nbc-field--chap,#nbc-bible-app .nbc-field--ui{flex:1 1 46%}
+  #nbc-bible-app .nbc-cols{padding:0}
+  #nbc-bible-app .nbc-nav{position:static;width:auto;height:auto;border-radius:3px;padding:10px 20px}
+  #nbc-bible-app .nbc-stage{display:flex;flex-direction:column}
+  #nbc-bible-app .nbc-stage .nbc-reader{order:-1;margin-bottom:18px}
+  #nbc-bible-app .nbc-nav--prev{align-self:flex-start}
+  #nbc-bible-app .nbc-nav--next{align-self:flex-end;margin-top:-46px}
+}
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var API  = 'https://api.getbible.net/v2/';
+  var app  = document.getElementById('nbc-bible-app');
+  if (!app) return;
+
+  /* ---- static data: chapter counts + localised book names ---- */
+  var DATA = {"chapters":[50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22],"names":{"kjv":["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Songs","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"],"cus":["创世记","出埃及记","利未记","民数记","申命记","约书亚记","士师记","路得记","撒母耳记上","撒母耳记下","列王纪上","列王纪下","历代志上","历代志下","以斯拉记","尼希米记","以斯帖记","约伯记","诗篇","箴言","传道书","雅歌","以赛亚书","耶利米书","耶利米哀歌","以西结书","但以理书","何西阿书","约珥书","阿摩司书","俄巴底亚书","约拿书","弥迦书","那鸿书","哈巴谷书","西番雅书","哈该书","撒迦利亚书","玛拉基书","马太福音","马可福音","路加福音","约翰福音","使徒行传","罗马书","哥林多前书","哥林多后书","加拉太书","以弗所书","腓立比书","歌罗西书","帖撒罗尼迦前书","帖撒罗尼迦后书","提摩太前书","提摩太后书","提多书","腓利门书","希伯来书","雅各书","彼得前书","彼得后书","约翰一书","约翰二书","约翰三书","犹大书","啟示錄"],"cut":["創世記","出埃及記","利未記","民數記","申命記","約書亞記","士師記","路得記","撒母耳記上","撒母耳記下","列王紀上","列王紀下","歷代志上","歷代志下","以斯拉記","尼希米記","以斯帖記","約伯記","詩篇","箴言","傳道書","雅歌","以賽亞書","耶利米書","耶利米哀歌","以西結書","但以理書","何西阿書","約珥書","阿摩司書","俄巴底亞書","約拿書","彌迦書","那鴻書","哈巴谷書","西番雅書","哈該書","撒迦利亞書","瑪拉基書","馬太福音","馬可福音","路加福音","約翰福音","使徒行傳","羅馬書","哥林多前書","哥林多後書","加拉太書","以弗所書","腓立比書","歌羅西書","帖撒羅尼迦前書","帖撒羅尼迦後書","提摩太前書","提摩太後書","提多書","腓利門書","希伯來書","雅各書","彼得前書","彼得後書","約翰一書","約翰二書","約翰三書","猶大書","啟示錄"],"korean":["창세기","출애굽기","레위기","민수기","신명기","여호수아","사사기","룻기","사무엘상","사무엘하","열왕기상","열왕기하","역대상","역대하","에스라","느헤미야","에스더","욥기","시편","잠언","전도서","아가","이사야","예레미야","예레미야 애가","에스겔","다니엘","호세아","요엘","아모스","오바댜","요나","미가","나훔","하박국","스바냐","학개","스가랴","말라기","마태복음","마가복음","누가복음","요한복음","사도행전","로마서","고린도전서","고린도후서","갈라디아서","에베소서","빌립보서","골로새서","데살로니가전서","데살로니가후서","디모데전서","디모데후서","디도서","빌레몬서","히브리서","야고보서","베드로전서","베드로후서","요한일서","요한이서","요한삼서","유다서","요한계시록"],"maori":["Genesis","Ekoru","Rewitika","Tauanga","Ture","Hohua","Kaiwhakawa","Ruti","1 Hāmueru","2 Hāmueru","1 Kingi","2 Kingi","1 Koriniti","2 Koriniti","Ezara","Nehemiha","Ehetere","Iopa","Himene","Whakataukī","Kaiwhakaako","Waiata","Ihaia","Heremaia","Kanohi Tangi","Ehikiera","Danihēra","Hōhea","Iōēri","Amōhi","Opātia","Iōna","Mīkaia","Nahumu","Hapakuku","Horopīa","Hakai","Hakaharīa","Merakai","Matēu","Māka","Ruka","Hōani","Ngā Mahi","Rōmana","1 Koriniti","2 Koriniti","Karaiti","Epeha","Whiringa-ā-nuku","Karōhia","1 Teratera","2 Teratera","1 Timotī","2 Timotī","Tītahi","Phīremōna","Hīperu","Hāme","1 Pētera","2 Pētera","1 Hōani","2 Hōani","3 Hōani","Hura","Whakakitenga"],"tagalog":["Genesis","Exodo","Levitico","Mga Bilang","Deuteronomio","Josue","Mga Hukom","Ruth","1 Samuel","2 Samuel","1 Mga Hari","2 Mga Hari","1 Mga Cronica","2 Mga Cronica","Ezra","Nehemias","Ester","Job","Mga Awit","Mga Kawikaan","Mangangaral","Awit ni Solomon","Isaias","Jeremias","Mga Panaghoy","Ezekiel","Daniel","Oseas","Joel","Amos","Obadias","Jonas","Mikas","Nahum","Habacuc","Zefanias","Hagai","Zacarias","Malachias","Mateo","Marcos","Lucas","Juan","Mga Gawa","Mga Romano","1 Mga Corinto","2 Mga Corinto","Mga Taga-Galacia","Mga Efeso","Mga Taga-Filipos","Mga Taga-Colosas","1 Mga Taga-Tesalonica","2 Mga Taga-Tesalonica","1 Timoteo","2 Timoteo","Tito","Filemon","Mga Hebreo","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas","Pahayag"]}};
+
+  /* ---- translations offered in the picker ----
+     Add or remove rows here; `books` says which name list to show. */
+  var VERSIONS = [
+    { id:'kjv',     books:'kjv',     lang:'English',        label:'King James Version' },
+    { id:'web',     books:'kjv',     lang:'English',        label:'World English Bible' },
+    { id:'basicenglish', books:'kjv', lang:'English', label:'Basic English (easy reading)' },
+    { id:'cus',     books:'cus',     lang:'中文',   label:'和合本（简体）' },
+    { id:'cut',     books:'cut',     lang:'中文',   label:'和合本（繁體）' },
+    { id:'cns',     books:'cus',     lang:'中文',   label:'新译本（简体）' },
+    { id:'korean',  books:'korean',  lang:'한국어', label:'개역개정' },
+    { id:'maori',   books:'maori',   lang:'Te Reo Māori', label:'Te Paipera Tapu' },
+    { id:'tagalog', books:'tagalog', lang:'Tagalog',        label:'Ang Dating Biblia' },
+    { id:'japkougo',books:'kjv',     lang:'日本語', label:'口語訳' },
+    { id:'vietnamese',books:'kjv',   lang:'Tiếng Việt', label:'Kinh Thánh 1934' },
+    { id:'valera',  books:'kjv',     lang:'Español',   label:'Reina Valera' }
+  ];
+
+  /* ---- interface strings ---- */
+  var UI = {
+    en:{ name:'English', ui:'Interface', version:'Version', parallel:'Side by side',
+         book:'Book', chapter:'Chapter', off:'Off', credit:'Scripture text served by',
+         copied:'Verse copied', failed:'Could not load this chapter. Please try again.', retry:'Retry' },
+    zh:{ name:'中文', ui:'界面', version:'译本', parallel:'对照译本',
+         book:'书卷', chapter:'章', off:'关闭', credit:'经文数据来自',
+         copied:'已复制经文', failed:'本章加载失败，请重试。', retry:'重试' },
+    ko:{ name:'한국어', ui:'인터페이스', version:'역본', parallel:'대조 역본',
+         book:'성경', chapter:'장', off:'끕', credit:'본문 제공',
+         copied:'구절을 복사했습니다', failed:'불러오지 못했습니다.', retry:'다시' },
+    mi:{ name:'Te Reo Māori', ui:'Reo', version:'Whakamāoritanga', parallel:'Whakarite',
+         book:'Pukapuka', chapter:'Upoko', off:'Kati', credit:'Nā',
+         copied:'Kua kape', failed:'Kāore i taea te tīkina.', retry:'Anō' }
+  };
+
+  var LS = 'nbc-bible-v1';
+  var state = load() || { ui:'en', a:app.dataset.defaultTranslation || 'kjv', b:'', book:43, chap:3, size:1.125 };
+
+  function load(){ try { return JSON.parse(localStorage.getItem(LS)); } catch(e){ return null; } }
+  function save(){ try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){} }
+  function t(k){ return (UI[state.ui] || UI.en)[k] || UI.en[k]; }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var elUi = $('nbc-ui-lang'), elA = $('nbc-trans-a'), elB = $('nbc-trans-b'),
+      elBook = $('nbc-book'), elChap = $('nbc-chapter'), elReader = $('nbc-reader'),
+      elPrev = $('nbc-prev'), elNext = $('nbc-next'), elToast = $('nbc-toast');
+
+  /* ---------- option builders ---------- */
+  function opt(value, text, sel){
+    var o = document.createElement('option');
+    o.value = value; o.textContent = text; if (sel) o.selected = true;
+    return o;
+  }
+  function groupVersions(select, includeOff){
+    select.innerHTML = '';
+    if (includeOff) select.appendChild(opt('', t('off'), !state.b));
+    var seen = {};
+    VERSIONS.forEach(function (v) {
+      if (!seen[v.lang]) {
+        seen[v.lang] = document.createElement('optgroup');
+        seen[v.lang].label = v.lang;
+        select.appendChild(seen[v.lang]);
+      }
+      var current = includeOff ? state.b : state.a;
+      seen[v.lang].appendChild(opt(v.id, v.label, v.id === current));
+    });
+  }
+  function version(id){
+    for (var i = 0; i < VERSIONS.length; i++) if (VERSIONS[i].id === id) return VERSIONS[i];
+    return VERSIONS[0];
+  }
+  function bookNames(){ return DATA.names[version(state.a).books] || DATA.names.kjv; }
+
+  function fillBooks(){
+    var names = bookNames();
+    elBook.innerHTML = '';
+    var ot = document.createElement('optgroup'); ot.label = names[0] + ' – ' + names[38];
+    var nt = document.createElement('optgroup'); nt.label = names[39] + ' – ' + names[65];
+    names.forEach(function (n, i) {
+      (i < 39 ? ot : nt).appendChild(opt(i + 1, n.replace(/^﻿/, ''), i + 1 === state.book));
+    });
+    elBook.appendChild(ot); elBook.appendChild(nt);
+  }
+  function fillChapters(){
+    var total = DATA.chapters[state.book - 1];
+    if (state.chap > total) state.chap = total;
+    elChap.innerHTML = '';
+    for (var c = 1; c <= total; c++) elChap.appendChild(opt(c, c, c === state.chap));
+  }
+  function fillUi(){
+    elUi.innerHTML = '';
+    Object.keys(UI).forEach(function (k) { elUi.appendChild(opt(k, UI[k].name, k === state.ui)); });
+  }
+  function paintLabels(){
+    app.querySelectorAll('[data-i18n]').forEach(function (n) { n.textContent = t(n.dataset.i18n); });
+  }
+
+  /* ---------- fetching ---------- */
+  var cache = {};
+  function chapter(trans, book, chap){
+    var key = trans + '/' + book + '/' + chap;
+    if (cache[key]) return Promise.resolve(cache[key]);
+    return fetch(API + trans + '/' + book + '/' + chap + '.json')
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (j) { cache[key] = j; return j; });
+  }
+
+  function column(json){
+    var head = document.createElement('div'); head.className = 'nbc-col';
+    var h = document.createElement('h2');
+    h.textContent = (json.book_name || '').replace(/^﻿/, '') + ' ' + json.chapter;
+    var ed = document.createElement('span'); ed.className = 'nbc-edition'; ed.textContent = json.translation;
+    var body = document.createElement('div'); body.className = 'nbc-verses';
+    if (json.direction === 'RTL') body.dir = 'rtl';
+
+    json.verses.forEach(function (v) {
+      var s = document.createElement('span');
+      s.className = 'nbc-v'; s.dataset.ref = json.book_name + ' ' + json.chapter + ':' + v.verse;
+      var n = document.createElement('span'); n.className = 'nbc-n'; n.textContent = v.verse;
+      s.appendChild(n); s.appendChild(document.createTextNode(v.text.trim()));
+      body.appendChild(s);
+    });
+    head.appendChild(h); head.appendChild(ed); head.appendChild(body);
+    return head;
+  }
+
+  function render(){
+    elReader.innerHTML = '<div class="nbc-skel"><i></i><i></i><i></i><i></i><i></i></div>';
+    var jobs = [chapter(state.a, state.book, state.chap)];
+    if (state.b) jobs.push(chapter(state.b, state.book, state.chap));
+
+    Promise.all(jobs).then(function (res) {
+      var wrap = document.createElement('div');
+      wrap.className = 'nbc-cols' + (res.length > 1 ? ' is-parallel' : '');
+      res.forEach(function (j) { wrap.appendChild(column(j)); });
+      elReader.innerHTML = ''; elReader.appendChild(wrap);
+      $('nbc-license').textContent = res[0].distribution_license || 'Public Domain';
+      elPrev.disabled = (state.book === 1 && state.chap === 1);
+      elNext.disabled = (state.book === 66 && state.chap === DATA.chapters[65]);
+    }).catch(function () {
+      elReader.innerHTML = '<div class="nbc-error"><p>' + t('failed') + '</p></div>';
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'nbc-btn'; b.textContent = t('retry');
+      b.onclick = render;
+      elReader.querySelector('.nbc-error').appendChild(b);
+    });
+    save();
+  }
+
+  /* ---------- chapter stepping ---------- */
+  function step(dir){
+    var c = state.chap + dir, b = state.book;
+    if (c < 1) { b--; if (b < 1) return; c = DATA.chapters[b - 1]; }
+    else if (c > DATA.chapters[b - 1]) { b++; if (b > 66) return; c = 1; }
+    state.book = b; state.chap = c;
+    fillChapters(); elBook.value = b;
+    render();
+  }
+
+  /* ---------- events ---------- */
+  elUi.onchange   = function () { state.ui = this.value; paintLabels(); groupVersions(elB, true); save(); };
+  elA.onchange    = function () { state.a = this.value; fillBooks(); render(); };
+  elB.onchange    = function () { state.b = this.value; render(); };
+  elBook.onchange = function () { state.book = +this.value; state.chap = 1; fillChapters(); render(); };
+  elChap.onchange = function () { state.chap = +this.value; render(); };
+  elPrev.onclick  = function () { step(-1); };
+  elNext.onclick  = function () { step(1); };
+
+  $('nbc-bigger').onclick  = function () { resize(0.125); };
+  $('nbc-smaller').onclick = function () { resize(-0.125); };
+  function resize(d){
+    state.size = Math.min(1.9, Math.max(0.9, state.size + d));
+    app.style.setProperty('--nbc-size', state.size + 'rem'); save();
+  }
+
+  elReader.addEventListener('click', function (e) {
+    var v = e.target.closest ? e.target.closest('.nbc-v') : null;
+    if (!v) return;
+    elReader.querySelectorAll('.nbc-v.is-on').forEach(function (n) { n.classList.remove('is-on'); });
+    v.classList.add('is-on');
+    var text = v.dataset.ref + ' — ' + v.textContent.replace(/^\d+\s*/, '');
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(toast);
+  });
+  function toast(){
+    elToast.textContent = t('copied'); elToast.classList.add('is-on');
+    setTimeout(function () { elToast.classList.remove('is-on'); }, 1600);
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowLeft')  step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+
+  /* ---------- deep link: ?ref=43.3  (book.chapter) ---------- */
+  var ref = new URLSearchParams(location.search).get('ref');
+  if (ref && /^\d+\.\d+$/.test(ref)) {
+    var p = ref.split('.');
+    state.book = Math.min(66, Math.max(1, +p[0]));
+    state.chap = Math.max(1, +p[1]);
+  }
+
+  /* ---------- boot ---------- */
+  fillUi(); paintLabels();
+  groupVersions(elA, false); groupVersions(elB, true);
+  fillBooks(); fillChapters();
+  app.style.setProperty('--nbc-size', state.size + 'rem');
+  render();
+})();
+</script>

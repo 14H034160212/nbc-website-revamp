@@ -1,0 +1,115 @@
+<!-- ============================================================
+     Vision / Mission / Values  —  real HTML, not a JPEG
+     ------------------------------------------------------------
+     REPLACES: NBC_vision-mission-values.jpg, NBC_vision.jpg, NBC_values.jpg
+     Text transcribed verbatim from those images.
+
+     WHY THIS MATTERS
+       The current version is a picture. That means: translation
+       plugins cannot see it, Google cannot index it, screen readers
+       read nothing, and it cannot be selected or copied. This block
+       is identical to look at but is real text.
+
+     HOW TO USE
+       Edit the page -> replace the image block with a
+       "Custom HTML" block -> paste this in.
+       Keep the photo as a CSS background (set below), or delete the
+       background rules to use the theme's own section background.
+     ============================================================ -->
+
+<section class="nbc-vmv" aria-labelledby="nbc-vmv-title">
+  <h2 id="nbc-vmv-title" class="nbc-vmv__title">Vision, Mission &amp; Values</h2>
+
+  <div class="nbc-vmv__grid">
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Vision</h3>
+      <p class="nbc-vmv__lead">
+        We are a community of faith that loves God,<br>
+        is united in Christ, makes disciples<br>
+        and serves boldly
+      </p>
+    </div>
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Mission</h3>
+      <p class="nbc-vmv__lead">
+        To make disciples of Jesus<br>
+        from every generation and culture,<br>
+        growing in Him and serving our world
+      </p>
+    </div>
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Values</h3>
+      <dl class="nbc-vmv__values">
+        <div><dt>Love</dt><dd lang="mi">Aroha</dd></div>
+        <div><dt>Connect</dt><dd lang="mi">Whanaungatanga</dd></div>
+        <div><dt>Serve</dt><dd lang="mi">Manaakitanga</dd></div>
+        <div><dt>Truth</dt><dd lang="mi">Pono</dd></div>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* Move these rules into my-religion-child/style.css once you are happy
+   with them, and delete this <style> block. They live here so the
+   snippet works the moment you paste it. */
+.nbc-vmv{
+  --nbc-red:#d14f42;
+  position:relative;
+  padding:clamp(38px,6vw,64px) clamp(20px,4vw,52px);
+  /* NOT the original NBC_vision-mission-values.jpg — that file already has
+     the vision, mission and values printed onto it, so using it here would
+     show every line twice. Two ways to bring the photo back:
+       a) crop the text off the existing photo and use the clean half, or
+       b) ask the photographer for the plain building shot.
+     Then swap the gradient below for:
+       background:#2b5f96 url('.../clean-photo.jpg') center/cover no-repeat;
+     and keep the ::before overlay so the text stays legible. */
+  background:linear-gradient(135deg,#2f7fd1 0%,#2464a8 55%,#1d5089 100%);
+  color:#fff;
+  overflow:hidden;
+}
+/* Overlay for when a photo is used. Harmless over the flat gradient. */
+.nbc-vmv::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(20,60,110,.32) 0%,rgba(20,60,110,.10) 60%,transparent 100%);
+}
+.nbc-vmv > *{position:relative}
+
+.nbc-vmv .nbc-vmv__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.4rem,2.6vw,1.9rem);letter-spacing:.02em;
+  color:#fff;margin:0 0 clamp(24px,3vw,36px);
+}
+.nbc-vmv__grid{display:grid;gap:clamp(24px,3vw,34px)}
+.nbc-vmv .nbc-vmv__label{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:.86rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);margin:0 0 8px;
+}
+.nbc-vmv .nbc-vmv__lead{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:clamp(1.18rem,2.4vw,1.75rem);line-height:1.32;
+  color:#fff;margin:0;text-wrap:balance;
+}
+.nbc-vmv__values{margin:0;display:grid;gap:6px}
+.nbc-vmv__values > div{display:flex;align-items:baseline;gap:.55em;flex-wrap:wrap}
+.nbc-vmv__values dt{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:700;
+  font-size:clamp(1.18rem,2.4vw,1.7rem);color:#fff;
+}
+.nbc-vmv__values dt::after{content:" |";font-weight:400;opacity:.55}
+.nbc-vmv__values dd{
+  margin:0;font-family:'Source Sans Pro',Arial,sans-serif;font-weight:300;
+  font-size:clamp(1.12rem,2.2vw,1.6rem);color:rgba(255,255,255,.95);
+}
+@media (min-width:900px){
+  .nbc-vmv__grid{grid-template-columns:1fr 1fr;gap:34px 56px}
+  /* Values sits under Mission in the right-hand column; Vision leads. */
+  .nbc-vmv__item:first-child{grid-column:1 / -1}
+}
+</style>

@@ -1,0 +1,99 @@
+<!-- ============================================================
+     CREED for Mission Effectiveness  —  real HTML + inline SVG
+     ------------------------------------------------------------
+     REPLACES: Creed.jpg
+     The five words are transcribed verbatim from that image.
+
+     The wheel is now inline SVG instead of a photograph, so it stays
+     sharp on retina screens, weighs ~2 KB instead of 39 KB, and the
+     five labels sit beside it as real text that can be translated,
+     searched and read aloud.
+
+     PASTE INTO: a "Custom HTML" block on /what-we-believe/ (or
+     wherever Creed.jpg currently sits).
+     ============================================================ -->
+
+<section class="nbc-creed" aria-labelledby="nbc-creed-title">
+
+  <h2 id="nbc-creed-title" class="nbc-creed__title">CREED for Mission Effectiveness</h2>
+
+  <div class="nbc-creed__layout">
+
+    <svg class="nbc-creed__wheel" viewBox="0 0 300 300" role="img"
+         aria-label="A five-part wheel around a cross: Contact, Relate, Educate, Evangelise, Disciple.">
+      <g>
+        <circle cx="150" cy="150" r="139" fill="#f2f2f4"/>
+        <path d="M150.0 18.0 A132 132 0 0 1 275.5 109.2 L195.7 135.2 A48 48 0 0 0 150.0 102.0 Z" fill="#9C2C8E"/>
+        <path d="M275.5 109.2 A132 132 0 0 1 227.6 256.8 L178.2 188.8 A48 48 0 0 0 195.7 135.2 Z" fill="#4B4CAE"/>
+        <path d="M227.6 256.8 A132 132 0 0 1 72.4 256.8 L121.8 188.8 A48 48 0 0 0 178.2 188.8 Z" fill="#6DB52E"/>
+        <path d="M72.4 256.8 A132 132 0 0 1 24.5 109.2 L104.3 135.2 A48 48 0 0 0 121.8 188.8 Z" fill="#EF8A1C"/>
+        <path d="M24.5 109.2 A132 132 0 0 1 150.0 18.0 L150.0 102.0 A48 48 0 0 0 104.3 135.2 Z" fill="#DF272C"/>
+
+        <circle cx="150" cy="150" r="44" fill="#fff"/>
+        <path d="M144 122h12v20h18v12h-18v34h-12v-34h-18v-12h18z" fill="#c9ccd4"/>
+
+        <circle cx="227.6" cy="43.2" r="17" fill="#fff"/>
+        <text x="227.6" y="43.2" fill="#9C2C8E" class="nbc-creed__letter">C</text>
+        <circle cx="275.5" cy="190.8" r="17" fill="#fff"/>
+        <text x="275.5" y="190.8" fill="#4B4CAE" class="nbc-creed__letter">R</text>
+        <circle cx="150.0" cy="282.0" r="17" fill="#fff"/>
+        <text x="150.0" y="282.0" fill="#6DB52E" class="nbc-creed__letter">E</text>
+        <circle cx="24.5" cy="190.8" r="17" fill="#fff"/>
+        <text x="24.5" y="190.8" fill="#EF8A1C" class="nbc-creed__letter">E</text>
+        <circle cx="72.4" cy="43.2" r="17" fill="#fff"/>
+        <text x="72.4" y="43.2" fill="#DF272C" class="nbc-creed__letter">D</text>
+      </g>
+    </svg>
+
+    <ol class="nbc-creed__list">
+      <li style="--c:#9C2C8E"><b>C</b><span>Contact</span></li>
+      <li style="--c:#4B4CAE"><b>R</b><span>Relate</span></li>
+      <li style="--c:#6DB52E"><b>E</b><span>Educate</span></li>
+      <li style="--c:#EF8A1C"><b>E</b><span>Evangelise</span></li>
+      <li style="--c:#DF272C"><b>D</b><span>Disciple</span></li>
+    </ol>
+
+  </div>
+</section>
+
+<style>
+/* Move into my-religion-child/style.css when you are happy with it. */
+.nbc-creed{
+  background:#3a1113;
+  color:#fff;
+  padding:clamp(30px,5vw,54px) clamp(20px,4vw,48px);
+}
+.nbc-creed .nbc-creed__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.25rem,2.4vw,1.7rem);letter-spacing:.03em;
+  color:#fff;margin:0 0 clamp(22px,3vw,34px);text-align:center;
+}
+.nbc-creed__layout{
+  display:flex;flex-wrap:wrap;gap:clamp(26px,5vw,58px);
+  align-items:center;justify-content:center;
+}
+.nbc-creed__wheel{width:min(300px,72vw);height:auto;flex:0 0 auto}
+.nbc-creed__letter{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:19px;
+  text-anchor:middle;dominant-baseline:central;
+}
+.nbc-creed__list{
+  list-style:none;margin:0;padding:0;
+  display:grid;gap:11px;flex:0 1 260px;
+}
+.nbc-creed__list li{display:flex;align-items:center;gap:14px}
+.nbc-creed .nbc-creed__list b{
+  flex:0 0 34px;height:34px;border-radius:50%;
+  background:var(--c);color:#fff;
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;font-size:1.05rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.nbc-creed .nbc-creed__list span{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:1.12rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;
+}
+@media (max-width:560px){
+  .nbc-creed__layout{flex-direction:column}
+  .nbc-creed__list{flex:1 1 auto;width:min(260px,80vw)}
+}
+</style>

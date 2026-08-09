@@ -1,0 +1,86 @@
+<!-- ============================================================
+     Strategic Principles  —  real HTML, not a JPEG
+     ------------------------------------------------------------
+     REPLACES: NBC-Strategic-Principles.jpg
+     All six principles transcribed verbatim from that image.
+     (The original is set in all-caps; here the text is sentence-case
+     in the markup and uppercased with CSS, so screen readers and
+     translation tools get readable words rather than shouted ones.)
+
+     PASTE INTO: a "Custom HTML" block wherever the JPEG sits today.
+     ============================================================ -->
+
+<section class="nbc-principles" aria-labelledby="nbc-principles-title">
+  <h2 id="nbc-principles-title" class="nbc-principles__title">Strategic Principles</h2>
+
+  <dl class="nbc-principles__list">
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Prayerful dependence:</span> everything begins with prayer</dt>
+      <dd>Recognises that our church&rsquo;s life and fruitfulness depend on God, not just planning</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Discipleship first:</span> prioritize spiritual growth and life-on-life discipling</dt>
+      <dd>Puts disciple-making at the centre of every ministry, not as an add-on</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Intergenerational connection:</span> build bridges between generations and cultures</dt>
+      <dd>Ensures we intentionally create a church that values and learns from diversity in age and culture</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Mission outward:</span> engage meaningfully with our local and global community</dt>
+      <dd>A posture of reaching beyond the church walls, not just caring for those inside</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Stewardship:</span> use our people, property, and resources for kingdom purposes</dt>
+      <dd>Encourages wise use of what God has entrusted to our church</dd>
+    </div>
+
+    <div class="nbc-principles__item">
+      <dt><span class="nbc-principles__key">Truth shaped:</span> grounded in God&rsquo;s Word and led by His Spirit in all we do</dt>
+      <dd>Anchors all we do in Scripture and in the guidance of the Holy Spirit</dd>
+    </div>
+
+  </dl>
+</section>
+
+<style>
+/* Move into my-religion-child/style.css when you are happy with it. */
+.nbc-principles{
+  background:#f7d64a;
+  color:#2b2a22;
+  padding:clamp(32px,5vw,58px) clamp(20px,4vw,52px);
+}
+.nbc-principles .nbc-principles__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.5rem,3vw,2.1rem);letter-spacing:.04em;text-transform:uppercase;
+  color:#2b2a22;text-align:center;margin:0 0 clamp(24px,3vw,38px);
+}
+.nbc-principles__list{
+  margin:0 auto;max-width:60rem;
+  display:grid;gap:clamp(18px,2.4vw,28px);
+}
+.nbc-principles__item{text-align:center}
+.nbc-principles .nbc-principles__item dt{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:clamp(.98rem,1.9vw,1.18rem);line-height:1.35;
+  letter-spacing:.03em;text-transform:uppercase;color:#2b2a22;
+  text-wrap:balance;margin:0 0 5px;
+}
+.nbc-principles__key{font-weight:800}
+.nbc-principles .nbc-principles__item dd{
+  margin:0;font-family:'Source Sans Pro',Arial,sans-serif;font-weight:400;
+  font-size:clamp(.86rem,1.6vw,1rem);line-height:1.45;
+  letter-spacing:.03em;text-transform:uppercase;color:#4a4736;
+  text-wrap:balance;
+}
+/* Two columns once there is room; the list is a set, not a sequence,
+   so reading order across columns does not matter. */
+@media (min-width:920px){
+  .nbc-principles__list{grid-template-columns:1fr 1fr;gap:30px 46px}
+}
+</style>

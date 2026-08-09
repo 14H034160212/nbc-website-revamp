@@ -1,0 +1,1104 @@
+<title>nbc.org.nz 多语言与 UI 改造提案</title>
+
+<style>
+/* ============ tokens ============ */
+:root{
+  --ground:#F6F7F9;
+  --surface:#FFFFFF;
+  --surface-2:#EFF1F5;
+  --ink:#22242D;
+  --ink-2:#454A5C;
+  --muted:#6B7186;
+  --rule:#DCE0E8;
+  --rule-soft:#E8EBF0;
+  --accent:#B93F34;        /* NBC brick red, deepened for contrast */
+  --accent-soft:#FBEFEE;
+  --link:#1B6091;          /* NBC slate blue */
+  --ok:#2F6E52;
+  --warn:#8A6014;
+  --code-bg:#F0F2F6;
+
+  --f-display:Georgia,'Iowan Old Style','Source Serif Pro','Noto Serif CJK SC','Source Han Serif SC','Songti SC',serif;
+  --f-body:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',Roboto,Helvetica,Arial,sans-serif;
+  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
+
+  --measure:44rem;
+  --wide:64rem;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --ground:#14161C;
+    --surface:#1B1E26;
+    --surface-2:#232732;
+    --ink:#E8EAF0;
+    --ink-2:#C3C8D6;
+    --muted:#949BB0;
+    --rule:#2E3341;
+    --rule-soft:#262B36;
+    --accent:#E58376;
+    --accent-soft:#2A1F1E;
+    --link:#79B0DA;
+    --ok:#7FBE9C;
+    --warn:#D6AC5E;
+    --code-bg:#22262F;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#14161C;
+  --surface:#1B1E26;
+  --surface-2:#232732;
+  --ink:#E8EAF0;
+  --ink-2:#C3C8D6;
+  --muted:#949BB0;
+  --rule:#2E3341;
+  --rule-soft:#262B36;
+  --accent:#E58376;
+  --accent-soft:#2A1F1E;
+  --link:#79B0DA;
+  --ok:#7FBE9C;
+  --warn:#D6AC5E;
+  --code-bg:#22262F;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--ground);
+  color:var(--ink-2);
+  font-family:var(--f-body);
+  font-size:16.5px;
+  line-height:1.72;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{
+  max-width:var(--wide);
+  margin:0 auto;
+  padding:0 clamp(18px,4vw,44px) 96px;
+}
+.col{max-width:var(--measure)}
+
+/* ============ masthead ============ */
+.masthead{
+  padding:clamp(48px,8vw,88px) 0 clamp(30px,4vw,44px);
+  border-bottom:1px solid var(--rule);
+}
+.eyebrow{
+  font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);font-weight:650;margin:0 0 18px;
+}
+h1{
+  font-family:var(--f-display);
+  font-weight:400;
+  font-size:clamp(2.1rem,5.4vw,3.3rem);
+  line-height:1.14;
+  letter-spacing:-.012em;
+  color:var(--ink);
+  text-wrap:balance;
+  margin:0 0 20px;
+}
+.standfirst{
+  font-size:1.1rem;line-height:1.68;color:var(--muted);
+  max-width:38rem;margin:0 0 30px;
+}
+.facts{
+  display:flex;flex-wrap:wrap;gap:0;
+  border-top:1px solid var(--rule-soft);
+  padding-top:20px;
+}
+.fact{flex:1 1 150px;padding-right:22px}
+.fact dt{
+  font-size:.66rem;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);margin:0 0 5px;
+}
+.fact dd{
+  margin:0;font-family:var(--f-mono);font-size:.83rem;color:var(--ink);
+  line-height:1.5;
+}
+
+/* ============ sections ============ */
+section{padding-top:clamp(44px,6vw,72px)}
+.sec-label{
+  display:flex;align-items:baseline;gap:12px;
+  margin:0 0 8px;
+}
+.sec-label span{
+  font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;
+  color:var(--accent);text-transform:uppercase;
+}
+.sec-label::after{
+  content:"";flex:1;height:1px;background:var(--rule);
+}
+h2{
+  font-family:var(--f-display);font-weight:400;
+  font-size:clamp(1.55rem,3.4vw,2.1rem);line-height:1.2;
+  color:var(--ink);letter-spacing:-.008em;text-wrap:balance;
+  margin:0 0 14px;
+}
+h3{
+  font-size:1.02rem;font-weight:680;color:var(--ink);
+  letter-spacing:.005em;margin:34px 0 10px;
+}
+h4{
+  font-size:.78rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);margin:26px 0 8px;
+}
+p{margin:0 0 15px}
+a{color:var(--link);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--link) 32%,transparent)}
+a:hover{border-bottom-color:var(--link)}
+a:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--link);outline-offset:2px}
+strong{color:var(--ink);font-weight:660}
+code{
+  font-family:var(--f-mono);font-size:.86em;
+  background:var(--code-bg);padding:.12em .38em;border-radius:3px;
+  color:var(--ink);
+}
+ul,ol{margin:0 0 15px;padding-left:1.3em}
+li{margin-bottom:7px}
+li::marker{color:var(--muted)}
+
+/* ============ diagnostic table ============ */
+.scroller{overflow-x:auto;margin:22px 0 8px;-webkit-overflow-scrolling:touch}
+table{
+  width:100%;min-width:640px;border-collapse:collapse;
+  font-size:.9rem;
+}
+thead th{
+  text-align:left;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:650;
+  padding:0 14px 9px 0;border-bottom:1px solid var(--rule);
+}
+tbody td{
+  padding:13px 14px 13px 0;border-bottom:1px solid var(--rule-soft);
+  vertical-align:top;
+}
+tbody tr td:first-child{color:var(--ink);font-weight:600;width:12.5rem}
+td code{font-size:.8em}
+.sev{
+  display:inline-block;font-size:.66rem;letter-spacing:.07em;text-transform:uppercase;
+  font-weight:700;padding:2px 7px;border-radius:2px;white-space:nowrap;
+}
+.sev-hi{background:var(--accent-soft);color:var(--accent)}
+.sev-md{background:color-mix(in srgb,var(--warn) 14%,transparent);color:var(--warn)}
+.sev-lo{background:var(--surface-2);color:var(--muted)}
+
+/* ============ tier cards ============ */
+.tiers{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);
+  margin:24px 0 10px;
+}
+.tier{background:var(--surface);padding:22px 20px 24px}
+.tier .t-tag{
+  font-family:var(--f-mono);font-size:.7rem;letter-spacing:.08em;
+  color:var(--accent);display:block;margin-bottom:9px;
+}
+.tier h3{margin:0 0 6px;font-size:1rem}
+.tier .t-cost{
+  font-size:.76rem;color:var(--muted);margin:0 0 12px;
+  font-family:var(--f-mono);
+}
+.tier p{font-size:.9rem;line-height:1.62;margin:0}
+.tier ul{font-size:.88rem;margin:10px 0 0;padding-left:1.15em}
+
+/* ============ callout ============ */
+.note{
+  border-left:2px solid var(--accent);
+  background:var(--surface);
+  padding:16px 20px;margin:22px 0;
+  font-size:.93rem;
+}
+.note p:last-child{margin-bottom:0}
+.note .n-head{
+  font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;margin:0 0 7px;
+}
+
+/* ============ code block ============ */
+pre{
+  background:var(--code-bg);
+  border:1px solid var(--rule-soft);
+  padding:16px 18px;margin:16px 0 20px;
+  overflow-x:auto;font-size:.8rem;line-height:1.62;
+  font-family:var(--f-mono);color:var(--ink);
+  border-radius:2px;
+}
+pre code{background:none;padding:0;font-size:1em}
+.cap{font-size:.78rem;color:var(--muted);margin:-12px 0 22px}
+
+/* ============ demo frame ============ */
+.demo{margin:26px 0 10px}
+.frame{
+  border:1px solid var(--rule);
+  border-radius:5px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(20,22,28,.05),0 10px 30px -12px rgba(20,22,28,.18);
+}
+.frame-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 13px;background:#EDEFF3;border-bottom:1px solid #DFE2E9;
+}
+.frame-bar i{width:9px;height:9px;border-radius:50%;background:#CDD2DB;display:block}
+.frame-url{
+  flex:1;margin-left:6px;background:#fff;border:1px solid #DFE2E9;border-radius:3px;
+  padding:3px 10px;font-family:var(--f-mono);font-size:.72rem;color:#6B7186;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.frame-body{padding:26px 22px 30px;background:#fff}
+.demo-note{
+  font-size:.79rem;color:var(--muted);margin:12px 0 0;
+}
+
+/* ============ roadmap ============ */
+.road{
+  border-top:1px solid var(--rule);
+  margin:24px 0 0;
+}
+.leg{
+  display:grid;grid-template-columns:7.5rem 1fr;gap:0 26px;
+  padding:20px 0;border-bottom:1px solid var(--rule-soft);
+}
+.leg-when{
+  font-family:var(--f-mono);font-size:.78rem;color:var(--accent);
+  letter-spacing:.03em;padding-top:2px;
+}
+.leg h3{margin:0 0 6px;font-size:.98rem}
+.leg p{margin:0;font-size:.91rem;color:var(--muted)}
+.leg ul{margin:8px 0 0;font-size:.91rem}
+
+/* ============ footer ============ */
+.foot{
+  margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
+  font-size:.82rem;color:var(--muted);
+}
+
+@media (max-width:640px){
+  .leg{grid-template-columns:1fr;gap:6px}
+  .fact{flex:1 1 45%;padding-bottom:12px}
+  .frame-body{padding:18px 14px 22px}
+}
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Northcote Baptist Church · 网站改造提案</p>
+  <h1>一个多语言的门，一间多语言的教会</h1>
+  <p class="standfirst">
+    nbc.org.nz 目前是全英文站点。这份提案基于对现网源码的实际勘察，给出三件事：
+    分层的多语言方案、只改子主题的 UI 改进，以及一个已经做好、可直接粘贴上线的多语言在线圣经。
+    原则是<strong>最小改动</strong>——不换主题、不重做站点、不碰父主题一行代码。
+  </p>
+  <dl class="facts">
+    <div class="fact"><dt>平台</dt><dd>WordPress 6.4.9</dd></div>
+    <div class="fact"><dt>主题</dt><dd>my-religion (CMSMasters)<br>+ my-religion-child</dd></div>
+    <div class="fact"><dt>首页资源</dt><dd>32 CSS · 27 JS · 94 KB HTML</dd></div>
+    <div class="fact"><dt>当前语言</dt><dd>lang="en-US"，无 hreflang</dd></div>
+  </dl>
+</header>
+
+<section>
+  <p class="sec-label"><span>现状体检</span></p>
+  <h2>先说三个必须先解决的前提</h2>
+  <div class="col">
+    <p>
+      下面这张表是从线上 HTML 与主题样式文件里直接读出来的，不是推测。
+      其中前三条会<strong>直接卡住</strong>多语言改造——任何翻译插件都翻译不了写在图片里的字。
+    </p>
+  </div>
+
+  <div class="scroller">
+  <table>
+    <thead>
+      <tr><th>问题</th><th>证据</th><th>影响</th><th>严重度</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>核心文案被做成图片</td>
+        <td>Vision / Mission / Values 与信经是 <code>NBC_vision-mission-values.jpg</code>、<code>Creed.jpg</code></td>
+        <td>无法翻译、无法被搜索、读屏软件读不出来</td>
+        <td><span class="sev sev-hi">阻断</span></td>
+      </tr>
+      <tr>
+        <td>图片缺 alt 文本</td>
+        <td>首页 17 张图中 15 张 alt 为空或缺失</td>
+        <td>无障碍不合规，图片搜索流量为零</td>
+        <td><span class="sev sev-hi">高</span></td>
+      </tr>
+      <tr>
+        <td>标题层级错乱</td>
+        <td>页面先出现 h3 才出现 h2；唯一的 h1 是页尾的 “Love what we do and keen to get involved?”</td>
+        <td>搜索引擎读不懂页面主题，键盘/读屏导航混乱</td>
+        <td><span class="sev sev-hi">高</span></td>
+      </tr>
+      <tr>
+        <td>每页都加载用不到的脚本</td>
+        <td>timetable、qtip、carouFredSel、Instagram feed、LayerSlider + GreenSock 全站无条件加载</td>
+        <td>移动端首屏慢，手机流量成本高</td>
+        <td><span class="sev sev-md">中</span></td>
+      </tr>
+      <tr>
+        <td>随主题捆绑的插件不会自动更新</td>
+        <td>LayerSlider 6.8.2（2019 年版本，无独立授权即无更新通道）</td>
+        <td>安全补丁拿不到</td>
+        <td><span class="sev sev-md">中</span></td>
+      </tr>
+      <tr>
+        <td>子主题是空的</td>
+        <td><code>my-religion-child/style.css</code> 只有主题头注释，无任何规则</td>
+        <td><em>这其实是好消息</em>——下面所有改动都有干净的落点</td>
+        <td><span class="sev sev-lo">机会</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note col">
+    <p class="n-head">为什么这决定了整个方案</p>
+    <p>
+      子主题为空，意味着 CSS 与 <code>functions.php</code> 里的每一行都是我们自己写的，
+      父主题将来更新不会冲掉任何东西。所以本提案的 UI 部分<strong>不需要改主题、不需要买新主题、不需要重做站点</strong>，
+      只往一个目前空白的文件夹里加代码。
+    </p>
+  </div>
+</section>
+
+<section>
+  <p class="sec-label"><span>提案一</span></p>
+  <h2>多语言：不要一次翻译整站</h2>
+  <div class="col">
+    <p>
+      教会自我描述是 “intergenerational, multicultural”，并且常年开着
+      <strong>Kay's English Class</strong>（ESOL 英语班）。这两件事直接告诉我们目标语言是谁：
+      华人家庭、韩国家庭、菲律宾家庭，以及作为新西兰官方语言的 Te Reo Māori。
+    </p>
+    <p>
+      但把 40 多个页面全部翻成 4 种语言，是一个志愿者团队维护不下去的承诺——
+      翻译会过期，过期的翻译比没有翻译更伤信任。建议分三层推进，每一层都能独立上线并产生价值。
+    </p>
+  </div>
+
+  <div class="tiers">
+    <div class="tier">
+      <span class="t-tag">第 1 层 · 落地页</span>
+      <h3>每种语言一个页面</h3>
+      <p class="t-cost">约 1 天 · 0 插件 · 0 成本</p>
+      <p>新建 <code>/zh/</code>、<code>/ko/</code>、<code>/mi/</code> 三个普通 WordPress 页面，各写一页母语内容：</p>
+      <ul>
+        <li>我们是谁（3 句话）</li>
+        <li>主日几点、地址与地图</li>
+        <li>孩子来了怎么安排</li>
+        <li>会说这门语言的同工与联系方式</li>
+        <li>一个报名／联系表单</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <span class="t-tag">第 2 层 · 核心页</span>
+      <h3>Polylang 翻译 8 个页面</h3>
+      <p class="t-cost">约 1–2 周 · 免费版够用</p>
+      <p>
+        只翻 Home、Who We Are、On Sunday、Kids、Contact、Give、Kay's English Class、Events。
+        其余页面自动回落英文。
+      </p>
+      <ul>
+        <li>真实的 <code>/zh/</code> 路径与 hreflang，能被搜索收录</li>
+        <li>菜单可分语言配置</li>
+        <li>免费版语言数量不限（TranslatePress 免费版只给 1 种额外语言，这里不合适）</li>
+      </ul>
+    </div>
+    <div class="tier">
+      <span class="t-tag">第 3 层 · 长尾</span>
+      <h3>机器翻译兜底</h3>
+      <p class="t-cost">按需 · 可随时叫停</p>
+      <p>
+        剩余页面用机器翻译层覆盖，并明确标注 “机器翻译”。
+        核心页永远保持人工翻译，两者不要混在一起而不作区分。
+      </p>
+    </div>
+  </div>
+
+  <h3>语言切换器怎么放</h3>
+  <div class="col">
+    <ul>
+      <li><strong>放在顶栏右侧</strong>，与 GIVE 同一水平线——第一次来的人不会去页尾找。</li>
+      <li><strong>用语言自己的写法标注</strong>：中文 / 한국어 / Te Reo Māori / English。看不懂英文的人，正是需要切换的人。</li>
+      <li><strong>不要用国旗。</strong>国旗代表国家不代表语言，中文尤其敏感；奥克兰的华人来自多个地区。</li>
+      <li>切换语言后停在<strong>对应页面</strong>，没有译文时才回首页，并提示 “此页暂无中文版”。</li>
+    </ul>
+  </div>
+
+  <h3>真正的杀手级功能不是“翻译整站”，是“双语并排”</h3>
+  <div class="col">
+    <p>
+      因为教会本来就在教英文。ESOL 学员需要的不是一个纯中文站，而是
+      <strong>中英对照</strong>——这既服务语言学习，也服务那些英文够用但读经文吃力的人。
+      同样的逻辑用在讲道上：与其花大力气翻译整篇讲道稿，不如在每篇讲道下面加一段
+      <strong>中文／韩文摘要 + 3 条要点 + 经文出处</strong>，成本低一个数量级，实际帮助更大。
+    </p>
+  </div>
+</section>
+
+<section>
+  <p class="sec-label"><span>提案二</span></p>
+  <h2>UI：全部写进子主题，一行不碰父主题</h2>
+  <div class="col">
+    <p>
+      现有配色其实是可用的——砖红 <code>#d14f42</code>、石板蓝 <code>#216ea3</code>、深灰 <code>#3b3d4a</code>，
+      配 Fjalla One 标题 + Crimson Text 正文，是一套完整的视觉系统。
+      问题不在配色，在结构和密度。下面按投入产出排序。
+    </p>
+  </div>
+
+  <h3>1. 把首页轮播换成一个静态“门口”</h3>
+  <div class="col">
+    <p>
+      第一次找教会的人只想知道四件事：<strong>几点、在哪、孩子怎么办、我该穿什么</strong>。
+      轮播图会把这四件事轮走。改成一屏固定内容：一张真实的会众照片、一行
+      “主日 10:00 · Hillcrest”、一个主按钮 “第一次来？看这里”。
+      顺带把 LayerSlider + GreenSock（约 200 KB）从全站移除。
+    </p>
+  </div>
+
+  <h3>2. 新建一个 “Planning your first visit” 页面</h3>
+  <div class="col">
+    <p>
+      这是教会网站上被点击最多、而 NBC 目前没有的页面。内容就是上面那四个问题的回答，
+      再加停车、迟到了怎么办、聚会多长时间。这一页应该是<strong>第一批被翻译</strong>的。
+    </p>
+  </div>
+
+  <h3>3. 正文排版：为“跨代”会众放大</h3>
+  <div class="col">
+    <p>
+      Crimson Text 在主题默认字号下偏小，对年长会友不友好。子主题里几行 CSS 即可：
+    </p>
+  </div>
+<pre><code>/* my-religion-child/style.css */
+.entry-content, .cmsmasters_text {
+  font-size: 18px;
+  line-height: 1.75;
+  max-width: 68ch;          /* 控制每行字数，长行最难读 */
+}
+.entry-content p { margin-bottom: 1.15em; }
+
+/* 正文灰 #71727f 在白底上对比度约 4.4:1，压线；调深一档 */
+body, .entry-content { color: #5c5d69; }</code></pre>
+
+  <h3>4. 移动端底部常驻条</h3>
+  <div class="col">
+    <p>
+      手机上常驻三个入口：<strong>主日时间 · 地图导航 · 奉献</strong>。
+      子主题 <code>functions.php</code> 里输出一段 HTML，再配 30 行 CSS，是投入产出比最高的一处改动。
+    </p>
+  </div>
+
+  <h3>5. 按页卸载用不到的脚本</h3>
+<pre><code>// my-religion-child/functions.php
+add_action('wp_enqueue_scripts', function () {
+    if (is_front_page()) return;          // 首页保留
+
+    // 只有课表页需要 timetable 全家桶
+    if (!is_page('our-calendar')) {
+        wp_dequeue_script('timetable-carouFredSel');
+        wp_dequeue_script('timetable-qtip');
+        wp_dequeue_style('timetable-qtip');
+    }
+    // Instagram feed 只在特定页面用
+    if (!is_page(['community', 'youth'])) {
+        wp_dequeue_style('sbi-styles');
+    }
+}, 100);</code></pre>
+  <p class="cap">先在 staging 环境逐条验证，每卸一条就回归一次；句柄名以实际 <code>wp_print_scripts</code> 输出为准。</p>
+
+  <h3>6. 给 Google 一段结构化数据</h3>
+  <div class="col">
+    <p>
+      约 20 行 JSON-LD，能让 Google 在搜索结果里直接显示主日时间和地址——
+      本地搜索场景下这是最划算的一次改动。
+    </p>
+  </div>
+<pre><code>&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "Church",
+  "name": "Northcote Baptist Church",
+  "url": "https://nbc.org.nz/",
+  "address": { "@type": "PostalAddress",
+    "addressLocality": "Hillcrest", "addressRegion": "Auckland",
+    "addressCountry": "NZ" },
+  "knowsLanguage": ["en", "zh-Hans", "ko", "mi"],
+  "event": { "@type": "Event", "name": "Sunday Service",
+    "startDate": "2026-08-16T10:00+12:00",
+    "eventSchedule": { "@type": "Schedule",
+      "byDay": "https://schema.org/Sunday", "startTime": "10:00" } }
+}
+&lt;/script&gt;</code></pre>
+  <p class="cap">地址与坐标请填实际值后再上线。</p>
+</section>
+
+<section>
+  <p class="sec-label"><span>提案三 · 已完成</span></p>
+  <h2>在线圣经：一个 HTML 区块，零插件</h2>
+  <div class="col">
+    <p>
+      这一部分我已经做好了。它是一个 22 KB 的自包含 HTML 片段，
+      在 WordPress 后台新建页面 → 插入 “自定义 HTML” 区块 → 整段粘贴 → 发布，就完成了。
+      <strong>不装插件、不改主题、不需要构建工具。</strong>
+      配色与字体直接取自现有主题（<code>#d14f42</code> / <code>#216ea3</code> / Fjalla One / Crimson Text），
+      放上去就像是网站原生的一部分。
+    </p>
+  </div>
+
+  <div class="demo">
+    <div class="frame">
+      <div class="frame-bar">
+        <i></i><i></i><i></i>
+        <span class="frame-url">nbc.org.nz/bible/</span>
+      </div>
+      <div class="frame-body">
+        <div id="nbc-bible-app" data-default-translation="cus">
+
+  <div class="nbc-bar">
+    <label class="nbc-field nbc-field--ui">
+      <span class="nbc-lbl" data-i18n="ui">Interface</span>
+      <select class="nbc-sel" id="nbc-ui-lang"></select>
+    </label>
+
+    <label class="nbc-field">
+      <span class="nbc-lbl" data-i18n="version">Version</span>
+      <select class="nbc-sel" id="nbc-trans-a"></select>
+    </label>
+
+    <label class="nbc-field">
+      <span class="nbc-lbl" data-i18n="parallel">Side by side</span>
+      <select class="nbc-sel" id="nbc-trans-b"></select>
+    </label>
+
+    <label class="nbc-field nbc-field--book">
+      <span class="nbc-lbl" data-i18n="book">Book</span>
+      <select class="nbc-sel" id="nbc-book"></select>
+    </label>
+
+    <label class="nbc-field nbc-field--chap">
+      <span class="nbc-lbl" data-i18n="chapter">Chapter</span>
+      <select class="nbc-sel" id="nbc-chapter"></select>
+    </label>
+
+    <div class="nbc-tools">
+      <button type="button" class="nbc-btn" id="nbc-smaller" title="A-" aria-label="Decrease text size">A&minus;</button>
+      <button type="button" class="nbc-btn" id="nbc-bigger"  title="A+" aria-label="Increase text size">A+</button>
+    </div>
+  </div>
+
+  <div class="nbc-stage">
+    <button type="button" class="nbc-nav nbc-nav--prev" id="nbc-prev" aria-label="Previous chapter">&#8249;</button>
+
+    <div class="nbc-reader" id="nbc-reader" aria-live="polite">
+      <div class="nbc-skel"><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+
+    <button type="button" class="nbc-nav nbc-nav--next" id="nbc-next" aria-label="Next chapter">&#8250;</button>
+  </div>
+
+  <p class="nbc-credit">
+    <span data-i18n="credit">Scripture text served by</span>
+    <a href="https://api.getbible.net/" rel="noopener" target="_blank">getBible API</a>
+    &middot; <span id="nbc-license"></span>
+  </p>
+
+  <div class="nbc-toast" id="nbc-toast" role="status"></div>
+</div>
+
+<style>
+#nbc-bible-app{
+  --nbc-red:#d14f42;      /* theme primary   */
+  --nbc-red-dk:#98433a;   /* theme primary hover */
+  --nbc-blue:#216ea3;     /* theme secondary */
+  --nbc-ink:#3b3d4a;      /* theme heading   */
+  --nbc-mut:#71727f;      /* theme body      */
+  --nbc-line:#e4e4e4;
+  --nbc-bg:#fcfcfc;
+  --nbc-size:1.125rem;
+  color:var(--nbc-mut);
+  max-width:1100px;
+  margin:0 auto;
+  font-family:'Source Sans Pro',Arial,Helvetica,sans-serif;
+}
+#nbc-bible-app *,#nbc-bible-app *:before,#nbc-bible-app *:after{box-sizing:border-box}
+
+/* ---------- toolbar ---------- */
+#nbc-bible-app .nbc-bar{
+  display:flex;flex-wrap:wrap;gap:10px 14px;align-items:flex-end;
+  padding:16px 18px;background:var(--nbc-bg);
+  border:1px solid var(--nbc-line);border-radius:4px;
+}
+#nbc-bible-app .nbc-field{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 150px}
+#nbc-bible-app .nbc-field--chap{flex:0 0 90px}
+#nbc-bible-app .nbc-field--ui{flex:0 0 120px}
+#nbc-bible-app .nbc-lbl{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.72rem;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--nbc-ink);opacity:.7;
+}
+#nbc-bible-app .nbc-sel{
+  width:100%;padding:9px 30px 9px 11px;font-size:.95rem;line-height:1.3;
+  color:var(--nbc-ink);background:#fff;border:1px solid var(--nbc-line);border-radius:3px;
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6'%3E%3Cpath fill='%2371727f' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;background-size:9px;
+}
+#nbc-bible-app .nbc-sel:focus-visible,
+#nbc-bible-app .nbc-btn:focus-visible,
+#nbc-bible-app .nbc-nav:focus-visible{outline:2px solid var(--nbc-blue);outline-offset:2px}
+#nbc-bible-app .nbc-tools{display:flex;gap:6px;flex:0 0 auto}
+#nbc-bible-app .nbc-btn{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.85rem;
+  padding:9px 12px;color:var(--nbc-ink);background:#fff;
+  border:1px solid var(--nbc-line);border-radius:3px;cursor:pointer;
+}
+#nbc-bible-app .nbc-btn:hover{border-color:var(--nbc-red);color:var(--nbc-red)}
+
+/* ---------- stage ---------- */
+#nbc-bible-app .nbc-stage{position:relative;margin-top:22px}
+#nbc-bible-app .nbc-nav{
+  position:absolute;top:52px;width:38px;height:38px;line-height:1;
+  font-size:1.5rem;color:var(--nbc-mut);background:#fff;
+  border:1px solid var(--nbc-line);border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;z-index:2;
+}
+#nbc-bible-app .nbc-nav:hover{background:var(--nbc-red);border-color:var(--nbc-red);color:#fff}
+#nbc-bible-app .nbc-nav[disabled]{opacity:.3;cursor:default}
+#nbc-bible-app .nbc-nav--prev{left:-52px}
+#nbc-bible-app .nbc-nav--next{right:-52px}
+
+#nbc-bible-app .nbc-cols{display:grid;grid-template-columns:1fr;gap:34px}
+#nbc-bible-app .nbc-cols.is-parallel{grid-template-columns:1fr 1fr}
+
+#nbc-bible-app .nbc-col h2{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:1.5rem;line-height:1.2;color:var(--nbc-ink);
+  margin:0 0 4px;padding:0;
+}
+#nbc-bible-app .nbc-col .nbc-edition{
+  display:block;font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--nbc-red);margin-bottom:14px;
+}
+#nbc-bible-app .nbc-verses{
+  font-family:'Crimson Text',Georgia,serif;
+  font-size:var(--nbc-size);line-height:1.85;color:#4a4b57;
+}
+#nbc-bible-app .nbc-v{
+  display:block;padding:2px 8px;margin:0 -8px;border-radius:3px;
+  cursor:pointer;transition:background .15s;
+}
+#nbc-bible-app .nbc-v:hover{background:#fdf3f2}
+#nbc-bible-app .nbc-v.is-on{background:#fdf3f2;box-shadow:inset 3px 0 0 var(--nbc-red)}
+#nbc-bible-app .nbc-n{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.7em;
+  color:var(--nbc-red);vertical-align:.45em;margin-right:.45em;user-select:none;
+}
+
+/* ---------- states ---------- */
+#nbc-bible-app .nbc-skel i{
+  display:block;height:16px;margin-bottom:14px;border-radius:3px;
+  background:linear-gradient(90deg,#eee 25%,#f6f6f6 50%,#eee 75%);
+  background-size:400% 100%;animation:nbc-sh 1.3s ease infinite;
+}
+#nbc-bible-app .nbc-skel i:nth-child(2){width:92%}
+#nbc-bible-app .nbc-skel i:nth-child(4){width:78%}
+@keyframes nbc-sh{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){#nbc-bible-app .nbc-skel i{animation:none}}
+#nbc-bible-app .nbc-error{
+  padding:22px;border:1px solid var(--nbc-line);border-left:3px solid var(--nbc-red);
+  background:var(--nbc-bg);color:var(--nbc-ink);
+}
+#nbc-bible-app .nbc-credit{font-size:.78rem;color:#9a9aa5;margin:26px 0 0;text-align:center}
+#nbc-bible-app .nbc-credit a{color:var(--nbc-blue)}
+#nbc-bible-app .nbc-toast{
+  position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);
+  padding:10px 20px;background:var(--nbc-ink);color:#fff;border-radius:3px;
+  font-size:.85rem;opacity:0;pointer-events:none;transition:.22s;z-index:9999;
+}
+#nbc-bible-app .nbc-toast.is-on{opacity:1;transform:translate(-50%,0)}
+
+/* ---------- responsive ---------- */
+@media (max-width:1220px){
+  #nbc-bible-app .nbc-nav--prev{left:-8px}
+  #nbc-bible-app .nbc-nav--next{right:-8px}
+  #nbc-bible-app .nbc-cols{padding:0 42px}
+}
+@media (max-width:780px){
+  #nbc-bible-app .nbc-cols.is-parallel{grid-template-columns:1fr;gap:26px}
+  #nbc-bible-app .nbc-field{flex:1 1 100%}
+  #nbc-bible-app .nbc-field--chap,#nbc-bible-app .nbc-field--ui{flex:1 1 46%}
+  #nbc-bible-app .nbc-cols{padding:0}
+  #nbc-bible-app .nbc-nav{position:static;width:auto;height:auto;border-radius:3px;padding:10px 20px}
+  #nbc-bible-app .nbc-stage{display:flex;flex-direction:column}
+  #nbc-bible-app .nbc-stage .nbc-reader{order:-1;margin-bottom:18px}
+  #nbc-bible-app .nbc-nav--prev{align-self:flex-start}
+  #nbc-bible-app .nbc-nav--next{align-self:flex-end;margin-top:-46px}
+}
+</style>
+
+<script>
+(function () {
+  'use strict';
+
+  var app  = document.getElementById('nbc-bible-app');
+  if (!app) return;
+
+  /* ---- static data: chapter counts + localised book names ---- */
+  var DATA = {"chapters":[50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22],"names":{"kjv":["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Songs","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"],"cus":["创世记","出埃及记","利未记","民数记","申命记","约书亚记","士师记","路得记","撒母耳记上","撒母耳记下","列王纪上","列王纪下","历代志上","历代志下","以斯拉记","尼希米记","以斯帖记","约伯记","诗篇","箴言","传道书","雅歌","以赛亚书","耶利米书","耶利米哀歌","以西结书","但以理书","何西阿书","约珥书","阿摩司书","俄巴底亚书","约拿书","弥迦书","那鸿书","哈巴谷书","西番雅书","哈该书","撒迦利亚书","玛拉基书","马太福音","马可福音","路加福音","约翰福音","使徒行传","罗马书","哥林多前书","哥林多后书","加拉太书","以弗所书","腓立比书","歌罗西书","帖撒罗尼迦前书","帖撒罗尼迦后书","提摩太前书","提摩太后书","提多书","腓利门书","希伯来书","雅各书","彼得前书","彼得后书","约翰一书","约翰二书","约翰三书","犹大书","啟示錄"],"cut":["創世記","出埃及記","利未記","民數記","申命記","約書亞記","士師記","路得記","撒母耳記上","撒母耳記下","列王紀上","列王紀下","歷代志上","歷代志下","以斯拉記","尼希米記","以斯帖記","約伯記","詩篇","箴言","傳道書","雅歌","以賽亞書","耶利米書","耶利米哀歌","以西結書","但以理書","何西阿書","約珥書","阿摩司書","俄巴底亞書","約拿書","彌迦書","那鴻書","哈巴谷書","西番雅書","哈該書","撒迦利亞書","瑪拉基書","馬太福音","馬可福音","路加福音","約翰福音","使徒行傳","羅馬書","哥林多前書","哥林多後書","加拉太書","以弗所書","腓立比書","歌羅西書","帖撒羅尼迦前書","帖撒羅尼迦後書","提摩太前書","提摩太後書","提多書","腓利門書","希伯來書","雅各書","彼得前書","彼得後書","約翰一書","約翰二書","約翰三書","猶大書","啟示錄"],"korean":["창세기","출애굽기","레위기","민수기","신명기","여호수아","사사기","룻기","사무엘상","사무엘하","열왕기상","열왕기하","역대상","역대하","에스라","느헤미야","에스더","욥기","시편","잠언","전도서","아가","이사야","예레미야","예레미야 애가","에스겔","다니엘","호세아","요엘","아모스","오바댜","요나","미가","나훔","하박국","스바냐","학개","스가랴","말라기","마태복음","마가복음","누가복음","요한복음","사도행전","로마서","고린도전서","고린도후서","갈라디아서","에베소서","빌립보서","골로새서","데살로니가전서","데살로니가후서","디모데전서","디모데후서","디도서","빌레몬서","히브리서","야고보서","베드로전서","베드로후서","요한일서","요한이서","요한삼서","유다서","요한계시록"],"maori":["Genesis","Ekoru","Rewitika","Tauanga","Ture","Hohua","Kaiwhakawa","Ruti","1 Hāmueru","2 Hāmueru","1 Kingi","2 Kingi","1 Koriniti","2 Koriniti","Ezara","Nehemiha","Ehetere","Iopa","Himene","Whakataukī","Kaiwhakaako","Waiata","Ihaia","Heremaia","Kanohi Tangi","Ehikiera","Danihēra","Hōhea","Iōēri","Amōhi","Opātia","Iōna","Mīkaia","Nahumu","Hapakuku","Horopīa","Hakai","Hakaharīa","Merakai","Matēu","Māka","Ruka","Hōani","Ngā Mahi","Rōmana","1 Koriniti","2 Koriniti","Karaiti","Epeha","Whiringa-ā-nuku","Karōhia","1 Teratera","2 Teratera","1 Timotī","2 Timotī","Tītahi","Phīremōna","Hīperu","Hāme","1 Pētera","2 Pētera","1 Hōani","2 Hōani","3 Hōani","Hura","Whakakitenga"],"tagalog":["Genesis","Exodo","Levitico","Mga Bilang","Deuteronomio","Josue","Mga Hukom","Ruth","1 Samuel","2 Samuel","1 Mga Hari","2 Mga Hari","1 Mga Cronica","2 Mga Cronica","Ezra","Nehemias","Ester","Job","Mga Awit","Mga Kawikaan","Mangangaral","Awit ni Solomon","Isaias","Jeremias","Mga Panaghoy","Ezekiel","Daniel","Oseas","Joel","Amos","Obadias","Jonas","Mikas","Nahum","Habacuc","Zefanias","Hagai","Zacarias","Malachias","Mateo","Marcos","Lucas","Juan","Mga Gawa","Mga Romano","1 Mga Corinto","2 Mga Corinto","Mga Taga-Galacia","Mga Efeso","Mga Taga-Filipos","Mga Taga-Colosas","1 Mga Taga-Tesalonica","2 Mga Taga-Tesalonica","1 Timoteo","2 Timoteo","Tito","Filemon","Mga Hebreo","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas","Pahayag"]}};
+
+  /* ---- translations offered in the picker ----
+     Add or remove rows here; `books` says which name list to show. */
+  var VERSIONS = [
+    { id:'kjv',     books:'kjv',     lang:'English',        label:'King James Version' },
+    { id:'web',     books:'kjv',     lang:'English',        label:'World English Bible' },
+    { id:'basicenglish', books:'kjv', lang:'English', label:'Basic English (easy reading)' },
+    { id:'cus',     books:'cus',     lang:'中文',   label:'和合本（简体）' },
+    { id:'cut',     books:'cut',     lang:'中文',   label:'和合本（繁體）' },
+    { id:'cns',     books:'cus',     lang:'中文',   label:'新译本（简体）' },
+    { id:'korean',  books:'korean',  lang:'한국어', label:'개역개정' },
+    { id:'maori',   books:'maori',   lang:'Te Reo Māori', label:'Te Paipera Tapu' },
+    { id:'tagalog', books:'tagalog', lang:'Tagalog',        label:'Ang Dating Biblia' },
+    { id:'japkougo',books:'kjv',     lang:'日本語', label:'口語訳' },
+    { id:'vietnamese',books:'kjv',   lang:'Tiếng Việt', label:'Kinh Thánh 1934' },
+    { id:'valera',  books:'kjv',     lang:'Español',   label:'Reina Valera' }
+  ];
+
+  /* ---- interface strings ---- */
+  var UI = {
+    en:{ name:'English', ui:'Interface', version:'Version', parallel:'Side by side',
+         book:'Book', chapter:'Chapter', off:'Off', credit:'Scripture text served by',
+         copied:'Verse copied', failed:'This offline demo only includes Psalm 23 and John 3. The live version loads all 66 books.', retry:'Back to Psalm 23' },
+    zh:{ name:'中文', ui:'界面', version:'译本', parallel:'对照译本',
+         book:'书卷', chapter:'章', off:'关闭', credit:'经文数据来自',
+         copied:'已复制经文', failed:'离线演示仅内置诗篇 23 篇与约翰福音 3 章。正式版本可读全本 66 卷。', retry:'回到诗篇 23' },
+    ko:{ name:'한국어', ui:'인터페이스', version:'역본', parallel:'대조 역본',
+         book:'성경', chapter:'장', off:'끕', credit:'본문 제공',
+         copied:'구절을 복사했습니다', failed:'이 데모에는 시편 23편과 요한복음 3장만 포함되어 있습니다.', retry:'시편 23편으로' },
+    mi:{ name:'Te Reo Māori', ui:'Reo', version:'Whakamāoritanga', parallel:'Whakarite',
+         book:'Pukapuka', chapter:'Upoko', off:'Kati', credit:'Nā',
+         copied:'Kua kape', failed:'He whakaaturanga poto tēnei: ko Waiata 23 me Hoani 3 anake.', retry:'Hoki ki Waiata 23' }
+  };
+
+  var LS = 'nbc-bible-demo-v1';
+  var state = load() || { ui:'zh', a:'cus', b:'kjv', book:19, chap:23, size:1.125 };
+
+  function load(){ try { return JSON.parse(localStorage.getItem(LS)); } catch(e){ return null; } }
+  function save(){ try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){} }
+  function t(k){ return (UI[state.ui] || UI.en)[k] || UI.en[k]; }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var elUi = $('nbc-ui-lang'), elA = $('nbc-trans-a'), elB = $('nbc-trans-b'),
+      elBook = $('nbc-book'), elChap = $('nbc-chapter'), elReader = $('nbc-reader'),
+      elPrev = $('nbc-prev'), elNext = $('nbc-next'), elToast = $('nbc-toast');
+
+  /* ---------- option builders ---------- */
+  function opt(value, text, sel){
+    var o = document.createElement('option');
+    o.value = value; o.textContent = text; if (sel) o.selected = true;
+    return o;
+  }
+  function groupVersions(select, includeOff){
+    select.innerHTML = '';
+    if (includeOff) select.appendChild(opt('', t('off'), !state.b));
+    var seen = {};
+    VERSIONS.forEach(function (v) {
+      if (!seen[v.lang]) {
+        seen[v.lang] = document.createElement('optgroup');
+        seen[v.lang].label = v.lang;
+        select.appendChild(seen[v.lang]);
+      }
+      var current = includeOff ? state.b : state.a;
+      seen[v.lang].appendChild(opt(v.id, v.label, v.id === current));
+    });
+  }
+  function version(id){
+    for (var i = 0; i < VERSIONS.length; i++) if (VERSIONS[i].id === id) return VERSIONS[i];
+    return VERSIONS[0];
+  }
+  function bookNames(){ return DATA.names[version(state.a).books] || DATA.names.kjv; }
+
+  function fillBooks(){
+    var names = bookNames();
+    elBook.innerHTML = '';
+    var ot = document.createElement('optgroup'); ot.label = names[0] + ' – ' + names[38];
+    var nt = document.createElement('optgroup'); nt.label = names[39] + ' – ' + names[65];
+    names.forEach(function (n, i) {
+      (i < 39 ? ot : nt).appendChild(opt(i + 1, n.replace(/^﻿/, ''), i + 1 === state.book));
+    });
+    elBook.appendChild(ot); elBook.appendChild(nt);
+  }
+  function fillChapters(){
+    var total = DATA.chapters[state.book - 1];
+    if (state.chap > total) state.chap = total;
+    elChap.innerHTML = '';
+    for (var c = 1; c <= total; c++) elChap.appendChild(opt(c, c, c === state.chap));
+  }
+  function fillUi(){
+    elUi.innerHTML = '';
+    Object.keys(UI).forEach(function (k) { elUi.appendChild(opt(k, UI[k].name, k === state.ui)); });
+  }
+  function paintLabels(){
+    app.querySelectorAll('[data-i18n]').forEach(function (n) { n.textContent = t(n.dataset.i18n); });
+  }
+
+  /* ---------- fetching ---------- */
+  var PRELOAD = {"tagalog/43/3":{"translation":"Ang Dating Biblia (1905)","book_name":"Juan","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"May isang lalake nga sa mga Fariseo, na nagngangalang Nicodemo, isang pinuno ng mga Judio:"},{"verse":2,"text":"Ito rin ay naparoon sa kaniya nang gabi, at sa kaniya'y nagsabi, Rabi, nalalaman naming ikaw ay isang guro na nagbuhat sa Dios; sapagka't walang makagagawa ng mga tanda na iyong ginagawa, maliban na kung sumasa kaniya ang Dios."},{"verse":3,"text":"Sumagot si Jesus at sa kaniya'y sinabi, Katotohanan, katotohanang sinasabi ko sa iyo, Maliban na ang tao'y ipanganak na muli, ay hindi siya makakakita ng kaharian ng Dios."},{"verse":4,"text":"Sinabi sa kaniya ni Nicodemo, Paanong maipanganganak ang tao kung siya'y matanda na? makapapasok baga siyang bilang ikalawa sa tiyan ng kaniyang ina, at ipanganak?"},{"verse":5,"text":"Sumagot si Jesus, Katotohanan, katotohanang sinasabi ko sa iyo, Maliban na ang tao'y ipanganak ng tubig at ng Espiritu, ay hindi siya makapapasok sa kaharian ng Dios."},{"verse":6,"text":"Ang ipinanganak ng laman ay laman nga; at ang ipinanganak ng Espiritu ay espiritu nga."},{"verse":7,"text":"Huwag kang magtaka sa aking sinabi sa iyo, Kinakailangan ngang kayo'y ipanganak na muli."},{"verse":8,"text":"Humihihip ang hangin kung saan niya ibig, at naririnig mo ang kaniyang ugong, nguni't hindi mo nalalaman kung saan nanggagaling, at kung saan naparoroon: gayon ang bawa't ipinanganak ng Espiritu."},{"verse":9,"text":"Sumagot si Nicodemo at sa kaniya'y sinabi, Paanong pangyayari ng mga bagay na ito?"},{"verse":10,"text":"Sumagot si Jesus at sa kaniya'y sinabi, Ikaw ang guro sa Israel, at hindi mo nauunawa ang mga bagay na ito?"},{"verse":11,"text":"Katotohanan, katotohanang sinasabi ko sa iyo, Ang nalalaman namin ay sinasalita namin, at ang aming nakita ay pinatototohanan namin; at hindi ninyo tinanggap ang aming patotoo."},{"verse":12,"text":"Kung sinabi ko sa inyo ang mga bagay na nauukol sa lupa at hindi ninyo pinaniniwalaan, paanong paniniwalaan ninyo kung sabihin ko sa inyo ang mga bagay na nauukol sa langit?"},{"verse":13,"text":"At walang umakyat sa langit, kundi ang nanggaling sa langit, sa makatuwid baga'y ang Anak ng tao, na nasa langit."},{"verse":14,"text":"At kung paanong itinaas ni Moises sa ilang ang ahas, ay gayon kinakailangang itaas ang Anak ng tao;"},{"verse":15,"text":"Upang ang sinomang sumampalataya ay magkaroon sa kaniya ng buhay na walang hanggan."},{"verse":16,"text":"Sapagka't gayon na lamang ang pagsinta ng Dios sa sanglibutan, na ibinigay niya ang kaniyang bugtong na Anak, upang ang sinomang sa kaniya'y sumampalataya ay huwag mapahamak, kundi magkaroon ng buhay na walang hanggan."},{"verse":17,"text":"Sapagka't hindi sinugo ng Dios ang Anak sa sanglibutan upang hatulan ang sanglibutan; kundi upang ang sanglibutan ay maligtas sa pamamagitan niya."},{"verse":18,"text":"Ang sumasampalataya sa kaniya ay hindi hinahatulan; ang hindi sumasampalataya ay hinatulan na, sapagka't hindi siya sumampalataya sa pangalan ng bugtong na Anak ng Dios."},{"verse":19,"text":"At ito ang kahatulan, na naparito ang ilaw sa sanglibutan, at inibig pa ng mga tao ang kadiliman kay sa ilaw; sapagka't masasama ang kanilang mga gawa."},{"verse":20,"text":"Sapagka't ang bawa't isa na gumagawa ng masama ay napopoot sa ilaw, at hindi lumalapit sa ilaw, upang huwag masaway ang kaniyang mga gawa."},{"verse":21,"text":"Datapuwa't ang gumagawa ng katotohanan ay lumalapit sa ilaw, upang mahayag na ang kaniyang mga gawa ay ginawa sa Dios."},{"verse":22,"text":"Pagkatapos ng mga bagay na ito ay nagsiparoon si Jesus at ang kaniyang mga alagad sa lupain ng Judea; at doon siya tumira na kasama nila, at bumabautismo."},{"verse":23,"text":"At bumabautismo rin naman si Juan sa Enon na malapit sa Salim, sapagka't doo'y maraming tubig: at sila'y nagsiparoon, at nangabautismuhan."},{"verse":24,"text":"Sapagka't hindi pa ipinapasok sa bilangguan si Juan."},{"verse":25,"text":"Nagkaroon nga ng isang pakikipagtalo ang mga alagad ni Juan sa isang Judio tungkol sa paglilinis."},{"verse":26,"text":"At sila'y nagparoon kay Juan, at sa kaniya'y sinabi, Rabi, yaong kasama mo sa dako pa roon ng Jordan, na binigyan mong patotoo, narito, siya'y bumabautismo, at ang lahat ng mga tao'y nagsisiparoon sa kaniya."},{"verse":27,"text":"Sumagot si Juan at sinabi, Hindi makatatanggap ng anoman ang isang tao, malibang ito'y ipinagkaloob sa kaniya mula sa langit."},{"verse":28,"text":"Kayo man ay magsisisaksi sa akin, na aking sinabi, Hindi ako ang Cristo, kundi, na ako'y sinugo sa unahan niya."},{"verse":29,"text":"Ang nagtatangkilik sa kasintahang babae ay ang kasintahang lalake: datapuwa't ang kaibigan ng kasintahang lalake, na nakatayo at nakikinig sa kaniya, ay nagagalak na lubos dahil sa tinig ng kasintahang lalake: ito ngang aking kaligayahan ay naganap."},{"verse":30,"text":"Siya'y kinakailangang dumakila, nguni't ako'y kinakailangang bumaba."},{"verse":31,"text":"Ang nanggagaling sa itaas ay sumasaibabaw ng lahat: ang galing sa lupa ay taga lupa nga, at ang ukol sa lupa ang sinasalita niya: ang nanggagaling sa langit ay sumasaibabaw ng lahat."},{"verse":32,"text":"At kaniyang nakita at narinig, ay siyang pinatototohanan niya; at walang taong tumatanggap ng kaniyang patotoo."},{"verse":33,"text":"Ang tumatanggap ng kaniyang patotoo ay naglagay dito ng kaniyang tatak, na ang Dios ay totoo."},{"verse":34,"text":"Sapagka't ang sinugo ng Dios ay nagsasalita ng mga salita ng Dios: sapagka't hindi niya ibinibigay ang Espiritu sa pamamagitan ng sukat."},{"verse":35,"text":"Sinisinta ng Ama ang Anak, at inilagay sa kaniyang kamay ang lahat ng mga bagay."},{"verse":36,"text":"Ang sumasampalataya sa Anak ay may buhay na walang hanggan; nguni't ang hindi tumatalima sa Anak ay hindi makakakita ng buhay, kundi ang poot ng Dios ay sumasa kaniya."}]},"cut/19/23":{"translation":"Union Traditional","book_name":"詩篇","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"（大衛的 詩。）耶和華 是我的牧者，我必不 致缺乏。"},{"verse":2,"text":"他使我躺臥 在青 草地上，領我 在 可安歇 的水邊。"},{"verse":3,"text":"他使我的靈魂 甦醒，為 自己的名 引導我走 義 路。"},{"verse":4,"text":"我雖然 行 過死蔭 的幽谷，也不 怕 遭害，因為 你 與我同在；你的杖，你的竿，都 安慰我。"},{"verse":5,"text":"在我敵人 面前，你為我 擺設 筵席；你用油 膏了 我的頭，使我的福杯 滿溢。"},{"verse":6,"text":"我一 生 一世 必有 恩惠 慈愛 隨著我；我且要住 在耶和華 的殿中，直到永遠。"}]},"kjv/19/23":{"translation":"King James Version","book_name":"Psalms","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"The Lord is my shepherd; I shall not want."},{"verse":2,"text":"He maketh me to lie down in green pastures: he leadeth me beside the still waters."},{"verse":3,"text":"He restoreth my soul: he leadeth me in the paths of righteousness for his name’s sake."},{"verse":4,"text":"Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me."},{"verse":5,"text":"Thou preparest a table before me in the presence of mine enemies: thou anointest my head with oil; my cup runneth over."},{"verse":6,"text":"Surely goodness and mercy shall follow me all the days of my life: and I will dwell in the house of the Lord for ever."}]},"basicenglish/19/23":{"translation":"Basic English Bible","book_name":"Psalms","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"The Lord takes care of me as his sheep; I will not be without any good thing."},{"verse":2,"text":"He makes a resting-place for me in the green fields: he is my guide by the quiet waters."},{"verse":3,"text":"He gives new life to my soul: he is my guide in the ways of righteousness because of his name."},{"verse":4,"text":"Yes, though I go through the valley of deep shade, I will have no fear of evil; for you are with me, your rod and your support are my comfort."},{"verse":5,"text":"You make ready a table for me in front of my haters: you put oil on my head; my cup is overflowing."},{"verse":6,"text":"Truly, blessing and mercy will be with me all the days of my life; and I will have a place in the house of the Lord all my days."}]},"cus/43/3":{"translation":"Union Simplified","book_name":"约翰福音","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"有一个法利赛人，名叫尼哥底母，是犹太人的官。"},{"verse":2,"text":"这人夜里来见耶稣，说：「拉比，我们知道你是由　神那里来作师傅的；因为你所行的神迹，若没有　神同在，无人能行。」"},{"verse":3,"text":"耶稣回答说：「我实实在在地告诉你，人若不重生，就不能见　神的国。」"},{"verse":4,"text":"尼哥底母说：「人已经老了，如何能重生呢？岂能再进母腹生出来吗？」"},{"verse":5,"text":"耶稣说：「我实实在在地告诉你，人若不是从水和圣灵生的，就不能进　神的国。"},{"verse":6,"text":"从肉身生的就是肉身；从灵生的就是灵。"},{"verse":7,"text":"我说：『你们必须重生』，你不要以为希奇。"},{"verse":8,"text":"风随着意思吹，你听见风的响声，却不晓得从哪里来，往哪里去；凡从圣灵生的，也是如此。」"},{"verse":9,"text":"尼哥底母问他说：「怎能有这事呢？」"},{"verse":10,"text":"耶稣回答说：「你是以色列人的先生，还不明白这事吗？"},{"verse":11,"text":"我实实在在地告诉你，我们所说的是我们知道的；我们所见证的是我们见过的；你们却不领受我们的见证。"},{"verse":12,"text":"我对你们说地上的事，你们尚且不信，若说天上的事，如何能信呢？"},{"verse":13,"text":"除了从天降下、仍旧在天的人子，没有人升过天。"},{"verse":14,"text":"摩西在旷野怎样举蛇，人子也必照样被举起来，"},{"verse":15,"text":"叫一切信他的都得永生（或译：叫一切信的人在他里面得永生）。"},{"verse":16,"text":"「　神爱世人，甚至将他的独生子赐给他们，叫一切信他的，不致灭亡，反得永生。"},{"verse":17,"text":"因为　神差他的儿子降世，不是要定世人的罪（或译：审判世人；下同），乃是要叫世人因他得救。"},{"verse":18,"text":"信他的人，不被定罪；不信的人，罪已经定了，因为他不信　神独生子的名。"},{"verse":19,"text":"光来到世间，世人因自己的行为是恶的，不爱光，倒爱黑暗，定他们的罪就是在此。"},{"verse":20,"text":"凡作恶的便恨光，并不来就光，恐怕他的行为受责备。"},{"verse":21,"text":"但行真理的必来就光，要显明他所行的是靠　神而行。」"},{"verse":22,"text":"这事以后，耶稣和门徒到了犹太地，在那里居住，施洗。"},{"verse":23,"text":"约翰在靠近撒冷的哀嫩也施洗；因为那里水多，众人都去受洗。"},{"verse":24,"text":"（那时约翰还没有下在监里。）"},{"verse":25,"text":"约翰的门徒和一个犹太人辩论洁净的礼，"},{"verse":26,"text":"就来见约翰，说：「拉比，从前同你在约旦河外、你所见证的那位，现在施洗，众人都往他那里去了。」"},{"verse":27,"text":"约翰说：「若不是从天上赐的，人就不能得甚么。"},{"verse":28,"text":"我曾说：『我不是基督，是奉差遣在他前面的』，你们自己可以给我作见证。"},{"verse":29,"text":"娶新妇的就是新郎；新郎的朋友站着，听见新郎的声音就甚喜乐。故此，我这喜乐满足了。"},{"verse":30,"text":"他必兴旺，我必衰微。」"},{"verse":31,"text":"「从天上来的是在万有之上；从地上来的是属乎地，他所说的也是属乎地。从天上来的是在万有之上。"},{"verse":32,"text":"他将所见所闻的见证出来，只是没有人领受他的见证。"},{"verse":33,"text":"那领受他见证的，就印上印，证明　神是真的。"},{"verse":34,"text":"神所差来的就说　神的话，因为　神赐圣灵给他是没有限量的。"},{"verse":35,"text":"父爱子，已将万有交在他手里。"},{"verse":36,"text":"信子的人有永生；不信子的人得不着永生（原文是不得见永生），　神的震怒常在他身上。」"}]},"maori/43/3":{"translation":"Maori","book_name":"Hōani","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"Na he tangata tera no nga Parihi, ko Nikorima tona ingoa, he rangatira no nga Hurai:"},{"verse":2,"text":"Ka haere mai tenei ki a Ihu i te po, ka mea ki a ia, E Rapi, e matau ana matou i haere mai koe i te Atua hei kaiwhakaako, ina hoki e kore tetahi tangata e ahei te mea i enei merekara e meatia nei e koe, ki te kahore te Atua i a ia."},{"verse":3,"text":"Ka whakahoki a Ihu, ka mea ki a ia, he pono, he pono, taku e mea nei ki a koe, Ki te kahore te tangata e whanau hou, e kore ia e ahei te kite i te rangatiratanga o te Atua."},{"verse":4,"text":"Ka mea a Nikorima ki a ia, Me pehea ka whanau ai te tangata i tona koroheketanga? e taea ranei te tuarua o nga haerenga ki roto ki te kopu o tona whaea, whanau mai ai?"},{"verse":5,"text":"Ka whakahokia e Ihu, He pono, he pono taku e mea nei ki a koe, Ki te kahore te tangata e whanau i te wai, i te Wairua hoki, e kore ia e ahei te tomo ki te rangatiratanga o te Atua."},{"verse":6,"text":"Ko ta te kikokiko e whanau ai he kikokiko; ko ta te Wairua e whanau ai he wairua."},{"verse":7,"text":"Aua ra e miharo ki taku i mea nei ki a koe, he mea tuturu tenei kia whanau hou koutou."},{"verse":8,"text":"E pupuhi ana te hau ki tana wahi e pai ai, ka rongo hoki koe ki tona haruru, otiia e kore e mohiotia e koe te wahi i puta mai ai, e tae atu ai ranei: ko te ritenga tenei ki te hunga katoa ka whanau i te Wairua."},{"verse":9,"text":"Ka whakahoki a Nikorima, ka mea ki a ia, Me pehea ka taea ai enei mea?"},{"verse":10,"text":"Ka whakahoki a Ihu, ka mea ki a ia, Ko koe te Kaiwhakaako o Iharaira, a kahore i matau ki enei mea?"},{"verse":11,"text":"He pono, he pono taku e mea nei ki a koe, E korerotia ana e matou ta matou i matau ai, e whakaaturia ana ta matou i kite ai; heoi, e kore koutou e tango ki ta matou whakaaturanga."},{"verse":12,"text":"Ki te mea kua korerotia e ahau ki a koutou nga mea o te whenua, a kahore koutou e whakapono, me pehea ka whakapono ai ki te korerotia e ahau ki a koutou nga mea o te rangi?"},{"verse":13,"text":"Kahore hoki he tangata i kake noa ki te rangi, ko ia anake i heke iho i te rangi, ara ko te Tama a te tangata, e noho mai nei i te rangi."},{"verse":14,"text":"Ka rite hoki ki ta Mohi whakairinga i te nakahi i te koraha, kua takoto te tikanga kia pera te whakairinga o te Tama a te tangata."},{"verse":15,"text":"Kia kahore ai e ngaro te tangata e whakapono ana ki a ia, engari kia whiwhi ai ki te ora tonu."},{"verse":16,"text":"Koia ano te aroha o te Atua ki te ao, homai ana e ia tana Tama kotahi, kia kahore ai e ngaro te tangata e whakapono ana ki a ia, engari kia whiwhi ai ki te ora tonu."},{"verse":17,"text":"Kihai hoki te Atua i tono mai i tana Tama ki te ao ki te whakahe i te ao; engari kia ora ai te ao i a ia."},{"verse":18,"text":"Ko ia e whakapono ana ki a ia, e kore e tau te he ki a ia: tena ko ia e kore e whakapono, kua whakahengia noatia ake, mona kihai i whakapono ki te ingoa o te Tama kotahi a te Atua."},{"verse":19,"text":"Ko te whakahenga hoki tenei, no te mea kua tae mai nei te marama ki te ao, a nui atu to nga tangata aroha ki te pouri i to ratou ki te marama, he kino hoki no a ratou mahi."},{"verse":20,"text":"E kino ana hoki ki te marama nga kaimahi katoa i te kino, e kore ano hoki e haere mai ki te marama, kei whakakitea a ratou mahi."},{"verse":21,"text":"Tena ko te kaimahi i te pono, e haere mai ana ki te marama, kia kitea ai ana mahi, he mea mahi i roto i te Atua."},{"verse":22,"text":"A no muri i enei mea ka haere a Ihu, ratou ko ana akonga, ki te whenua o Huria; a noho tahi ana ratou ki reira, me tana iriiri ano."},{"verse":23,"text":"Na i te iriiri ano hoki a Hoani ki Enona, ki tetahi wahi e tata ana ki Harema, no te mea he nui te wai o reira: a ka haere mai ratou, ka iriiria."},{"verse":24,"text":"Kahore ano hoki a Hoani i panga ki te whare herehere."},{"verse":25,"text":"Na ka ara he totohe a nga akonga a Hoani ki tetahi Hurai mo te purenga."},{"verse":26,"text":"A ka haere ratou ki a Hoani, ka mea ki a ia, E Rapi, ko te tangata i tawahi na korua o Horano, ko tau i whakaatu mai na, nana, kei te iriiri ia, e haere ana hoki te katoa ki a ia."},{"verse":27,"text":"Ka whakahoki a Hoani, ka mea, E kore tetahi mea e riro i te tangata, ki te kore e homai ki a ia i te rangi."},{"verse":28,"text":"Ko koutou hei kaiwhakaae ki ahau, ki taku meatanga, Ehara ahau i a te Karaiti, engari i tonoa mai ahau i mua i a ia."},{"verse":29,"text":"Ko te tangata i te wahine marena hou, ko ia te tane marena hou: na ko te hoa o te tane marena hou, e tu ana, e rongo ana ki a ia, ka hari pu ki te reo o te tane marena hou: na reira i tutuki ai tenei hari oku."},{"verse":30,"text":"Ko te tikanga tenei, ko ia kia nui haere, ko ahau kia iti haere."},{"verse":31,"text":"Ko ia e haere mai ana i runga, kei runga ake ia i te katoa: ko to te whenua no te whenua ia, no te whenua ano ana korero: ko ia e haere mai ana i te rangi, kei runga ake ia i te katoa."},{"verse":32,"text":"A ko tana i kite ai, i rongo ai, ko ia tana e whakaatu ai: kahore hoki tetahi tangata e tango atu ki tana whakaaturanga."},{"verse":33,"text":"Ki te manako tetahi ki tana whakaaturanga, kua piri tana tohu ki te pono o ta te Atua."},{"verse":34,"text":"Ko ta te Atua i tono mai ai, e korero ana ia i nga kupu a te Atua: kahore hoki te Wairua e homai e te Atua i runga i te mehua."},{"verse":35,"text":"E aroha ana te Matua ki te Tama, kua hoatu ano nga mea katoa ki tona ringa."},{"verse":36,"text":"Ko ia e whakapono ana ki te Tama, he ora tonu tona: ko ia e kore e whakapono ki te Tama, e kore e kite i te ora; engari ka mau tonu te riri a te Atua ki a ia."}]},"maori/19/23":{"translation":"Maori","book_name":"Himene","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"He himene na Rawiri. Ko Ihowa toku hepara; e kore ahau e hapa."},{"verse":2,"text":"Ko ia hei mea kia takoto ahau ki nga wahi tarutaru hou: e arahi ana ia i ahau ki te taha o nga wai ata rere."},{"verse":3,"text":"Ko ia hei whakahoki ake i toku wairua: e arahi ana ia i ahau i nga ara o te tika, he whakaaro ki tona ingoa."},{"verse":4,"text":"Ae, ahakoa haere ahau i te awaawa o te atarangi o te mate, kahore he kino e wehi ai ahau: no te mea kei toku taha koe; ko tau rakau, ko tau tokotoko, ko ena hei oranga ngakau moku."},{"verse":5,"text":"E taka ana e koe he tepu ki toku aroaro i te tirohanga a oku hoariri, e whakawahia ana e koe toku matenga ki te hinu, purena tonu taku kapu."},{"verse":6,"text":"He pono e aru i ahau te pai me te atawhai i nga ra katoa e ora ai ahau, a ka noho ahau ki te whare o Ihowa ake tonu atu."}]},"korean/43/3":{"translation":"Korean","book_name":"요한복음","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"바리새인 중에 니고데모라 하는 사람이 있으니 유대인의 관원이라"},{"verse":2,"text":"그가 밤에 예수께 와서 가로되 랍비여 우리가 당신은 하나님께로서 오신 선생인 줄 아나이다 하나님이 함께 하시지 아니하시면 당신의 행하시는 이 표적을 아무라도 할 수 없음이니이다"},{"verse":3,"text":"예수께서 대답하여 가라사대 진실로 진실로 네게 이르노니 사람이 거듭나지 아니하면 하나님 나라를 볼 수 없느니라"},{"verse":4,"text":"니고데모가 가로되 사람이 늙으면 어떻게 날 수 있삽나이까 두번째 모태에 들어갔다가 날 수 있삽나이까"},{"verse":5,"text":"예수께서 대답하시되 진실로 진실로 네게 이르노니 사람이 물과 성령으로 나지 아니하면 하나님 나라에 들어갈 수 없느니라"},{"verse":6,"text":"육으로 난 것은 육이요 성령으로 난 것은 영이니"},{"verse":7,"text":"내가 네게 거듭나야 하겠다 하는 말을 기이히 여기지 말라"},{"verse":8,"text":"바람이 임의로 불매 네가 그 소리를 들어도 어디서 오며 어디로 가는지 알지 못하나니 성령으로 난 사람은 다 이러하니라"},{"verse":9,"text":"니고데모가 대답하여 가로되 어찌 이러한 일이 있을 수 있나이까"},{"verse":10,"text":"예수께서 가라사대 너는 이스라엘의 선생으로서 이러한 일을 알지 못하느냐"},{"verse":11,"text":"진실로 진실로 네게 이르노니 우리 아는 것을 말하고 본 것을 증거하노라 그러나 너희가 우리 증거를 받지 아니하는도다"},{"verse":12,"text":"내가 땅의 일을 말하여도 너희가 믿지 아니하거든 하물며 하늘 일을 말하면 어떻게 믿겠느냐"},{"verse":13,"text":"하늘에서 내려온 자 곧 인자 외에는 하늘에 올라간 자가 없느니라"},{"verse":14,"text":"모세가 광야에서 뱀을 든 것 같이 인자도 들려야 하리니"},{"verse":15,"text":"이는 저를 믿는 자마다 영생을 얻게 하려 하심이니라"},{"verse":16,"text":"하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 저를 믿는 자마다 멸망치 않고 영생을 얻게 하려 하심이니라"},{"verse":17,"text":"하나님이 그 아들을 세상에 보내신 것은 세상을 심판하려 하심이 아니요 저로 말미암아 세상이 구원을 받게 하려 하심이라"},{"verse":18,"text":"저를 믿는 자는 심판을 받지 아니하는 것이요 믿지 아니하는 자는 하나님의 독생자의 이름을 믿지 아니하므로 벌써 심판을 받은 것이니라"},{"verse":19,"text":"그 정죄는 이것이니 곧 빛이 세상에 왔으되 사람들이 자기 행위가 악하므로 빛보다 어두움을 더 사랑한 것이니라"},{"verse":20,"text":"악을 행하는 자마다 빛을 미워하여 빛으로 오지 아니하나니 이는 그 행위가 드러날까 함이요"},{"verse":21,"text":"진리를 쫓는 자는 빛으로 오나니 이는 그 행위가 하나님 안에서 행한 것임을 나타내려 함이라 하시니라"},{"verse":22,"text":"이 후에 예수께서 제자들과 유대 땅으로 가서 거기 함께 유하시며 침례를 주시더라"},{"verse":23,"text":"요한도 살렘 가까운 애논에서 침례를 주니 거기 물들이 많음이라 사람들이 와서 침례를 받더라"},{"verse":24,"text":"요한이 아직 옥에 갇히지 아니하였더라"},{"verse":25,"text":"이에 요한의 제자 중에서 한 유대인으로 더불어 결례에 대하여 변론이 되었더니"},{"verse":26,"text":"저희가 요한에게 와서 가로되 랍비여 선생님과 함께 요단 강 저편에 있던 자 곧 선생님이 증거하시던 자가 침례를 주매 사람이 다 그에게로 가더이다"},{"verse":27,"text":"요한이 대답하여 가로되 만일 하늘에서 주신바 아니면 사람이 아무 것도 받을 수 없느니라"},{"verse":28,"text":"나의 말한 바 나는 그리스도가 아니요 그의 앞에 보내심을 받은 자라고 한 것을 증거할 자는 너희니라"},{"verse":29,"text":"신부를 취하는 자는 신랑이나 서서 신랑의 음성을 듣는 친구가 크게 기뻐하나니 나는 이러한 기쁨이 충만하였노라"},{"verse":30,"text":"그는 흥하여야 하겠고 나는 쇠하여야 하리라 하니라"},{"verse":31,"text":"위로부터 오시는 이는 만물 위에 계시고 땅에서 난 이는 땅에 속하여 땅에 속한 것을 말하느니라 하늘로서 오시는 이는 만물 위에 계시나니"},{"verse":32,"text":"그가 그 보고 들은 것을 증거하되 그의 증거를 받는 이가 없도다"},{"verse":33,"text":"그의 증거를 받는 이는 하나님을 참되시다 하여 인쳤느니라"},{"verse":34,"text":"하나님의 보내신 이는 하나님의 말씀을 하나니 이는 하나님이 성령을 한량 없이 주심이니라"},{"verse":35,"text":"아버지께서 아들을 사랑하사 만물을 다 그 손에 주셨으니"},{"verse":36,"text":"아들을 믿는 자는 영생이 있고 아들을 순종치 아니하는 자는 영생을 보지 못하고 도리어 하나님의 진노가 그 위에 머물러 있느니라"}]},"cus/19/23":{"translation":"Union Simplified","book_name":"诗篇","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"（大卫的诗。）耶和华是我的牧者，我必不致缺乏。"},{"verse":2,"text":"他使我躺卧在青草地上，领我在可安歇的水边。"},{"verse":3,"text":"他使我的灵魂苏醒，为自己的名引导我走义路。"},{"verse":4,"text":"我虽然行过死荫的幽谷，也不怕遭害，因为你与我同在；你的杖，你的竿，都安慰我。"},{"verse":5,"text":"在我敌人面前，你为我摆设筵席；你用油膏了我的头，使我的福杯满溢。"},{"verse":6,"text":"我一生一世必有恩惠慈爱随着我；我且要住在耶和华的殿中，直到永远。"}]},"tagalog/19/23":{"translation":"Ang Dating Biblia (1905)","book_name":"Mga Awit","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"Ang Panginoon ay aking pastor; hindi ako mangangailangan."},{"verse":2,"text":"Kaniyang pinahihiga ako sa sariwang pastulan: pinapatnubayan niya ako sa siping ng mga tubig na pahingahan,"},{"verse":3,"text":"Kaniyang pinapananauli ang aking kaluluwa: pinapatnubayan niya ako sa mga landas ng katuwiran alangalang sa kaniyang pangalan."},{"verse":4,"text":"Oo, bagaman ako'y lumalakad sa libis ng lilim ng kamatayan, wala akong katatakutang kasamaan; sapagka't ikaw ay sumasa akin: ang iyong pamalo at ang iyong tungkod, ay nagsisialiw sa akin."},{"verse":5,"text":"Iyong pinaghahandaan ako ng dulang sa harap ko sa harapan ng aking mga kaaway: iyong pinahiran ang aking ulo ng langis; ang aking saro ay inaapawan."},{"verse":6,"text":"Tunay na ang kabutihan at kaawaan ay susunod sa akin sa lahat ng mga kaarawan ng aking buhay: at ako'y tatahan sa bahay ng Panginoon magpakailan man."}]},"kjv/43/3":{"translation":"King James Version","book_name":"John","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"There was a man of the Pharisees, named Nicodemus, a ruler of the Jews:"},{"verse":2,"text":"The same came to Jesus by night, and said unto him, Rabbi, we know that thou art a teacher come from God: for no man can do these miracles that thou doest, except God be with him."},{"verse":3,"text":"Jesus answered and said unto him, Verily, verily, I say unto thee, Except a man be born again, he cannot see the kingdom of God."},{"verse":4,"text":"Nicodemus saith unto him, How can a man be born when he is old? can he enter the second time into his mother’s womb, and be born?"},{"verse":5,"text":"Jesus answered, Verily, verily, I say unto thee, Except a man be born of water and of the Spirit, he cannot enter into the kingdom of God."},{"verse":6,"text":"That which is born of the flesh is flesh; and that which is born of the Spirit is spirit."},{"verse":7,"text":"Marvel not that I said unto thee, Ye must be born again."},{"verse":8,"text":"The wind bloweth where it listeth, and thou hearest the sound thereof, but canst not tell whence it cometh, and whither it goeth: so is every one that is born of the Spirit."},{"verse":9,"text":"Nicodemus answered and said unto him, How can these things be?"},{"verse":10,"text":"Jesus answered and said unto him, Art thou a master of Israel, and knowest not these things?"},{"verse":11,"text":"Verily, verily, I say unto thee, We speak that we do know, and testify that we have seen; and ye receive not our witness."},{"verse":12,"text":"If I have told you earthly things, and ye believe not, how shall ye believe, if I tell you of heavenly things?"},{"verse":13,"text":"And no man hath ascended up to heaven, but he that came down from heaven, even the Son of man which is in heaven."},{"verse":14,"text":"And as Moses lifted up the serpent in the wilderness, even so must the Son of man be lifted up:"},{"verse":15,"text":"That whosoever believeth in him should not perish, but have eternal life."},{"verse":16,"text":"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."},{"verse":17,"text":"For God sent not his Son into the world to condemn the world; but that the world through him might be saved."},{"verse":18,"text":"He that believeth on him is not condemned: but he that believeth not is condemned already, because he hath not believed in the name of the only begotten Son of God."},{"verse":19,"text":"And this is the condemnation, that light is come into the world, and men loved darkness rather than light, because their deeds were evil."},{"verse":20,"text":"For every one that doeth evil hateth the light, neither cometh to the light, lest his deeds should be reproved."},{"verse":21,"text":"But he that doeth truth cometh to the light, that his deeds may be made manifest, that they are wrought in God."},{"verse":22,"text":"After these things came Jesus and his disciples into the land of Judea; and there he tarried with them, and baptized."},{"verse":23,"text":"And John also was baptizing in Ænon near to Salim, because there was much water there: and they came, and were baptized."},{"verse":24,"text":"For John was not yet cast into prison."},{"verse":25,"text":"Then there arose a question between some of John’s disciples and the Jews about purifying."},{"verse":26,"text":"And they came unto John, and said unto him, Rabbi, he that was with thee beyond Jordan, to whom thou barest witness, behold, the same baptizeth, and all men come to him."},{"verse":27,"text":"John answered and said, A man can receive nothing, except it be given him from heaven."},{"verse":28,"text":"Ye yourselves bear me witness, that I said, I am not the Christ, but that I am sent before him."},{"verse":29,"text":"He that hath the bride is the bridegroom: but the friend of the bridegroom, which standeth and heareth him, rejoiceth greatly because of the bridegroom’s voice: this my joy therefore is fulfilled."},{"verse":30,"text":"He must increase, but I must decrease."},{"verse":31,"text":"He that cometh from above is above all: he that is of the earth is earthly, and speaketh of the earth: he that cometh from heaven is above all."},{"verse":32,"text":"And what he hath seen and heard, that he testifieth; and no man receiveth his testimony."},{"verse":33,"text":"He that hath received his testimony hath set to his seal that God is true."},{"verse":34,"text":"For he whom God hath sent speaketh the words of God: for God giveth not the Spirit by measure unto him."},{"verse":35,"text":"The Father loveth the Son, and hath given all things into his hand."},{"verse":36,"text":"He that believeth on the Son hath everlasting life: and he that believeth not the Son shall not see life; but the wrath of God abideth on him."}]},"basicenglish/43/3":{"translation":"Basic English Bible","book_name":"John","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"Now there was among the Pharisees a man named Nicodemus, who was one of the rulers of the Jews."},{"verse":2,"text":"He came to Jesus by night and said to him, Rabbi, we are certain that you have come from God as a teacher, because no man would be able to do these signs which you do if God was not with him."},{"verse":3,"text":"Jesus said to him, Truly, I say to you, Without a new birth no man is able to see the kingdom of God."},{"verse":4,"text":"Nicodemus said to him, How is it possible for a man to be given birth when he is old? Is he able to go into his mother's body a second time and come to birth again?"},{"verse":5,"text":"Jesus said in answer, Truly, I say to you, If a man's birth is not from water and from the Spirit, it is not possible for him to go into the kingdom of God."},{"verse":6,"text":"That which has birth from the flesh is flesh, and that which has birth from the Spirit is spirit."},{"verse":7,"text":"Do not be surprised that I say to you, It is necessary for you to have a second birth."},{"verse":8,"text":"The wind goes where its pleasure takes it, and the sound of it comes to your ears, but you are unable to say where it comes from and where it goes: so it is with everyone whose birth is from the Spirit."},{"verse":9,"text":"And Nicodemus said to him, How is it possible for these things to be?"},{"verse":10,"text":"And Jesus, answering, said, Are you the teacher of Israel and have no knowledge of these things?"},{"verse":11,"text":"Truly, I say to you, We say that of which we have knowledge; we give witness of what we have seen; and you do not take our witness to be true."},{"verse":12,"text":"If you have no belief when my words are about the things of earth, how will you have belief if my words are about the things of heaven?"},{"verse":13,"text":"And no one has ever gone up to heaven but he who came down from heaven, the Son of man."},{"verse":14,"text":"As the snake was lifted up by Moses in the waste land, even so it is necessary for the Son of man to be lifted up:"},{"verse":15,"text":"So that whoever has faith may have in him eternal life."},{"verse":16,"text":"For God had such love for the world that he gave his only Son, so that whoever has faith in him may not come to destruction but have eternal life."},{"verse":17,"text":"God did not send his Son into the world to be judge of the world; he sent him so that the world might have salvation through him."},{"verse":18,"text":"The man who has faith in him does not come up to be judged; but he who has no faith in him has been judged even now, because he has no faith in the name of the only Son of God."},{"verse":19,"text":"And this is the test by which men are judged: the light has come into the world and men have more love for the dark than for the light, because their acts are evil."},{"verse":20,"text":"The light is hated by everyone whose acts are evil and he does not come to the light for fear that his acts will be seen."},{"verse":21,"text":"But he whose life is true comes to the light, so that it may be clearly seen that his acts have been done by the help of God."},{"verse":22,"text":"After these things Jesus and his disciples went into the land of Judaea, and there he was with them for some time, giving baptism."},{"verse":23,"text":"Now John was then giving baptism at Aenon near Salim, because there was much water there; and people came and were given baptism."},{"verse":24,"text":"For at this time John had not been put into prison."},{"verse":25,"text":"Then a question came up between John's disciples and a Jew about washing."},{"verse":26,"text":"And they went to John and said to him, Rabbi, the man who was with you on the other side of the Jordan, the man to whom you gave witness, is now giving baptism, and everyone is going to him."},{"verse":27,"text":"And this was John's answer: A man is unable to have anything if it is not given to him from heaven."},{"verse":28,"text":"You yourselves give witness that I said, I am not the Christ. What I said was, I am sent before the Christ."},{"verse":29,"text":"He who has the bride is the husband: but the husband's friend, whose place is by his side and whose ears are open to him, is full of joy because of the husband's voice: such is my joy, and it is complete."},{"verse":30,"text":"He has to become greater while I become less."},{"verse":31,"text":"He who comes from heaven is greater than all others: he who comes from earth is of the earth, and of the earth are his words: he who comes from heaven is over all."},{"verse":32,"text":"He gives witness of what he has seen and of what has come to his ears; and no man takes his witness as true."},{"verse":33,"text":"He who so takes his witness has made clear his faith that God is true."},{"verse":34,"text":"For he whom God has sent says God's words; and God does not give him the Spirit by measure."},{"verse":35,"text":"The Father has love for the Son and has put all things into his hands."},{"verse":36,"text":"He who has faith in the Son has eternal life; but he who has not faith in the Son will not see life; God's wrath is resting on him."}]},"cut/43/3":{"translation":"Union Traditional","book_name":"約翰福音","chapter":3,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"有 一個 法利賽 人，名叫 尼哥底母，是猶太人 的官。"},{"verse":2,"text":"這人 夜裡 來見 耶穌， 說：「拉比，我們知道 你是由　神 那裡來作 師傅的；因為 你 所 行的 神蹟，若沒有　神 同在，無人 能 行。」"},{"verse":3,"text":"耶穌 回答 說：「我實實在在地 告訴 你，人 若不 重 生，就不能 見　神 的國。」"},{"verse":4,"text":"尼哥底母 說：「人 已經 老了，如何 能 重生呢？豈能 再進 母 腹 生出來嗎？」"},{"verse":5,"text":"耶穌 說：「我實實在在地 告訴 你，人 若不是 從 水 和 聖靈 生的，就不能 進　神 的國。"},{"verse":6,"text":"從 肉身 生的 就是 肉身； 從 靈 生的 就是 靈。"},{"verse":7,"text":"我說：『你們 必須 重 生』，你 不要 以為 希奇。"},{"verse":8,"text":"風 隨著 意思 吹， 你聽見 風的 響聲，卻 不 曉得 從哪裡 來， 往哪裡 去；凡 從 聖靈 生的，也 是如此。」"},{"verse":9,"text":"尼哥底母 問 他 說：「怎能 有 這事呢？」"},{"verse":10,"text":"耶穌 回答 說：「你是 以色列人 的先生， 還不 明白 這事嗎？"},{"verse":11,"text":"我實實在在地 告訴 你，我們所說的 是 我們知道的； 我們所見證的 是 我們見過的； 你們卻不 領受 我們的 見證。"},{"verse":12,"text":"我對你們 說 地上的事， 你們尚且不 信，若 說 天上的事，如何 能信呢？"},{"verse":13,"text":"除了 從 天 降下、 仍舊在天的人 子，沒有人 升過 天。"},{"verse":14,"text":"摩西 在 曠野 怎樣舉 蛇，人 子 也 必 照樣 被舉起來，"},{"verse":15,"text":"叫一切 信 他 的都得 永 生（或譯：叫一切信的人在他裡面得永生）。"},{"verse":16,"text":"「　神 愛 世人，甚至 將他的獨生 子 賜給他們，叫 一切 信 他的，不 致滅亡，反 得 永 生。"},{"verse":17,"text":"因為　神 差 他的兒子 降 世，不是 要定 世人的罪（或譯：審判世人；下同），乃是 要 叫世人 因 他 得救。"},{"verse":18,"text":"信 他的人，不 被定罪； 不 信的人，罪已經 定了，因為 他不 信　神 獨生 子 的名。"},{"verse":19,"text":"光 來到 世間， 世人 因 自己的 行為 是 惡的，不愛光，倒 愛 黑暗，定他們的罪 就是在此。"},{"verse":20,"text":"凡 作 惡的 便恨 光，並 不來 就 光，恐怕 他的 行為 受責備。"},{"verse":21,"text":"但 行 真理 的必來 就 光，要 顯明 他 所行的 是 靠　神 而行。」"},{"verse":22,"text":"這事 以後，耶穌 和 門徒 到了 猶太 地， 在那裡 居住， 施洗。"},{"verse":23,"text":"約翰 在 靠近 撒冷 的哀嫩 也 施洗；因為 那裡 水 多， 眾人都去 受洗。"},{"verse":24,"text":"（那時約翰 還沒有 下在 監裡。）"},{"verse":25,"text":"約翰 的 門徒 和一個猶太人 辯論 潔淨的禮，"},{"verse":26,"text":"就 來 見 約翰， 說：「拉比， 從前同 你 在 約旦河 外、你 所見證 的那位， 現在施洗， 眾人 都往 他 那裡去了。」"},{"verse":27,"text":"約翰 說：「若 不是 從 天上 賜的，人 就不能 得 甚麼。"},{"verse":28,"text":"我曾說：『我 不是 基督， 是 奉差遣 在他 前面的』，你們 自己 可以給我 作見證。"},{"verse":29,"text":"娶 新婦 的就是 新郎； 新郎 的朋友 站著， 聽見 新郎的 聲音 就甚 喜樂。故此，我 這 喜樂 滿足了。"},{"verse":30,"text":"他 必 興旺， 我 必衰微。」"},{"verse":31,"text":"「從天上 來的 是 在萬有 之上；從 地上 來 的是 屬乎地， 他所說的 也是屬乎 地。從 天上 來的 是在 萬有 之上。"},{"verse":32,"text":"他將所見 所聞 的 見證出來， 只是沒有人 領受 他的 見證。"},{"verse":33,"text":"那領受 他 見證的，就印上印，證明　神 是 真的。"},{"verse":34,"text":"神 所差來的 就說　神 的話，因為　神賜 聖靈 給他是沒有 限量的。"},{"verse":35,"text":"父 愛 子， 已將萬有 交在 他 手裡。"},{"verse":36,"text":"信 子 的人有 永 生； 不信 子 的人得不著 永生（原文是不得見永生），　神 的震怒 常在 他身上。」"}]},"korean/19/23":{"translation":"Korean","book_name":"시편","chapter":23,"direction":"LTR","distribution_license":"Public Domain","verses":[{"verse":1,"text":"여호와는 나의 목자시니 내가 부족함이 없으리로다"},{"verse":2,"text":"그가 나를 푸른 초장에 누이시며 쉴만한 물 가으로 인도하시는도다"},{"verse":3,"text":"내 영혼을 소생시키시고 자기 이름을 위하여 의의 길로 인도하시는도다"},{"verse":4,"text":"내가 사망의 음침한 골짜기로 다닐지라도 해를 두려워하지 않을 것은 주께서 나와 함께 하심이라 주의 지팡이와 막대기가 나를 안위하시나이다"},{"verse":5,"text":"주께서 내 원수의 목전에서 내게 상을 베푸시고 기름으로 내 머리에 바르셨으니 내 잔이 넘치나이다"},{"verse":6,"text":"나의 평생에 선하심과 인자하심이 정녕 나를 따르리니 내가 여호와의 집에 영원히 거하리로다"}]}};
+  function chapter(trans, book, chap){
+    var key = trans + '/' + book + '/' + chap;
+    return PRELOAD[key] ? Promise.resolve(PRELOAD[key]) : Promise.reject(new Error('demo'));
+  }
+
+  function column(json){
+    var head = document.createElement('div'); head.className = 'nbc-col';
+    var h = document.createElement('h2');
+    h.textContent = (json.book_name || '').replace(/^﻿/, '') + ' ' + json.chapter;
+    var ed = document.createElement('span'); ed.className = 'nbc-edition'; ed.textContent = json.translation;
+    var body = document.createElement('div'); body.className = 'nbc-verses';
+    if (json.direction === 'RTL') body.dir = 'rtl';
+
+    json.verses.forEach(function (v) {
+      var s = document.createElement('span');
+      s.className = 'nbc-v'; s.dataset.ref = json.book_name + ' ' + json.chapter + ':' + v.verse;
+      var n = document.createElement('span'); n.className = 'nbc-n'; n.textContent = v.verse;
+      s.appendChild(n); s.appendChild(document.createTextNode(v.text.trim()));
+      body.appendChild(s);
+    });
+    head.appendChild(h); head.appendChild(ed); head.appendChild(body);
+    return head;
+  }
+
+  function render(){
+    elReader.innerHTML = '<div class="nbc-skel"><i></i><i></i><i></i><i></i><i></i></div>';
+    var jobs = [chapter(state.a, state.book, state.chap)];
+    if (state.b) jobs.push(chapter(state.b, state.book, state.chap));
+
+    Promise.all(jobs).then(function (res) {
+      var wrap = document.createElement('div');
+      wrap.className = 'nbc-cols' + (res.length > 1 ? ' is-parallel' : '');
+      res.forEach(function (j) { wrap.appendChild(column(j)); });
+      elReader.innerHTML = ''; elReader.appendChild(wrap);
+      $('nbc-license').textContent = res[0].distribution_license || 'Public Domain';
+      elPrev.disabled = (state.book === 1 && state.chap === 1);
+      elNext.disabled = (state.book === 66 && state.chap === DATA.chapters[65]);
+    }).catch(function () {
+      elReader.innerHTML = '<div class="nbc-error"><p>' + t('failed') + '</p></div>';
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'nbc-btn'; b.textContent = t('retry');
+      b.onclick = function(){ state.book=19; state.chap=23; fillChapters(); elBook.value=19; render(); };
+      elReader.querySelector('.nbc-error').appendChild(b);
+    });
+    save();
+  }
+
+  /* ---------- chapter stepping ---------- */
+  function step(dir){
+    var c = state.chap + dir, b = state.book;
+    if (c < 1) { b--; if (b < 1) return; c = DATA.chapters[b - 1]; }
+    else if (c > DATA.chapters[b - 1]) { b++; if (b > 66) return; c = 1; }
+    state.book = b; state.chap = c;
+    fillChapters(); elBook.value = b;
+    render();
+  }
+
+  /* ---------- events ---------- */
+  elUi.onchange   = function () { state.ui = this.value; paintLabels(); groupVersions(elB, true); save(); };
+  elA.onchange    = function () { state.a = this.value; fillBooks(); render(); };
+  elB.onchange    = function () { state.b = this.value; render(); };
+  elBook.onchange = function () { state.book = +this.value; state.chap = 1; fillChapters(); render(); };
+  elChap.onchange = function () { state.chap = +this.value; render(); };
+  elPrev.onclick  = function () { step(-1); };
+  elNext.onclick  = function () { step(1); };
+
+  $('nbc-bigger').onclick  = function () { resize(0.125); };
+  $('nbc-smaller').onclick = function () { resize(-0.125); };
+  function resize(d){
+    state.size = Math.min(1.9, Math.max(0.9, state.size + d));
+    app.style.setProperty('--nbc-size', state.size + 'rem'); save();
+  }
+
+  elReader.addEventListener('click', function (e) {
+    var v = e.target.closest ? e.target.closest('.nbc-v') : null;
+    if (!v) return;
+    elReader.querySelectorAll('.nbc-v.is-on').forEach(function (n) { n.classList.remove('is-on'); });
+    v.classList.add('is-on');
+    var text = v.dataset.ref + ' — ' + v.textContent.replace(/^\d+\s*/, '');
+    if (navigator.clipboard) navigator.clipboard.writeText(text).then(toast);
+  });
+  function toast(){
+    elToast.textContent = t('copied'); elToast.classList.add('is-on');
+    setTimeout(function () { elToast.classList.remove('is-on'); }, 1600);
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if (e.key === 'ArrowLeft')  step(-1);
+    if (e.key === 'ArrowRight') step(1);
+  });
+
+  /* ---------- deep link: ?ref=43.3  (book.chapter) ---------- */
+  var ref = new URLSearchParams(location.search).get('ref');
+  if (ref && /^\d+\.\d+$/.test(ref)) {
+    var p = ref.split('.');
+    state.book = Math.min(66, Math.max(1, +p[0]));
+    state.chap = Math.max(1, +p[1]);
+  }
+
+  /* ---------- boot ---------- */
+  fillUi(); paintLabels();
+  groupVersions(elA, false); groupVersions(elB, true);
+  fillBooks(); fillChapters();
+  app.style.setProperty('--nbc-size', state.size + 'rem');
+  render();
+})();
+</script>
+
+      </div>
+    </div>
+    <p class="demo-note">
+      ↑ 可直接操作。此处为离线演示，内置<strong>诗篇 23 篇</strong>与<strong>约翰福音 3 章</strong>共 7 个译本；
+      切换到其他书卷会提示演示范围。正式版本实时连接 getBible API，全本 66 卷、117 个译本均可用。
+    </p>
+  </div>
+
+  <h3>它解决了什么</h3>
+  <div class="col">
+    <ul>
+      <li><strong>双语并排</strong>——左中文右英文、或左英文右毛利文。这是给 ESOL 班和跨代家庭真正用得上的功能，而不是一个装饰性的读经器。</li>
+      <li><strong>Te Paipera Tapu（毛利文圣经）</strong>——教会的价值观本来就用 Aroha / Whanaungatanga / Manaakitanga / Pono 四个毛利词表达，圣经也能读毛利文，这是一致的。</li>
+      <li><strong>界面本身四语</strong>——English / 中文 / 한국어 / Te Reo Māori 切换，按钮和标签一起变。</li>
+      <li><strong>A− / A+ 字号调节</strong>，为年长会友；← → 方向键翻章；点击经节一键复制；自动记住上次读到哪里。</li>
+      <li><strong>可深链</strong>：<code>/bible/?ref=43.3</code> 直接打开约翰福音第 3 章——讲道页、周报、群里发链接都能用。</li>
+    </ul>
+  </div>
+
+  <h3>数据来源与版权</h3>
+  <div class="col">
+    <p>
+      数据源是 <a href="https://api.getbible.net/" target="_blank" rel="noopener">getBible API v2</a>：
+      免费、无需 API key、<code>Access-Control-Allow-Origin: *</code>（浏览器可直连），
+      收录 117 个译本，均为公有领域或可自由分发的版本。已实测可用的相关译本：
+    </p>
+    <ul>
+      <li>中文：和合本简体 <code>cus</code> / 和合本繁體 <code>cut</code> / 新译本 <code>cns</code>、<code>cnt</code> / 文理和合 <code>chiunl</code></li>
+      <li>한국어：<code>korean</code>、<code>koreankjv</code></li>
+      <li>Te Reo Māori：<code>maori</code>（Te Paipera Tapu）</li>
+      <li>Tagalog <code>tagalog</code>、日本語 <code>japkougo</code>、Tiếng Việt <code>vietnamese</code>、Español <code>valera</code></li>
+      <li>English：KJV、World English Bible、Basic English（易读版，适合 ESOL）</li>
+    </ul>
+  </div>
+
+  <div class="note col">
+    <p class="n-head">版权提醒</p>
+    <p>
+      NIV、ESV、NLT、和合本修订版、새번역 等属于<strong>受版权保护</strong>的译本，
+      不能自行抓取或托管。如果教会希望使用 NIV，正确做法是跳转到 BibleGateway / YouVersion，
+      或向 API.Bible 申请授权。上面列出的译本没有这个问题。
+    </p>
+  </div>
+
+  <div class="note col">
+    <p class="n-head">尚未覆盖的语言</p>
+    <p>
+      getBible 目前没有 Samoan、Tongan、Hindi 译本。若这些群体在会众中占比不小，
+      可对这几种语言退化为跳转 bible.com 的外链，界面上保持同一个入口。
+    </p>
+  </div>
+</section>
+
+<section>
+  <p class="sec-label"><span>提案四</span></p>
+  <h2>另外几件值得做的事</h2>
+  <div class="col">
+    <h4>讲道变成播客</h4>
+    <p>
+      现有 Sermons 已经有音频结构，加一个 RSS 输出就能进 Apple Podcasts / Spotify。
+      再用 Whisper 自动转写，把摘要翻成中文／韩文挂在页面上——
+      对听力跟不上英文讲道的会友，这比任何界面改动都有用。
+    </p>
+
+    <h4>奉献页优先翻译</h4>
+    <p>
+      GIVE 已经在主导航里。银行账号、参考编号怎么填、能否开税务收据——
+      这些细节恰恰是语言不通时最容易出错、也最让人尴尬的地方。银行信息做成可一键复制。
+    </p>
+
+    <h4>Connect Card 多语版</h4>
+    <p>
+      站上已装 Contact Form 7，直接复制出中／韩／毛利文版本即可，无需新插件。
+    </p>
+
+    <h4>先建 staging，再动生产环境</h4>
+    <p>
+      WordPress 6.4.9 与随主题捆绑的 LayerSlider 6.8.2 都需要一次安全检查。
+      建议顺序是：整站备份 → 克隆一份 staging → 所有改动先在 staging 验证 → 再上生产。
+      同时打开 WordPress 自动小版本更新。
+    </p>
+
+    <h4>把毛利文用得更实一点</h4>
+    <p>
+      现在只有四个价值观词是毛利文。作为新西兰官方语言，在导航、问候语、
+      主日流程里更实质地使用 Te Reo，既是文化上的正确，也是这间教会区别于其他教会的地方。
+    </p>
+  </div>
+</section>
+
+<section>
+  <p class="sec-label"><span>执行顺序</span></p>
+  <h2>四周路线图</h2>
+  <div class="col">
+    <p>排序原则：先做零风险、不依赖插件、不动现有页面的事；把需要改动内容和装插件的事放后面。</p>
+  </div>
+
+  <div class="road">
+    <div class="leg">
+      <div class="leg-when">第 1 周</div>
+      <div>
+        <h3>零风险快赢</h3>
+        <ul>
+          <li>上线在线圣经页面（粘贴 HTML 区块即可）</li>
+          <li>建 <code>/zh/</code>、<code>/ko/</code>、<code>/mi/</code> 三个母语落地页</li>
+          <li>补全首页 15 张图的 alt 文本</li>
+          <li>加 schema.org JSON-LD</li>
+          <li>整站备份 + staging 环境</li>
+        </ul>
+      </div>
+    </div>
+    <div class="leg">
+      <div class="leg-when">第 2–3 周</div>
+      <div>
+        <h3>拆掉图片里的文字，收拾排版</h3>
+        <ul>
+          <li>把 Vision / Mission / Values 与信经重排为真正的 HTML 文本（多语言的前提）</li>
+          <li>修正标题层级，给首页一个真的 h1</li>
+          <li>子主题 CSS：字号、行距、行宽、对比度</li>
+          <li>新建 “第一次来？” 页面，首页轮播换静态首屏</li>
+        </ul>
+      </div>
+    </div>
+    <div class="leg">
+      <div class="leg-when">第 4 周起</div>
+      <div>
+        <h3>正式多语言与性能</h3>
+        <ul>
+          <li>装 Polylang，翻译 8 个核心页面</li>
+          <li>顶栏语言切换器 + hreflang</li>
+          <li>按页卸载脚本，加缓存插件</li>
+          <li>讲道播客 RSS + 中／韩文摘要</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<p class="foot">
+  提案依据：2026 年 8 月 9 日对 nbc.org.nz 线上 HTML、主题样式表与资源清单的实际勘察；
+  在线圣经组件已在无头浏览器中完成端到端验证（KJV 单栏、和合本简体 × Te Reo Māori 双栏对照）。
+  正式文件：<code>nbc-bible-reader.html</code>（22 KB，可直接粘贴）。
+</p>
+
+</div>
