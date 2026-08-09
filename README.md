@@ -16,16 +16,24 @@
 
 ## 目录
 
-在线预览：**https://nbc-website-revamp.pages.dev/**
+在线预览（可点的完整站点原型）：**https://nbc-website-revamp.pages.dev/**
 
 ```
-index.html                     预览站落地页（不用于 WordPress）
-bible.html                     在线圣经的独立演示页  ← build-site.py 生成
-preview.html                   全部粘贴区块的渲染预览  ← build-site.py 生成
-build-site.py                  从下面的片段生成上面两个独立页面
+src/                           原型站点的源文件（不进 WordPress）
+  home.html sunday.html        首页与内页正文
+  contact.html give.html
+  ask.html ask.js ask.css      圣经多语言问答：按主题查经 + 经文地址查询
+  chrome.css site.js           头部/导航/页脚/四语界面切换
+  booknames.json               66 卷书名，6 种语言
+  package.html                 改造包说明页（开发者视角）
+build-site.py                  由上面这些 + pages/ 生成整站
+assets/                        生成物：site.css / site.js / ask.js
+index.html sunday.html …       生成物：可直接部署的静态站点
+
+—— 以下是真正要进 WordPress 的东西 ——
 
 nbc-bible-reader.html          在线圣经，22 KB，粘进「自定义 HTML」区块即可
-nbc-proposal.html              提案文档（已发布为在线页面）
+nbc-proposal.html              提案文档
 
 my-religion-child/
   style.css                    子主题样式（含 NBC 定制段落，原文件只有主题头注释）
@@ -43,6 +51,18 @@ pages/                         每个文件 = 一个「自定义 HTML」区块�
 content/
   alt-text.md                  首页 15 张缺 alt 图片的替代文本，逐张写好
 ```
+
+## 关于站点原型
+
+`https://nbc-website-revamp.pages.dev/` 是**改造后网站的可点原型**，不是最终产品：
+
+- 每页顶部有常驻声明，说明这是未经委托的第三方提案、与教会无隶属关系；
+  所有页面 `noindex, nofollow`，`canonical` 指向 nbc.org.nz，不会跟真站抢搜索结果。
+- 照片直接引用 nbc.org.nz 上的原图（未复制到本仓库）。
+- 语言切换在原型里是**客户端 JS**；真站上应该由 Polylang 提供真实的 `/zh/` `/ko/` `/mi/`
+  路径，这样 Google 才能收录。原型演示的是效果，不是实现方式。
+- 现网站查不到的信息（街道地址、停车、办公时间）在原型里渲染成黄色高亮标记，
+  而不是编一个填进去。
 
 > `pages/` 里的文件和 `nbc-bible-reader.html` 是**片段**——它们是给 WordPress
 > 「自定义 HTML」区块用的，本身没有 `<!doctype>`、`<head>`、viewport。

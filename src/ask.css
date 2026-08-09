@@ -1,0 +1,163 @@
+/* ---- Find a passage --------------------------------------------------- */
+
+.ask-lead {
+	font-family: 'Crimson Text', Georgia, serif;
+	font-size: 1.2rem;
+	line-height: 1.68;
+	color: var(--nbc-body);
+	max-width: 58ch;
+	margin: 0 0 26px;
+}
+
+.ask-topics {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 9px;
+	margin: 0 0 26px;
+}
+.ask-chip {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .95rem;
+	line-height: 1.35;
+	text-align: left;
+	padding: 10px 16px;
+	min-height: 44px;
+	color: var(--nbc-ink);
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	border-radius: 22px;
+	cursor: pointer;
+	transition: border-color .15s, background .15s, color .15s;
+}
+.ask-chip:hover { border-color: var(--nbc-red); color: var(--nbc-red); }
+.ask-chip.is-on { background: var(--nbc-red); border-color: var(--nbc-red); color: #fff; }
+
+.ask-form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: stretch;
+	max-width: 34rem;
+	margin: 0 0 8px;
+}
+.ask-form input {
+	flex: 1 1 15rem;
+	min-height: 46px;
+	padding: 10px 15px;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 1rem;
+	color: var(--nbc-ink);
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	border-radius: 3px;
+}
+.ask-form button {
+	min-height: 46px;
+	padding: 0 24px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .95rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: #fff;
+	background: var(--nbc-blue);
+	border: 0;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.ask-form button:hover { background: #1a577f; }
+
+.ask-out { margin: 34px 0 0; }
+.ask-out__head {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+	color: var(--nbc-ink);
+	margin: 0 0 18px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--nbc-line);
+}
+/* CJK has no Fjalla One glyphs. */
+[lang^="zh"] .ask-out__head, [lang^="ko"] .ask-out__head {
+	font-family: 'Source Sans Pro', -apple-system, 'PingFang SC', 'Noto Sans CJK SC',
+	             'Apple SD Gothic Neo', 'Noto Sans CJK KR', Arial, sans-serif;
+	font-weight: 700;
+}
+
+.ask-card {
+	border: 1px solid var(--nbc-line);
+	border-left: 3px solid var(--nbc-red);
+	background: #fff;
+	padding: 20px 22px 18px;
+	margin: 0 0 16px;
+}
+.ask-card__ref {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: 1.06rem;
+	letter-spacing: .04em;
+	color: var(--nbc-ink);
+	margin: 0 0 14px;
+}
+.ask-card__cols { display: grid; gap: 20px; }
+@media (min-width: 780px) {
+	.ask-card__cols.is-parallel { grid-template-columns: 1fr 1fr; gap: 30px; }
+}
+.ask-col__ed {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .7rem;
+	letter-spacing: .11em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	margin: 0 0 8px;
+}
+.ask-verses {
+	font-family: 'Crimson Text', Georgia, serif;
+	font-size: 1.1rem;
+	line-height: 1.75;
+	color: #4a4b57;
+}
+[lang^="zh"] .ask-verses, [lang^="ko"] .ask-verses {
+	font-family: -apple-system, 'PingFang SC', 'Noto Sans CJK SC',
+	             'Apple SD Gothic Neo', 'Noto Sans CJK KR', Georgia, serif;
+	line-height: 1.9;
+}
+.ask-verse { margin: 0 0 6px; }
+.ask-verse__n {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .68em;
+	color: var(--nbc-red);
+	vertical-align: .45em;
+	margin-right: .4em;
+	user-select: none;
+}
+.ask-card__more {
+	display: inline-block;
+	margin: 14px 0 0;
+	font-size: .88rem;
+	color: var(--nbc-blue);
+	text-decoration: none;
+	border-bottom: 1px solid rgba(33, 110, 163, .3);
+}
+.ask-card__more:hover { border-bottom-color: var(--nbc-blue); }
+.ask-card__loading { margin: 0; color: var(--nbc-mut, #71727f); font-size: .92rem; }
+.ask-card__error { margin: 0; color: var(--nbc-red); font-size: .92rem; }
+
+.ask-pastoral {
+	margin: 30px 0 0;
+	padding: 16px 20px;
+	background: #f7f7f9;
+	border-left: 2px solid var(--nbc-blue);
+	font-size: .93rem;
+	line-height: 1.7;
+	color: var(--nbc-body);
+	max-width: 62ch;
+}
+
+/* ---- honesty note shown under the language switcher -------------------- */
+.lang-note {
+	margin: 8px 0 0;
+	font-size: .82rem;
+	line-height: 1.55;
+	color: var(--nbc-mut, #71727f);
+	max-width: 46ch;
+}

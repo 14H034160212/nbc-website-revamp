@@ -4,39 +4,65 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Online Bible — multilingual, side by side</title>
-<meta name="description" content="A drop-in multilingual Bible reader for church websites. Free, no API key, no plugin. English, 中文, 한국어, Te Reo Māori and more.">
-<meta name="robots" content="index, follow">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📖</text></svg>">
+<meta name="description" content="Read the Bible in English, 中文, 한국어, Te Reo Māori and more — two languages side by side.">
+<!-- This prototype must never compete with the real church website in search. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://nbc.org.nz/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>&#9962;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap">
 <style>
-/* This demo has no Google Fonts link, so the theme's Fjalla One and
-   Crimson Text fall back to system faces. On the real site those webfonts
-   are already loaded by the parent theme. */
-html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: #fff; color: #5c5d69;
-       font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-                    'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-.demo-bar {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
-  padding: 11px clamp(16px, 4vw, 34px);
-  background: #22242d; color: #c3c8d6;
-  font-size: 13px; line-height: 1.4;
-}
-.demo-bar a { color: #8fbde0; }
-.demo-bar strong { color: #fff; font-weight: 600; }
-.demo-bar span { margin-left: auto; opacity: .7; }
-.demo-wrap { padding: clamp(24px, 5vw, 52px) clamp(16px, 4vw, 34px) 80px; }
+/* The parent theme calls the body face "Source Sans Pro"; Google now serves
+   it as "Source Sans 3". Alias it so the theme's own font stacks resolve. */
+@font-face { font-family: 'Source Sans Pro'; src: local('Source Sans 3'); }
 </style>
+<link rel="stylesheet" href="assets/site.css">
 
 </head>
-<body>
-<p class="demo-bar">
-  <strong>Live demo</strong>
-  <a href="./">← Back to the package</a>
-  <a href="https://github.com/14H034160212/nbc-website-revamp">Source on GitHub</a>
-  <span>Reads from api.getbible.net — all 66 books, 117 translations</span>
-</p>
-<div class="demo-wrap">
-<!-- ============================================================
+<body class="nbc-has-actionbar" data-page="bible.html">
+
+<a class="nbc-skip" href="#nbc-main">Skip to content</a>
+
+<div class="proto">
+  <div class="proto__inner">
+    <b>Prototype</b>
+    <span>Unofficial redesign proposal — not affiliated with, reviewed by, or adopted by Northcote Baptist Church.</span>
+    <span class="proto__spacer"><a href="https://nbc.org.nz/" rel="noopener">The real site →</a></span>
+    <span><a href="package.html">About this package</a></span>
+  </div>
+</div>
+
+<div class="nbc-langbar">
+  <div class="nbc-langbar__inner" style="display:block;text-align:right">
+    <div data-lang-switcher style="display:flex;justify-content:flex-end"></div>
+    <p class="lang-note" id="lang-note" style="margin-left:auto" hidden></p>
+  </div>
+</div>
+
+<header class="site-head">
+  <div class="site-head__inner">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><g fill="none" stroke="#d14f42" stroke-width="1.6" stroke-linejoin="round"><path d="M16 3h8l-4 6z"/><path d="M16 3l4 6-8 5z"/><path d="M24 3l-4 6 8 5z"/><path d="M4 14h32l-16 10z"/><path d="M20 24v13"/></g></svg>
+      <span class="brand__name"><b>northcote</b><span>baptist church</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span></button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+        <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+        <li><a href="first-visit.html" data-i18n="nav.visit">First visit</a></li>
+        <li><a href="bible.html" aria-current="page" data-i18n="nav.bible">Bible</a></li>
+        <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+        <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        <li><a class="is-cta" href="give.html" data-i18n="nav.give">Give</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="nbc-main" tabindex="-1">
+<div class="shell"><div class="page-head"><p class="page-head__kicker" data-i18n="nav.bible">Bible</p><h1>Read in two languages at once</h1></div><div class="band band--flush"><!-- ============================================================
      NBC Online Bible  —  drop-in widget for nbc.org.nz
      ------------------------------------------------------------
      HOW TO USE (no theme edit, no plugin, no build step):
@@ -241,7 +267,7 @@ body { margin: 0; background: #fff; color: #5c5d69;
   if (!app) return;
 
   /* ---- static data: chapter counts + localised book names ---- */
-  var DATA = {"chapters":[50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22],"names":{"kjv":["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Songs","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"],"cus":["创世记","出埃及记","利未记","民数记","申命记","约书亚记","士师记","路得记","撒母耳记上","撒母耳记下","列王纪上","列王纪下","历代志上","历代志下","以斯拉记","尼希米记","以斯帖记","约伯记","诗篇","箴言","传道书","雅歌","以赛亚书","耶利米书","耶利米哀歌","以西结书","但以理书","何西阿书","约珥书","阿摩司书","俄巴底亚书","约拿书","弥迦书","那鸿书","哈巴谷书","西番雅书","哈该书","撒迦利亚书","玛拉基书","马太福音","马可福音","路加福音","约翰福音","使徒行传","罗马书","哥林多前书","哥林多后书","加拉太书","以弗所书","腓立比书","歌罗西书","帖撒罗尼迦前书","帖撒罗尼迦后书","提摩太前书","提摩太后书","提多书","腓利门书","希伯来书","雅各书","彼得前书","彼得后书","约翰一书","约翰二书","约翰三书","犹大书","啟示錄"],"cut":["創世記","出埃及記","利未記","民數記","申命記","約書亞記","士師記","路得記","撒母耳記上","撒母耳記下","列王紀上","列王紀下","歷代志上","歷代志下","以斯拉記","尼希米記","以斯帖記","約伯記","詩篇","箴言","傳道書","雅歌","以賽亞書","耶利米書","耶利米哀歌","以西結書","但以理書","何西阿書","約珥書","阿摩司書","俄巴底亞書","約拿書","彌迦書","那鴻書","哈巴谷書","西番雅書","哈該書","撒迦利亞書","瑪拉基書","馬太福音","馬可福音","路加福音","約翰福音","使徒行傳","羅馬書","哥林多前書","哥林多後書","加拉太書","以弗所書","腓立比書","歌羅西書","帖撒羅尼迦前書","帖撒羅尼迦後書","提摩太前書","提摩太後書","提多書","腓利門書","希伯來書","雅各書","彼得前書","彼得後書","約翰一書","約翰二書","約翰三書","猶大書","啟示錄"],"korean":["창세기","출애굽기","레위기","민수기","신명기","여호수아","사사기","룻기","사무엘상","사무엘하","열왕기상","열왕기하","역대상","역대하","에스라","느헤미야","에스더","욥기","시편","잠언","전도서","아가","이사야","예레미야","예레미야 애가","에스겔","다니엘","호세아","요엘","아모스","오바댜","요나","미가","나훔","하박국","스바냐","학개","스가랴","말라기","마태복음","마가복음","누가복음","요한복음","사도행전","로마서","고린도전서","고린도후서","갈라디아서","에베소서","빌립보서","골로새서","데살로니가전서","데살로니가후서","디모데전서","디모데후서","디도서","빌레몬서","히브리서","야고보서","베드로전서","베드로후서","요한일서","요한이서","요한삼서","유다서","요한계시록"],"maori":["Genesis","Ekoru","Rewitika","Tauanga","Ture","Hohua","Kaiwhakawa","Ruti","1 Hāmueru","2 Hāmueru","1 Kingi","2 Kingi","1 Koriniti","2 Koriniti","Ezara","Nehemiha","Ehetere","Iopa","Himene","Whakataukī","Kaiwhakaako","Waiata","Ihaia","Heremaia","Kanohi Tangi","Ehikiera","Danihēra","Hōhea","Iōēri","Amōhi","Opātia","Iōna","Mīkaia","Nahumu","Hapakuku","Horopīa","Hakai","Hakaharīa","Merakai","Matēu","Māka","Ruka","Hōani","Ngā Mahi","Rōmana","1 Koriniti","2 Koriniti","Karaiti","Epeha","Whiringa-ā-nuku","Karōhia","1 Teratera","2 Teratera","1 Timotī","2 Timotī","Tītahi","Phīremōna","Hīperu","Hāme","1 Pētera","2 Pētera","1 Hōani","2 Hōani","3 Hōani","Hura","Whakakitenga"],"tagalog":["Genesis","Exodo","Levitico","Mga Bilang","Deuteronomio","Josue","Mga Hukom","Ruth","1 Samuel","2 Samuel","1 Mga Hari","2 Mga Hari","1 Mga Cronica","2 Mga Cronica","Ezra","Nehemias","Ester","Job","Mga Awit","Mga Kawikaan","Mangangaral","Awit ni Solomon","Isaias","Jeremias","Mga Panaghoy","Ezekiel","Daniel","Oseas","Joel","Amos","Obadias","Jonas","Mikas","Nahum","Habacuc","Zefanias","Hagai","Zacarias","Malachias","Mateo","Marcos","Lucas","Juan","Mga Gawa","Mga Romano","1 Mga Corinto","2 Mga Corinto","Mga Taga-Galacia","Mga Efeso","Mga Taga-Filipos","Mga Taga-Colosas","1 Mga Taga-Tesalonica","2 Mga Taga-Tesalonica","1 Timoteo","2 Timoteo","Tito","Filemon","Mga Hebreo","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas","Pahayag"]}};
+  var DATA = {"chapters":[50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,5,3,6,4,3,1,13,5,5,3,5,1,1,1,22],"names":{"kjv":["Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth","1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah","Esther","Job","Psalms","Proverbs","Ecclesiastes","Song of Songs","Isaiah","Jeremiah","Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah","Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi","Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians","Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians","1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter","1 John","2 John","3 John","Jude","Revelation"],"cus":["创世记","出埃及记","利未记","民数记","申命记","约书亚记","士师记","路得记","撒母耳记上","撒母耳记下","列王纪上","列王纪下","历代志上","历代志下","以斯拉记","尼希米记","以斯帖记","约伯记","诗篇","箴言","传道书","雅歌","以赛亚书","耶利米书","耶利米哀歌","以西结书","但以理书","何西阿书","约珥书","阿摩司书","俄巴底亚书","约拿书","弥迦书","那鸿书","哈巴谷书","西番雅书","哈该书","撒迦利亚书","玛拉基书","马太福音","马可福音","路加福音","约翰福音","使徒行传","罗马书","哥林多前书","哥林多后书","加拉太书","以弗所书","腓立比书","歌罗西书","帖撒罗尼迦前书","帖撒罗尼迦后书","提摩太前书","提摩太后书","提多书","腓利门书","希伯来书","雅各书","彼得前书","彼得后书","约翰一书","约翰二书","约翰三书","犹大书","启示录"],"cut":["創世記","出埃及記","利未記","民數記","申命記","約書亞記","士師記","路得記","撒母耳記上","撒母耳記下","列王紀上","列王紀下","歷代志上","歷代志下","以斯拉記","尼希米記","以斯帖記","約伯記","詩篇","箴言","傳道書","雅歌","以賽亞書","耶利米書","耶利米哀歌","以西結書","但以理書","何西阿書","約珥書","阿摩司書","俄巴底亞書","約拿書","彌迦書","那鴻書","哈巴谷書","西番雅書","哈該書","撒迦利亞書","瑪拉基書","馬太福音","馬可福音","路加福音","約翰福音","使徒行傳","羅馬書","哥林多前書","哥林多後書","加拉太書","以弗所書","腓立比書","歌羅西書","帖撒羅尼迦前書","帖撒羅尼迦後書","提摩太前書","提摩太後書","提多書","腓利門書","希伯來書","雅各書","彼得前書","彼得後書","約翰一書","約翰二書","約翰三書","猶大書","啟示錄"],"korean":["창세기","출애굽기","레위기","민수기","신명기","여호수아","사사기","룻기","사무엘상","사무엘하","열왕기상","열왕기하","역대상","역대하","에스라","느헤미야","에스더","욥기","시편","잠언","전도서","아가","이사야","예레미야","예레미야 애가","에스겔","다니엘","호세아","요엘","아모스","오바댜","요나","미가","나훔","하박국","스바냐","학개","스가랴","말라기","마태복음","마가복음","누가복음","요한복음","사도행전","로마서","고린도전서","고린도후서","갈라디아서","에베소서","빌립보서","골로새서","데살로니가전서","데살로니가후서","디모데전서","디모데후서","디도서","빌레몬서","히브리서","야고보서","베드로전서","베드로후서","요한일서","요한이서","요한삼서","유다서","요한계시록"],"maori":["Genesis","Ekoru","Rewitika","Tauanga","Ture","Hohua","Kaiwhakawa","Ruti","1 Hāmueru","2 Hāmueru","1 Kingi","2 Kingi","1 Koriniti","2 Koriniti","Ezara","Nehemiha","Ehetere","Iopa","Himene","Whakataukī","Kaiwhakaako","Waiata","Ihaia","Heremaia","Kanohi Tangi","Ehikiera","Danihēra","Hōhea","Iōēri","Amōhi","Opātia","Iōna","Mīkaia","Nahumu","Hapakuku","Horopīa","Hakai","Hakaharīa","Merakai","Matēu","Māka","Ruka","Hōani","Ngā Mahi","Rōmana","1 Koriniti","2 Koriniti","Karaiti","Epeha","Whiringa-ā-nuku","Karōhia","1 Teratera","2 Teratera","1 Timotī","2 Timotī","Tītahi","Phīremōna","Hīperu","Hāme","1 Pētera","2 Pētera","1 Hōani","2 Hōani","3 Hōani","Hura","Whakakitenga"],"tagalog":["Genesis","Exodo","Levitico","Mga Bilang","Deuteronomio","Josue","Mga Hukom","Ruth","1 Samuel","2 Samuel","1 Mga Hari","2 Mga Hari","1 Mga Cronica","2 Mga Cronica","Ezra","Nehemias","Ester","Job","Mga Awit","Mga Kawikaan","Mangangaral","Awit ni Solomon","Isaias","Jeremias","Mga Panaghoy","Ezekiel","Daniel","Oseas","Joel","Amos","Obadias","Jonas","Mikas","Nahum","Habacuc","Zefanias","Hagai","Zacarias","Malachias","Mateo","Marcos","Lucas","Juan","Mga Gawa","Mga Romano","1 Mga Corinto","2 Mga Corinto","Mga Taga-Galacia","Mga Efeso","Mga Taga-Filipos","Mga Taga-Colosas","1 Mga Taga-Tesalonica","2 Mga Taga-Tesalonica","1 Timoteo","2 Timoteo","Tito","Filemon","Mga Hebreo","Santiago","1 Pedro","2 Pedro","1 Juan","2 Juan","3 Juan","Judas","Pahayag"]}};
 
   /* ---- translations offered in the picker ----
      Add or remove rows here; `books` says which name list to show. */
@@ -351,7 +377,11 @@ body { margin: 0; background: #fff; color: #5c5d69;
   function column(json){
     var head = document.createElement('div'); head.className = 'nbc-col';
     var h = document.createElement('h2');
-    h.textContent = (json.book_name || '').replace(/^﻿/, '') + ' ' + json.chapter;
+    // Prefer our own book-name table over json.book_name: getBible's simplified
+    // Chinese edition labels one book in traditional characters, and the
+    // heading must match the book picker.
+    var names = DATA.names[version(state.a).books] || DATA.names.kjv;
+    h.textContent = (names[state.book - 1] || json.book_name || '') + ' ' + json.chapter;
     var ed = document.createElement('span'); ed.className = 'nbc-edition'; ed.textContent = json.translation;
     var body = document.createElement('div'); body.className = 'nbc-verses';
     if (json.direction === 'RTL') body.dir = 'rtl';
@@ -451,7 +481,73 @@ body { margin: 0; background: #fff; color: #5c5d69;
   render();
 })();
 </script>
+</div></div>
+</main>
 
-</div>
+<footer class="site-foot">
+  <div class="shell">
+    <div class="foot-grid">
+      <div>
+        <h3 data-i18n="foot.visit">Visit</h3>
+        <p data-i18n="foot.when">Sundays, 10:00am — finishes around 11:15am</p>
+        <p data-i18n="foot.where">Hillcrest, Auckland, New Zealand</p>
+        <p><a href="first-visit.html" data-i18n="nav.visit">First visit</a></p>
+      </div>
+      <div>
+        <h3 data-i18n="foot.explore">Explore</h3>
+        <ul>
+          <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+          <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+          <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+          <li><a href="give.html" data-i18n="nav.give">Give</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.contact">Contact</h3>
+        <ul>
+          <li><a href="tel:+6494807064">(09) 480 7064</a></li>
+          <li><a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.langs">Your language</h3>
+        <ul>
+          <li><a href="index.html">English</a></li>
+          <li><a href="zh.html" lang="zh-Hans">&#20013;&#25991;</a></li>
+          <li><a href="ko.html" lang="ko">&#54620;&#44397;&#50612;</a></li>
+          <li><a href="mi.html" lang="mi">Te Reo M&#257;ori</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-bottom">
+      This is an unofficial prototype of a redesign proposal. It is not affiliated
+      with, reviewed by, or adopted by Northcote Baptist Church, and it is excluded
+      from search engines. Content and photographs belong to the church and are shown
+      here to illustrate the proposed layout. The real site is at
+      <a href="https://nbc.org.nz/" rel="noopener">nbc.org.nz</a> ·
+      <a href="package.html">what is in this package</a> ·
+      <a href="https://github.com/14H034160212/nbc-website-revamp" rel="noopener">source</a>
+    </p>
+  </div>
+</footer>
+
+<nav class="nbc-actionbar" aria-label="Quick links">
+  <a class="nbc-actionbar__link" href="sunday.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span data-i18n="bar.sunday">Sunday 10am</span>
+  </a>
+  <a class="nbc-actionbar__link" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+    <span data-i18n="bar.find">Find us</span>
+  </a>
+  <a class="nbc-actionbar__link" href="give.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg>
+    <span data-i18n="bar.give">Give</span>
+  </a>
+</nav>
+
+<script src="assets/site.js"></script>
+
 </body>
 </html>

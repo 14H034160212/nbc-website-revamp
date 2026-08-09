@@ -12,3 +12,6 @@ tmp/
 # stray local artefacts
 cp*/
 *.png
+
+# local tooling
+.claude/

@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中文 — 北岸浸信会（原型）</title>
+<meta name="description" content="Sundays at 10am in Hillcrest, Auckland.">
+<!-- This prototype must never compete with the real church website in search. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://nbc.org.nz/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>&#9962;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap">
+<style>
+/* The parent theme calls the body face "Source Sans Pro"; Google now serves
+   it as "Source Sans 3". Alias it so the theme's own font stacks resolve. */
+@font-face { font-family: 'Source Sans Pro'; src: local('Source Sans 3'); }
+</style>
+<link rel="stylesheet" href="assets/site.css">
+
+</head>
+<body class="nbc-has-actionbar" data-page="zh.html" data-force-lang="zh-Hans">
+
+<a class="nbc-skip" href="#nbc-main">Skip to content</a>
+
+<div class="proto">
+  <div class="proto__inner">
+    <b>Prototype</b>
+    <span>Unofficial redesign proposal — not affiliated with, reviewed by, or adopted by Northcote Baptist Church.</span>
+    <span class="proto__spacer"><a href="https://nbc.org.nz/" rel="noopener">The real site →</a></span>
+    <span><a href="package.html">About this package</a></span>
+  </div>
+</div>
+
+<div class="nbc-langbar">
+  <div class="nbc-langbar__inner" style="display:block;text-align:right">
+    <div data-lang-switcher style="display:flex;justify-content:flex-end"></div>
+    <p class="lang-note" id="lang-note" style="margin-left:auto" hidden></p>
+  </div>
+</div>
+
+<header class="site-head">
+  <div class="site-head__inner">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><g fill="none" stroke="#d14f42" stroke-width="1.6" stroke-linejoin="round"><path d="M16 3h8l-4 6z"/><path d="M16 3l4 6-8 5z"/><path d="M24 3l-4 6 8 5z"/><path d="M4 14h32l-16 10z"/><path d="M20 24v13"/></g></svg>
+      <span class="brand__name"><b>northcote</b><span>baptist church</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span></button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+        <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+        <li><a href="first-visit.html" data-i18n="nav.visit">First visit</a></li>
+        <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+        <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+        <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        <li><a class="is-cta" href="give.html" data-i18n="nav.give">Give</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="nbc-main" tabindex="-1">
+<div class="shell shell--narrow"><div class="band"><!-- ============================================================
+     中文欢迎页  Chinese landing page
+     ------------------------------------------------------------
+     NEW PAGE — suggested slug: /zh/  (page title: 中文)
+     Set the page's language attribute to zh-Hans if using Polylang.
+
+     Everything here is translated from nbc.org.nz/services/,
+     /ministries/kids/ and /give-2/. Nothing is invented. Items in
+     {{ }} need someone at the church to fill in.
+
+     TRANSLATION NOTE
+       Simplified Chinese, written for mainland-Chinese and
+       Malaysian/Singaporean readers, who are the majority of Auckland's
+       Mandarin-speaking population. Church vocabulary follows 和合本
+       conventions (主日 / 聚会 / 团契 / 奉献). A Traditional-Chinese
+       version for Taiwanese and Hong Kong families is a straightforward
+       conversion — ask before publishing, the word choices differ
+       slightly (聚會 / 團契 / 奉獻 are the same, but 短信/簡訊 etc. are not).
+
+     PASTE INTO: a "Custom HTML" block on the new page.
+     ============================================================ -->
+
+<div class="nbc-welcome" lang="zh-Hans">
+
+  <p class="nbc-welcome__kicker">Northcote Baptist Church</p>
+  <h1 class="nbc-welcome__title">欢迎你来北岸浸信会</h1>
+  <p class="nbc-welcome__lead">
+    我们是一间位于奥克兰北岸 Hillcrest 的教会，会众来自不同年龄、不同国家。
+    第一次来不需要认识任何人，也不需要事先了解什么，穿平常的衣服来就好。
+  </p>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">主日聚会</span>
+      <p class="nbc-fact__value">每周日上午 10:00<br>约 11:15 结束</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">地址</span>
+      <!-- <mark class="todo">Street address to be supplied</mark> 现网站未公布街道地址，请补上 -->
+      <p class="nbc-fact__value"><mark class="todo">Street address to be supplied</mark><br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">语言</span>
+      <p class="nbc-fact__value">聚会以英文进行<br>现场有会讲中文的弟兄姊妹</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">联系我们</span>
+      <p class="nbc-fact__value">
+        <a href="tel:+6494807064">(09) 480 7064</a><br>
+        <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+
+    <h3 class="nbc-qa__q">主日聚会是什么样的？</h3>
+    <p class="nbc-qa__a">
+      大约一个小时十五分钟：唱诗（传统诗歌与现代敬拜诗歌都有）、祷告、讲道。
+      每月第一个主日守圣餐。聚会中也会分享教会、社区以及海外宣教同工的近况。
+    </p>
+
+    <h3 class="nbc-qa__q">孩子怎么安排？</h3>
+    <p class="nbc-qa__a">
+      孩子先和大人一起参加聚会，之后到各自的儿童班。
+      学期期间开设从学龄前到 Year 9 的儿童与青少年课程；
+      Kids Rock（小学 1&ndash;6 年级）约在 11:15 结束。
+      学校放假和长周末期间不开课，我们会准备活动包，孩子留在聚会里和你一起。
+    </p>
+
+    <h3 class="nbc-qa__q">带着婴儿方便吗？</h3>
+    <p class="nbc-qa__a">
+      完全没问题，婴儿可以留在聚会中。教会另设有母婴室，内有小厨房和聚会实时视频，
+      需要暂时离开时不会错过讲道。
+    </p>
+
+    <h3 class="nbc-qa__q">我的英文不好，能听懂吗？</h3>
+    <p class="nbc-qa__a">
+      聚会以英文进行。如果你希望有人陪同、或需要在聚会前后用中文交流，
+      请提前发邮件到 <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>
+      并注明「中文」，我们会安排会讲中文的弟兄姊妹在门口接待你。
+      <br><br>
+      教会平日也开设
+      <a href="/kays-english-class/">Kay&rsquo;s English Class 英文班</a>，
+      面向社区免费开放，很多新移民家庭是从这里开始认识我们的。
+      我们的<a href="/bible/">在线圣经</a>支持中英对照阅读，
+      有和合本简体、繁体与新译本。
+    </p>
+
+    <h3 class="nbc-qa__q">聚会后有什么？</h3>
+    <p class="nbc-qa__a">
+      聚会结束后有茶点时间（morning tea），欢迎留下来聊聊。
+      如果你想安静地先离开，也完全没有问题，不会有人拦你。
+    </p>
+
+    <h3 class="nbc-qa__q">需要奉献吗？</h3>
+    <p class="nbc-qa__a">
+      不需要。奉献是教会家人的事，不会向来访的朋友提出，
+      聚会中也不会传递奉献袋。若你日后愿意参与，可参考
+      <a href="/give-2/">奉献页面</a>。
+    </p>
+
+    <h3 class="nbc-qa__q">除了主日，平时还有什么？</h3>
+    <p class="nbc-qa__a">
+      教会有多个<a href="/home-group/">家庭小组（Home Group）</a>在周间聚会，
+      在小组里更容易认识人。此外还有儿童、青少年、青年、社区服务与
+      Christians Against Poverty (CAP) 免费理财辅导等事工。
+    </p>
+
+  </div>
+
+  <p class="nbc-welcome__cta">
+    <a class="nbc-btn nbc-btn--primary" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland">查看地图与路线</a>
+    <a class="nbc-btn nbc-btn--outline" href="/contact/">写信给我们</a>
+  </p>
+
+  <p class="nbc-welcome__foot">
+    本页为中文摘要。网站其余部分目前仅有英文版本 &middot;
+    <a href="/">English site</a>
+  </p>
+
+</div>
+
+<style>
+/* Move into my-religion-child/style.css once you are happy with it.
+   Shared with welcome-ko.html and welcome-mi.html. */
+.nbc-welcome{max-width:70ch;margin:0 auto}
+.nbc-welcome .nbc-welcome__kicker{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:.74rem;
+  letter-spacing:.16em;text-transform:uppercase;color:#d14f42;margin:0 0 10px;
+}
+.nbc-welcome .nbc-welcome__title{
+  font-weight:700;
+  font-size:clamp(1.6rem,3.6vw,2.25rem);line-height:1.24;
+  color:#3b3d4a;margin:0 0 14px;text-wrap:balance;
+}
+.nbc-welcome .nbc-welcome__lead{
+  font-size:1.12rem;line-height:1.85;color:#5c5d69;margin:0;
+}
+.nbc-welcome__cta{display:flex;flex-wrap:wrap;gap:12px;margin:34px 0 0}
+.nbc-welcome__foot{
+  margin:30px 0 0;padding-top:16px;border-top:1px solid #e4e4e4;
+  font-size:.88rem;color:#8b8b95;
+}
+/* CJK text needs a little more leading than the Latin default, and the
+   serif body face has no Chinese glyphs — use the system CJK stack. */
+.nbc-welcome[lang^="zh"],
+.nbc-welcome[lang^="ko"]{
+  font-family:'Source Sans Pro',-apple-system,'PingFang SC','Hiragino Sans GB',
+              'Noto Sans CJK SC','Microsoft YaHei','Apple SD Gothic Neo',
+              'Noto Sans CJK KR','Malgun Gothic',Arial,sans-serif;
+}
+.nbc-welcome[lang^="zh"] .nbc-qa__a,
+.nbc-welcome[lang^="ko"] .nbc-qa__a{line-height:1.9}
+/* .nbc-btn--outline now lives in my-religion-child/style.css, where it can
+   out-specify the theme's link styling. */
+</style>
+</div></div>
+</main>
+
+<footer class="site-foot">
+  <div class="shell">
+    <div class="foot-grid">
+      <div>
+        <h3 data-i18n="foot.visit">Visit</h3>
+        <p data-i18n="foot.when">Sundays, 10:00am — finishes around 11:15am</p>
+        <p data-i18n="foot.where">Hillcrest, Auckland, New Zealand</p>
+        <p><a href="first-visit.html" data-i18n="nav.visit">First visit</a></p>
+      </div>
+      <div>
+        <h3 data-i18n="foot.explore">Explore</h3>
+        <ul>
+          <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+          <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+          <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+          <li><a href="give.html" data-i18n="nav.give">Give</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.contact">Contact</h3>
+        <ul>
+          <li><a href="tel:+6494807064">(09) 480 7064</a></li>
+          <li><a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.langs">Your language</h3>
+        <ul>
+          <li><a href="index.html">English</a></li>
+          <li><a href="zh.html" lang="zh-Hans">&#20013;&#25991;</a></li>
+          <li><a href="ko.html" lang="ko">&#54620;&#44397;&#50612;</a></li>
+          <li><a href="mi.html" lang="mi">Te Reo M&#257;ori</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-bottom">
+      This is an unofficial prototype of a redesign proposal. It is not affiliated
+      with, reviewed by, or adopted by Northcote Baptist Church, and it is excluded
+      from search engines. Content and photographs belong to the church and are shown
+      here to illustrate the proposed layout. The real site is at
+      <a href="https://nbc.org.nz/" rel="noopener">nbc.org.nz</a> ·
+      <a href="package.html">what is in this package</a> ·
+      <a href="https://github.com/14H034160212/nbc-website-revamp" rel="noopener">source</a>
+    </p>
+  </div>
+</footer>
+
+<nav class="nbc-actionbar" aria-label="Quick links">
+  <a class="nbc-actionbar__link" href="sunday.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span data-i18n="bar.sunday">Sunday 10am</span>
+  </a>
+  <a class="nbc-actionbar__link" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+    <span data-i18n="bar.find">Find us</span>
+  </a>
+  <a class="nbc-actionbar__link" href="give.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg>
+    <span data-i18n="bar.give">Give</span>
+  </a>
+</nav>
+
+<script src="assets/site.js"></script>
+
+</body>
+</html>

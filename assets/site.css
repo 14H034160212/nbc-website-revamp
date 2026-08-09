@@ -1,0 +1,950 @@
+/*
+Theme Name: My Religion Child
+Theme URI: http://cmsmasters.net/my-religion-child/
+Author: cmsmasters
+Author URI: http://cmsmasters.net/
+Description: My Religion Child Theme
+Template: my-religion
+Version: 1.1.0
+License:
+License URI:
+Text Domain: my-religion-child
+Tags: one-column, two-columns, three-columns, four-columns, left-sidebar, right-sidebar, custom-background, custom-colors, custom-header, custom-menu, editor-style, featured-image-header, featured-images, flexible-header, full-width-template, microformats, post-formats, rtl-language-support, sticky-post, theme-options, threaded-comments, translation-ready
+*/
+
+/* ============================================================================
+   NBC customisations.  Everything below this line was added on top of the
+   stock (empty) child theme.  Nothing here modifies the parent theme, so
+   `my-religion` can still be updated safely.
+
+   The parent theme's palette is reused as-is:
+     #d14f42  primary (brick red)      #98433a  primary hover
+     #216ea3  secondary (slate blue)   #3b3d4a  headings
+     #71727f  body text                #e4e4e4  rules
+
+   Order of sections:
+     1  Tokens
+     2  Readability            typography, measure, contrast
+     3  Accessibility          focus, skip link
+     4  Language switcher      header, works with or without Polylang
+     5  Mobile action bar      Sunday / map / give
+     6  First-visit hero       static replacement for the slider
+     7  Pasted content blocks  vision-mission-values, creed, principles
+   ========================================================================= */
+
+:root {
+	--nbc-red: #d14f42;
+	--nbc-red-dk: #98433a;
+	--nbc-blue: #216ea3;
+	--nbc-ink: #3b3d4a;
+	--nbc-body: #5c5d69;   /* was #71727f: 4.4:1 on white, below AA for small text */
+	--nbc-line: #e4e4e4;
+	--nbc-bar-h: 58px;     /* mobile action bar height */
+}
+
+
+/* ---------------------------------------------------------------------------
+   2  READABILITY
+   The congregation is intergenerational; the stock Crimson Text setting is
+   small and the measure runs the full column width. These three numbers —
+   size, leading, measure — do more for legibility than anything else here.
+------------------------------------------------------------------------- */
+
+.entry-content,
+.cmsmasters_text,
+.cmsmasters_featured_block .featured_block_text {
+	font-size: 18px;
+	line-height: 1.75;
+	color: var(--nbc-body);
+}
+
+/* Cap the line length. Anything past ~70 characters is measurably harder to
+   read, and full-width rows on a 1600px monitor run to 140+. */
+.entry-content > p,
+.entry-content > ul,
+.entry-content > ol,
+.entry-content > blockquote,
+.cmsmasters_text > p {
+	max-width: 68ch;
+}
+
+/* Centred rows keep their centring when the measure is capped. */
+.cmsmasters_heading_align_center + .cmsmasters_text > p,
+.aligncenter .cmsmasters_text > p {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.entry-content p { margin-bottom: 1.15em; }
+
+.entry-content h2,
+.entry-content h3,
+.entry-content h4 {
+	color: var(--nbc-ink);
+	text-wrap: balance;
+}
+
+/* Give headings room above and keep them tight to the text they introduce. */
+.entry-content h2 { margin-top: 2em; margin-bottom: .55em; }
+.entry-content h3 { margin-top: 1.7em; margin-bottom: .5em; }
+
+.entry-content a {
+	color: var(--nbc-blue);
+	text-decoration: underline;
+	text-underline-offset: .16em;
+	text-decoration-thickness: 1px;
+}
+.entry-content a:hover { color: var(--nbc-red-dk); }
+
+/* Long words (URLs, Māori and Korean compounds) must not overflow on mobile. */
+.entry-content { overflow-wrap: break-word; }
+
+/* Tables and embeds scroll inside themselves rather than pushing the page. */
+.entry-content table,
+.entry-content pre { display: block; max-width: 100%; overflow-x: auto; }
+
+
+/* ---------------------------------------------------------------------------
+   3  ACCESSIBILITY
+------------------------------------------------------------------------- */
+
+/* The parent theme removes focus outlines in several places. Put one back —
+   this is what keyboard and screen-reader users navigate by. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+	outline: 3px solid var(--nbc-blue);
+	outline-offset: 2px;
+	border-radius: 2px;
+}
+
+/* Skip link — rendered by functions.php, hidden until focused. */
+.nbc-skip {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100000;
+	padding: 12px 20px;
+	background: var(--nbc-ink);
+	color: #fff;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 15px;
+	text-decoration: none;
+}
+.nbc-skip:focus {
+	left: 12px;
+	top: 12px;
+}
+
+/* Decorative images added by the theme should not announce themselves. */
+.nbc-decorative { pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+	*, *::before, *::after {
+		animation-duration: .001ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: .001ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+
+/* ---------------------------------------------------------------------------
+   4  LANGUAGE SWITCHER
+   Sits in the header, on the same line as GIVE. Labels are written in each
+   language's own script — the people who need to switch are exactly the
+   people who cannot read the English label. No flags: a flag is a country,
+   not a language, and Auckland's Chinese community comes from several.
+------------------------------------------------------------------------- */
+
+/* The strip the switcher sits in when it is not inside a nav menu. */
+.nbc-langbar {
+	background: #f7f7f9;
+	border-bottom: 1px solid var(--nbc-line);
+}
+.nbc-langbar__inner {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 20px;
+	display: flex;
+	justify-content: flex-end;
+}
+
+.nbc-lang {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+
+/* When placed inside the theme's nav menu instead of its own strip. */
+.nbc-lang-menu-item { display: flex; align-items: center; }
+.nbc-lang-menu-item .nbc-lang { padding: 0 0 0 14px; }
+
+.nbc-lang__item { display: block; }
+
+.nbc-lang__link {
+	display: block;
+	padding: 5px 10px;
+	font-size: 14px;
+	line-height: 1.2;
+	color: var(--nbc-ink);
+	text-decoration: none;
+	border-radius: 3px;
+	white-space: nowrap;
+}
+.nbc-lang__link:hover { background: #f2f2f4; color: var(--nbc-red); }
+
+.nbc-lang__item.is-current .nbc-lang__link {
+	color: var(--nbc-red);
+	font-weight: 600;
+	box-shadow: inset 0 -2px 0 var(--nbc-red);
+	border-radius: 0;
+}
+
+/* Separator between languages, but not before the first one. */
+.nbc-lang__item + .nbc-lang__item { border-left: 1px solid var(--nbc-line); }
+
+@media (max-width: 1024px) {
+	/* Full width with bigger tap targets. 44px is the minimum comfortable
+	   touch target. */
+	.nbc-langbar__inner { justify-content: stretch; padding: 0; }
+	.nbc-lang {
+		flex-wrap: wrap;
+		gap: 6px;
+		width: 100%;
+		padding: 10px 14px;
+	}
+	.nbc-lang__item { flex: 1 1 auto; border-left: 0 !important; }
+	.nbc-lang__link {
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid var(--nbc-line);
+		font-size: 15px;
+	}
+}
+
+
+/* ---------------------------------------------------------------------------
+   5  MOBILE ACTION BAR
+   Three things a phone visitor actually wants: when is the service, how do
+   I get there, how do I give. Fixed to the bottom, mobile only.
+------------------------------------------------------------------------- */
+
+.nbc-actionbar {
+	display: none;
+}
+
+@media (max-width: 767px) {
+	.nbc-actionbar {
+		position: fixed;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		z-index: 9990;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		background: #fff;
+		border-top: 1px solid var(--nbc-line);
+		box-shadow: 0 -2px 14px rgba(59, 61, 74, .10);
+		padding-bottom: env(safe-area-inset-bottom, 0);
+	}
+
+	.nbc-actionbar__link {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 3px;
+		min-height: var(--nbc-bar-h);
+		padding: 7px 4px;
+		font-family: 'Source Sans Pro', Arial, sans-serif;
+		font-size: 12px;
+		line-height: 1.25;
+		text-align: center;
+		color: var(--nbc-ink);
+		text-decoration: none;
+	}
+	.nbc-actionbar__link + .nbc-actionbar__link { border-left: 1px solid var(--nbc-line); }
+	.nbc-actionbar__link:active { background: #faf3f2; }
+
+	.nbc-actionbar__link svg {
+		width: 19px;
+		height: 19px;
+		fill: none;
+		stroke: var(--nbc-red);
+		stroke-width: 1.7;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	/* The bar covers the last ~58px of the page; give the footer room so
+	   nothing is permanently hidden behind it. */
+	body.nbc-has-actionbar #footer,
+	body.nbc-has-actionbar .footer_wrap {
+		padding-bottom: calc(var(--nbc-bar-h) + env(safe-area-inset-bottom, 0px));
+	}
+}
+
+
+/* ---------------------------------------------------------------------------
+   6  FIRST-VISIT HERO
+   A static replacement for the LayerSlider carousel. A first-time visitor
+   needs four facts — when, where, what about the kids, what do I wear —
+   and a carousel rotates them out of view before they are read.
+------------------------------------------------------------------------- */
+
+.nbc-hero {
+	position: relative;
+	display: flex;
+	align-items: flex-end;
+	min-height: clamp(340px, 52vh, 560px);
+	padding: clamp(28px, 5vw, 66px);
+	background: var(--nbc-ink) center/cover no-repeat;
+	color: #fff;
+	overflow: hidden;
+}
+.nbc-hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, rgba(30, 32, 40, .12) 0%, rgba(30, 32, 40, .78) 100%);
+}
+.nbc-hero__inner { position: relative; z-index: 1; max-width: 34rem; }
+
+.nbc-hero__kicker {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: clamp(.78rem, 1.5vw, .9rem);
+	letter-spacing: .17em;
+	text-transform: uppercase;
+	color: rgba(255, 255, 255, .88);
+	margin: 0 0 12px;
+}
+.nbc-hero h1 {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: clamp(1.9rem, 5vw, 3.1rem);
+	line-height: 1.1;
+	color: #fff;
+	margin: 0 0 14px;
+	text-wrap: balance;
+}
+.nbc-hero__sub {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: clamp(1rem, 2vw, 1.15rem);
+	line-height: 1.55;
+	color: rgba(255, 255, 255, .93);
+	margin: 0 0 24px;
+	max-width: 30rem;
+}
+.nbc-hero__actions { display: flex; flex-wrap: wrap; gap: 12px; }
+
+.nbc-btn {
+	display: inline-flex;
+	align-items: center;
+	min-height: 46px;
+	padding: 0 24px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .95rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	text-decoration: none;
+	border-radius: 3px;
+	border: 1px solid transparent;
+	transition: background .15s, color .15s, border-color .15s;
+}
+/* Buttons are links, so they inherit the underline and blue from the
+   `.entry-content a` rule in section 2. These selectors are written with
+   matching specificity so the button styling wins wherever it is used —
+   inside post content or out of it. */
+a.nbc-btn,
+.entry-content a.nbc-btn { text-decoration: none; }
+
+a.nbc-btn--primary,
+.entry-content a.nbc-btn--primary { background: var(--nbc-red); color: #fff; }
+a.nbc-btn--primary:hover,
+.entry-content a.nbc-btn--primary:hover { background: var(--nbc-red-dk); color: #fff; }
+
+a.nbc-btn--ghost,
+.entry-content a.nbc-btn--ghost { border-color: rgba(255, 255, 255, .65); color: #fff; }
+a.nbc-btn--ghost:hover,
+.entry-content a.nbc-btn--ghost:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+
+a.nbc-btn--outline,
+.entry-content a.nbc-btn--outline { border-color: var(--nbc-red); color: var(--nbc-red); background: transparent; }
+a.nbc-btn--outline:hover,
+.entry-content a.nbc-btn--outline:hover { background: var(--nbc-red); color: #fff; }
+
+
+/* ---------------------------------------------------------------------------
+   7  PASTED CONTENT BLOCKS
+   Shared bits for the Custom HTML blocks in /pages/. Each of those files
+   ships with its own <style> so it works the moment it is pasted; once
+   you have checked them on staging, delete those blocks and keep only
+   what you have moved here.
+------------------------------------------------------------------------- */
+
+/* Fact rows used on the first-visit and welcome pages.
+   Dividers come from the cells' own borders rather than a grid gap over a
+   coloured background — with four cells in a three-column row, the gap
+   technique leaves the empty fourth cell showing as a grey block. */
+.nbc-facts {
+	display: grid;
+	gap: 0;
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	margin: 26px 0;
+	overflow: hidden;
+}
+@media (min-width: 620px) {
+	.nbc-facts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+}
+.nbc-fact {
+	background: #fff;
+	padding: 18px 20px;
+	border-top: 1px solid var(--nbc-line);
+	border-left: 1px solid var(--nbc-line);
+	margin: -1px 0 0 -1px;
+}
+.nbc-fact__label {
+	display: block;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .72rem;
+	letter-spacing: .13em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	margin-bottom: 6px;
+}
+.nbc-fact__value {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 1.02rem;
+	line-height: 1.45;
+	color: var(--nbc-ink);
+	margin: 0;
+}
+
+/* Question-and-answer list, used on the first-visit and welcome pages. */
+.nbc-qa { margin: 26px 0; }
+.nbc-qa__q {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-weight: 700;
+	font-size: 1.05rem;
+	color: var(--nbc-ink);
+	margin: 22px 0 6px;
+}
+.nbc-qa__a { margin: 0; max-width: 68ch; }
+
+/* Copy-to-clipboard row for bank details on the giving page. */
+.nbc-copy {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	padding: 14px 16px;
+	background: #f7f7f9;
+	border: 1px solid var(--nbc-line);
+	border-radius: 3px;
+	margin: 14px 0;
+}
+.nbc-copy__value {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 1.05rem;
+	letter-spacing: .02em;
+	color: var(--nbc-ink);
+	font-variant-numeric: tabular-nums;
+}
+.nbc-copy__btn {
+	margin-left: auto;
+	min-height: 38px;
+	padding: 0 16px;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .88rem;
+	color: #fff;
+	background: var(--nbc-blue);
+	border: 0;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.nbc-copy__btn:hover { background: #1a577f; }
+
+
+/* ===========================================================================
+   Demo-site chrome.
+   Appended to my-religion-child/style.css at build time to make assets/site.css.
+
+   Everything above this point is the real deliverable — the CSS that goes into
+   the WordPress child theme. Everything below only exists so the prototype can
+   stand up on its own without WordPress: header, navigation, footer, and the
+   prototype banner. On the real site the parent theme supplies all of it.
+   ========================================================================= */
+
+/* ---- prototype banner ------------------------------------------------- */
+.proto {
+	position: relative;
+	z-index: 100;
+	background: #22242d;
+	color: #d6d9e2;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 13px;
+	line-height: 1.5;
+}
+.proto__inner {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 9px 20px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 14px;
+}
+.proto b { color: #fff; font-weight: 600; }
+.proto a { color: #8fbde0; text-decoration: underline; text-underline-offset: .16em; }
+.proto a:hover { color: #b7d6ee; }
+.proto__spacer { margin-left: auto; }
+
+/* ---- header ----------------------------------------------------------- */
+.site-head {
+	position: sticky;
+	top: 0;
+	z-index: 90;
+	background: #fff;
+	border-bottom: 1px solid var(--nbc-line);
+}
+.site-head__inner {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 0 20px;
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	min-height: 74px;
+}
+
+.brand { display: flex; align-items: center; gap: 11px; text-decoration: none; flex: 0 0 auto; }
+.brand__mark { width: 34px; height: 34px; flex: 0 0 34px; }
+.brand__name {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 17px;
+	line-height: 1.05;
+	color: var(--nbc-ink);
+	letter-spacing: -.01em;
+}
+.brand__name b { display: block; font-weight: 700; }
+.brand__name span { display: block; font-weight: 300; color: var(--nbc-mut, #71727f); }
+
+.site-nav { margin-left: auto; }
+.site-nav ul {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+.site-nav a {
+	display: block;
+	padding: 9px 13px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: 14px;
+	letter-spacing: .05em;
+	text-transform: uppercase;
+	color: var(--nbc-ink);
+	text-decoration: none;
+	border-radius: 3px;
+	white-space: nowrap;
+}
+.site-nav a:hover { color: var(--nbc-red); background: #faf3f2; }
+.site-nav a[aria-current="page"] { color: var(--nbc-red); box-shadow: inset 0 -2px 0 var(--nbc-red); border-radius: 0; }
+.site-nav a.is-cta {
+	background: var(--nbc-red);
+	color: #fff;
+	margin-left: 8px;
+}
+.site-nav a.is-cta:hover { background: var(--nbc-red-dk); color: #fff; }
+
+.nav-toggle {
+	display: none;
+	margin-left: auto;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	background: none;
+	border: 1px solid var(--nbc-line);
+	border-radius: 3px;
+	cursor: pointer;
+}
+.nav-toggle span, .nav-toggle span::before, .nav-toggle span::after {
+	display: block;
+	width: 18px;
+	height: 2px;
+	background: var(--nbc-ink);
+	margin: 0 auto;
+	position: relative;
+	transition: transform .18s;
+}
+.nav-toggle span::before { content: ""; position: absolute; top: -6px; }
+.nav-toggle span::after  { content: ""; position: absolute; top: 6px; }
+.nav-toggle[aria-expanded="true"] span { background: transparent; }
+.nav-toggle[aria-expanded="true"] span::before { transform: translateY(6px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] span::after  { transform: translateY(-6px) rotate(-45deg); }
+
+@media (max-width: 1024px) {
+	.nav-toggle { display: block; }
+	.site-nav {
+		display: none;
+		position: absolute;
+		left: 0; right: 0; top: 100%;
+		background: #fff;
+		border-bottom: 1px solid var(--nbc-line);
+		box-shadow: 0 12px 24px -14px rgba(59, 61, 74, .3);
+		padding: 8px 14px 16px;
+	}
+	.site-nav.is-open { display: block; }
+	.site-nav ul { flex-direction: column; align-items: stretch; gap: 0; }
+	.site-nav a { padding: 13px 10px; font-size: 15px; border-bottom: 1px solid var(--nbc-line); border-radius: 0; }
+	.site-nav a.is-cta { margin: 12px 0 0; text-align: center; border-bottom: 0; border-radius: 3px; }
+	.site-head__inner { min-height: 64px; position: relative; }
+}
+
+/* ---- page shell ------------------------------------------------------- */
+.shell { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.shell--narrow { max-width: 860px; }
+
+.page-head {
+	padding: clamp(34px, 6vw, 62px) 0 clamp(20px, 3vw, 30px);
+	border-bottom: 1px solid var(--nbc-line);
+	margin-bottom: clamp(28px, 4vw, 44px);
+}
+.page-head__kicker {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .76rem;
+	letter-spacing: .16em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	margin: 0 0 10px;
+}
+.page-head h1 {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: clamp(1.8rem, 4.2vw, 2.7rem);
+	line-height: 1.14;
+	color: var(--nbc-ink);
+	margin: 0;
+	text-wrap: balance;
+}
+/* CJK has no Fjalla One glyphs; keep headings in the system CJK face rather
+   than letting them fall back to Arial mid-heading. */
+:lang(zh) .page-head h1, :lang(ko) .page-head h1,
+[lang^="zh"] .page-head h1, [lang^="ko"] .page-head h1 {
+	font-family: 'Source Sans Pro', -apple-system, 'PingFang SC', 'Noto Sans CJK SC',
+	             'Apple SD Gothic Neo', 'Noto Sans CJK KR', 'Malgun Gothic', Arial, sans-serif;
+	font-weight: 700;
+}
+
+.band { padding: clamp(38px, 6vw, 72px) 0; }
+.band--tint { background: #f7f7f9; }
+.band--flush { padding: 0; }
+
+.band h2 {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: clamp(1.45rem, 3vw, 2rem);
+	line-height: 1.2;
+	color: var(--nbc-ink);
+	margin: 0 0 16px;
+	text-wrap: balance;
+}
+.band .lede {
+	font-family: 'Crimson Text', Georgia, serif;
+	font-size: 1.2rem;
+	line-height: 1.7;
+	color: var(--nbc-body);
+	max-width: 62ch;
+	margin: 0 0 18px;
+}
+
+/* ---- ministry / card grid --------------------------------------------- */
+.grid {
+	display: grid;
+	gap: 22px;
+	grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+	margin: 30px 0 0;
+}
+.tile {
+	display: flex;
+	flex-direction: column;
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	text-decoration: none;
+	overflow: hidden;
+}
+.tile:hover { border-color: var(--nbc-red); }
+.tile img { width: 100%; height: 158px; object-fit: cover; display: block; }
+.tile__body { padding: 17px 19px 20px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+.tile__title {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: 1.02rem;
+	letter-spacing: .03em;
+	color: var(--nbc-ink);
+	margin: 0;
+}
+.tile__text { font-size: .92rem; line-height: 1.55; color: var(--nbc-body); margin: 0; }
+.tile__go { margin-top: auto; padding-top: 8px; font-size: .84rem; color: var(--nbc-red); }
+
+/* ---- split section (photo + text) ------------------------------------- */
+.split { display: grid; gap: clamp(24px, 4vw, 48px); align-items: center; }
+@media (min-width: 860px) { .split { grid-template-columns: 1fr 1fr; } }
+.split--flip .split__media { order: 2; }
+.split__media img { width: 100%; height: 100%; max-height: 420px; object-fit: cover; display: block; }
+
+/* ---- footer ----------------------------------------------------------- */
+.site-foot {
+	background: var(--nbc-ink);
+	color: #b9bcc7;
+	padding: clamp(34px, 5vw, 56px) 0 clamp(26px, 4vw, 40px);
+	margin-top: clamp(40px, 6vw, 80px);
+	font-size: .92rem;
+	line-height: 1.7;
+}
+.site-foot a { color: #cfd3dc; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,.22); }
+.site-foot a:hover { color: #fff; border-bottom-color: #fff; }
+.foot-grid { display: grid; gap: 26px 40px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.foot-grid h3 {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: .78rem;
+	letter-spacing: .15em;
+	text-transform: uppercase;
+	color: #fff;
+	margin: 0 0 10px;
+}
+.foot-grid ul { list-style: none; margin: 0; padding: 0; }
+.foot-grid li { margin-bottom: 5px; }
+.foot-bottom {
+	margin-top: clamp(26px, 4vw, 40px);
+	padding-top: 20px;
+	border-top: 1px solid rgba(255,255,255,.14);
+	font-size: .82rem;
+	color: #8f939f;
+}
+
+/* Leave room for the fixed mobile action bar. */
+@media (max-width: 767px) {
+	body.nbc-has-actionbar .site-foot { padding-bottom: calc(var(--nbc-bar-h) + 26px); }
+}
+
+/* ---- misc ------------------------------------------------------------- */
+.muted { color: var(--nbc-mut, #71727f); }
+.tag {
+	display: inline-block;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .68rem;
+	letter-spacing: .13em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	background: var(--nbc-accent-soft, #fbefee);
+	padding: 3px 9px;
+	border-radius: 2px;
+}
+
+
+/* ---- Find a passage --------------------------------------------------- */
+
+.ask-lead {
+	font-family: 'Crimson Text', Georgia, serif;
+	font-size: 1.2rem;
+	line-height: 1.68;
+	color: var(--nbc-body);
+	max-width: 58ch;
+	margin: 0 0 26px;
+}
+
+.ask-topics {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 9px;
+	margin: 0 0 26px;
+}
+.ask-chip {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .95rem;
+	line-height: 1.35;
+	text-align: left;
+	padding: 10px 16px;
+	min-height: 44px;
+	color: var(--nbc-ink);
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	border-radius: 22px;
+	cursor: pointer;
+	transition: border-color .15s, background .15s, color .15s;
+}
+.ask-chip:hover { border-color: var(--nbc-red); color: var(--nbc-red); }
+.ask-chip.is-on { background: var(--nbc-red); border-color: var(--nbc-red); color: #fff; }
+
+.ask-form {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	align-items: stretch;
+	max-width: 34rem;
+	margin: 0 0 8px;
+}
+.ask-form input {
+	flex: 1 1 15rem;
+	min-height: 46px;
+	padding: 10px 15px;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 1rem;
+	color: var(--nbc-ink);
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	border-radius: 3px;
+}
+.ask-form button {
+	min-height: 46px;
+	padding: 0 24px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .95rem;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: #fff;
+	background: var(--nbc-blue);
+	border: 0;
+	border-radius: 3px;
+	cursor: pointer;
+}
+.ask-form button:hover { background: #1a577f; }
+
+.ask-out { margin: 34px 0 0; }
+.ask-out__head {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+	color: var(--nbc-ink);
+	margin: 0 0 18px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--nbc-line);
+}
+/* CJK has no Fjalla One glyphs. */
+[lang^="zh"] .ask-out__head, [lang^="ko"] .ask-out__head {
+	font-family: 'Source Sans Pro', -apple-system, 'PingFang SC', 'Noto Sans CJK SC',
+	             'Apple SD Gothic Neo', 'Noto Sans CJK KR', Arial, sans-serif;
+	font-weight: 700;
+}
+
+.ask-card {
+	border: 1px solid var(--nbc-line);
+	border-left: 3px solid var(--nbc-red);
+	background: #fff;
+	padding: 20px 22px 18px;
+	margin: 0 0 16px;
+}
+.ask-card__ref {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-weight: 400;
+	font-size: 1.06rem;
+	letter-spacing: .04em;
+	color: var(--nbc-ink);
+	margin: 0 0 14px;
+}
+.ask-card__cols { display: grid; gap: 20px; }
+@media (min-width: 780px) {
+	.ask-card__cols.is-parallel { grid-template-columns: 1fr 1fr; gap: 30px; }
+}
+.ask-col__ed {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .7rem;
+	letter-spacing: .11em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	margin: 0 0 8px;
+}
+.ask-verses {
+	font-family: 'Crimson Text', Georgia, serif;
+	font-size: 1.1rem;
+	line-height: 1.75;
+	color: #4a4b57;
+}
+[lang^="zh"] .ask-verses, [lang^="ko"] .ask-verses {
+	font-family: -apple-system, 'PingFang SC', 'Noto Sans CJK SC',
+	             'Apple SD Gothic Neo', 'Noto Sans CJK KR', Georgia, serif;
+	line-height: 1.9;
+}
+.ask-verse { margin: 0 0 6px; }
+.ask-verse__n {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .68em;
+	color: var(--nbc-red);
+	vertical-align: .45em;
+	margin-right: .4em;
+	user-select: none;
+}
+.ask-card__more {
+	display: inline-block;
+	margin: 14px 0 0;
+	font-size: .88rem;
+	color: var(--nbc-blue);
+	text-decoration: none;
+	border-bottom: 1px solid rgba(33, 110, 163, .3);
+}
+.ask-card__more:hover { border-bottom-color: var(--nbc-blue); }
+.ask-card__loading { margin: 0; color: var(--nbc-mut, #71727f); font-size: .92rem; }
+.ask-card__error { margin: 0; color: var(--nbc-red); font-size: .92rem; }
+
+.ask-pastoral {
+	margin: 30px 0 0;
+	padding: 16px 20px;
+	background: #f7f7f9;
+	border-left: 2px solid var(--nbc-blue);
+	font-size: .93rem;
+	line-height: 1.7;
+	color: var(--nbc-body);
+	max-width: 62ch;
+}
+
+/* ---- honesty note shown under the language switcher -------------------- */
+.lang-note {
+	margin: 8px 0 0;
+	font-size: .82rem;
+	line-height: 1.55;
+	color: var(--nbc-mut, #71727f);
+	max-width: 46ch;
+}
+
+
+
+/* ---- prototype-only form + unfilled-value marker ----------------------- */
+.proto-form { display: grid; gap: 16px; max-width: 34rem; margin: 26px 0 0; }
+.proto-form label { display: grid; gap: 5px; }
+.proto-form label span {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .74rem; letter-spacing: .11em; text-transform: uppercase;
+	color: var(--nbc-ink);
+}
+.proto-form input, .proto-form select, .proto-form textarea {
+	width: 100%; padding: 10px 13px; font-size: 1rem; font-family: inherit;
+	color: var(--nbc-ink); background: #fff;
+	border: 1px solid var(--nbc-line); border-radius: 3px;
+}
+.proto-form textarea { resize: vertical; }
+.proto-form button { justify-self: start; border: 0; cursor: pointer; }
+.proto-form__note {
+	margin: 0; padding: 12px 16px; background: #f7f7f9;
+	border-left: 2px solid var(--nbc-blue);
+	font-size: .88rem; line-height: 1.6;
+}
+
+mark.todo {
+	background: #fff4d6; color: #6b5316; padding: 1px 6px;
+	border-radius: 2px; font-size: .92em; font-style: normal;
+	box-decoration-break: clone; -webkit-box-decoration-break: clone;
+}

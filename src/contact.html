@@ -1,0 +1,81 @@
+<div class="shell shell--narrow">
+
+  <div class="page-head">
+    <p class="page-head__kicker" data-i18n="nav.contact">Contact</p>
+    <h1>We want to hear from you</h1>
+  </div>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Phone</span>
+      <p class="nbc-fact__value"><a href="tel:+6494807064">(09) 480 7064</a></p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Email</span>
+      <p class="nbc-fact__value"><a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a></p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Address</span>
+      <!-- The live site publishes no street address anywhere. This is the
+           single most important gap on it: a first-time visitor cannot
+           find the front door. -->
+      <p class="nbc-fact__value">{{STREET_ADDRESS}}<br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Office hours</span>
+      <p class="nbc-fact__value">{{OFFICE_HOURS}}</p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+    <h3 class="nbc-qa__q">If English is not your first language</h3>
+    <p class="nbc-qa__a">
+      Email <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> and put your
+      language in the subject line — <span lang="zh-Hans">中文</span>,
+      <span lang="ko">한국어</span> — and we will arrange for someone who speaks it
+      to meet you at the door on your first Sunday.
+      <br><br>
+      <a href="zh.html">中文页面</a> ·
+      <a href="ko.html">한국어 페이지</a> ·
+      <a href="mi.html">Te Reo Māori</a>
+    </p>
+
+    <h3 class="nbc-qa__q">Send us a message</h3>
+    <p class="nbc-qa__a">
+      On the live site this is a Contact Form 7 form, which the church already has
+      installed — the multilingual versions are copies of the same form with
+      translated labels, so no new plugin is needed.
+    </p>
+  </div>
+
+  <form class="proto-form" onsubmit="return false">
+    <p class="proto-form__note">
+      <strong>Prototype</strong> — this form is not connected to anything and sends
+      nothing. On the real site it would be the church&rsquo;s existing contact form.
+    </p>
+    <label>
+      <span>Your name</span>
+      <input type="text" name="name" autocomplete="name">
+    </label>
+    <label>
+      <span>Email</span>
+      <input type="email" name="email" autocomplete="email">
+    </label>
+    <label>
+      <span>Preferred language</span>
+      <select name="lang">
+        <option>English</option>
+        <option lang="zh-Hans">中文</option>
+        <option lang="ko">한국어</option>
+        <option lang="mi">Te Reo Māori</option>
+        <option>Other — please say in your message</option>
+      </select>
+    </label>
+    <label>
+      <span>Message</span>
+      <textarea name="message" rows="5"></textarea>
+    </label>
+    <button type="submit" class="nbc-btn nbc-btn--primary">Send</button>
+  </form>
+
+</div>

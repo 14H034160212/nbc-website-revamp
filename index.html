@@ -1,306 +1,539 @@
 <!doctype html>
-<html lang="zh-Hans">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>nbc.org.nz 改造包 — 多语言、UI 与在线圣经</title>
-<meta name="description" content="给一个 WordPress 教会网站的最小改动改造包：可直接粘贴的多语言在线圣经、子主题定制、以及替换图片文案的内容区块。">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>⛪</text></svg>">
-
+<title>Northcote Baptist Church — prototype redesign</title>
+<meta name="description" content="Sundays at 10am in Hillcrest, Auckland. An intergenerational, multicultural church.">
+<!-- This prototype must never compete with the real church website in search. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://nbc.org.nz/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>&#9962;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap">
 <style>
-:root{
-  --ground:#F6F7F9; --surface:#FFFFFF; --surface-2:#EFF1F5;
-  --ink:#22242D; --ink-2:#454A5C; --muted:#6B7186;
-  --rule:#DCE0E8; --rule-soft:#E8EBF0;
-  --accent:#B93F34; --accent-soft:#FBEFEE; --link:#1B6091;
-  --f-display:Georgia,'Iowan Old Style','Noto Serif CJK SC','Source Han Serif SC','Songti SC',serif;
-  --f-body:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans CJK SC','PingFang SC','Microsoft YaHei',Roboto,Helvetica,Arial,sans-serif;
-  --f-mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
-}
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --ground:#14161C; --surface:#1B1E26; --surface-2:#232732;
-    --ink:#E8EAF0; --ink-2:#C3C8D6; --muted:#949BB0;
-    --rule:#2E3341; --rule-soft:#262B36;
-    --accent:#E58376; --accent-soft:#2A1F1E; --link:#79B0DA;
-  }
-}
-:root[data-theme="dark"]{
-  --ground:#14161C; --surface:#1B1E26; --surface-2:#232732;
-  --ink:#E8EAF0; --ink-2:#C3C8D6; --muted:#949BB0;
-  --rule:#2E3341; --rule-soft:#262B36;
-  --accent:#E58376; --accent-soft:#2A1F1E; --link:#79B0DA;
-}
-
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{
-  margin:0;background:var(--ground);color:var(--ink-2);
-  font-family:var(--f-body);font-size:16.5px;line-height:1.75;
-  -webkit-font-smoothing:antialiased;
-}
-.wrap{max-width:62rem;margin:0 auto;padding:0 clamp(18px,4vw,40px) 90px}
-.col{max-width:42rem}
-
-a{color:var(--link);text-decoration:none;border-bottom:1px solid color-mix(in srgb,var(--link) 30%,transparent)}
-a:hover{border-bottom-color:var(--link)}
-a:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:2px}
-strong{color:var(--ink);font-weight:650}
-code{font-family:var(--f-mono);font-size:.86em;background:var(--surface-2);padding:.12em .4em;border-radius:3px;color:var(--ink)}
-
-/* ---- masthead ---- */
-.masthead{padding:clamp(46px,8vw,84px) 0 clamp(28px,4vw,40px);border-bottom:1px solid var(--rule)}
-.eyebrow{font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:650;margin:0 0 16px}
-h1{
-  font-family:var(--f-display);font-weight:400;
-  font-size:clamp(1.95rem,5vw,3rem);line-height:1.16;letter-spacing:-.01em;
-  color:var(--ink);text-wrap:balance;margin:0 0 18px;
-}
-.standfirst{font-size:1.08rem;line-height:1.7;color:var(--muted);max-width:38rem;margin:0 0 26px}
-.repo-link{
-  display:inline-flex;align-items:center;gap:9px;
-  padding:9px 17px;border:1px solid var(--rule);border-radius:4px;
-  background:var(--surface);color:var(--ink);font-size:.9rem;
-}
-.repo-link:hover{border-color:var(--accent);color:var(--accent)}
-.repo-link svg{width:17px;height:17px;fill:currentColor}
-
-/* ---- disclaimer ---- */
-.disclaimer{
-  margin:26px 0 0;padding:15px 20px;
-  border-left:2px solid var(--accent);background:var(--surface);
-  font-size:.9rem;line-height:1.65;max-width:44rem;
-}
-.disclaimer p{margin:0}
-
-/* ---- sections ---- */
-section{padding-top:clamp(42px,6vw,68px)}
-.sec-label{display:flex;align-items:baseline;gap:12px;margin:0 0 10px}
-.sec-label span{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
-.sec-label::after{content:"";flex:1;height:1px;background:var(--rule)}
-h2{
-  font-family:var(--f-display);font-weight:400;
-  font-size:clamp(1.5rem,3.2vw,2rem);line-height:1.22;
-  color:var(--ink);text-wrap:balance;margin:0 0 14px;
-}
-p{margin:0 0 15px}
-
-/* ---- demo cards ---- */
-.cards{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);margin:26px 0 0}
-@media (min-width:760px){.cards{grid-template-columns:1fr 1fr}}
-.card{
-  display:flex;flex-direction:column;gap:9px;
-  background:var(--surface);padding:24px 22px 26px;
-  border:0;color:inherit;
-}
-.card:hover{background:var(--surface-2);border:0}
-.card__tag{font-family:var(--f-mono);font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--accent)}
-.card__title{font-size:1.08rem;font-weight:660;color:var(--ink);margin:0;line-height:1.35}
-.card__desc{font-size:.92rem;line-height:1.6;color:var(--muted);margin:0}
-.card__go{margin-top:auto;padding-top:12px;font-size:.86rem;color:var(--link)}
-.card--wide{grid-column:1 / -1}
-
-/* ---- file table ---- */
-.scroller{overflow-x:auto;margin:24px 0 8px}
-table{width:100%;min-width:600px;border-collapse:collapse;font-size:.9rem}
-thead th{
-  text-align:left;font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--muted);font-weight:650;padding:0 14px 9px 0;border-bottom:1px solid var(--rule);
-}
-tbody td{padding:12px 14px 12px 0;border-bottom:1px solid var(--rule-soft);vertical-align:top}
-tbody tr td:first-child{width:17rem}
-tbody tr td:first-child code{font-size:.82em}
-
-/* ---- steps ---- */
-.steps{border-top:1px solid var(--rule);margin:22px 0 0}
-.step{display:grid;grid-template-columns:2.2rem 1fr;gap:0 20px;padding:18px 0;border-bottom:1px solid var(--rule-soft)}
-.step__n{font-family:var(--f-mono);font-size:.82rem;color:var(--accent);padding-top:3px}
-.step h3{margin:0 0 5px;font-size:.99rem;font-weight:660;color:var(--ink)}
-.step p{margin:0;font-size:.91rem;color:var(--muted)}
-
-.foot{margin-top:60px;padding-top:22px;border-top:1px solid var(--rule);font-size:.82rem;color:var(--muted)}
-
-@media (max-width:600px){
-  .step{grid-template-columns:1fr;gap:4px}
-  .step__n{padding-top:0}
-  tbody tr td:first-child{width:auto}
-}
+/* The parent theme calls the body face "Source Sans Pro"; Google now serves
+   it as "Source Sans 3". Alias it so the theme's own font stacks resolve. */
+@font-face { font-family: 'Source Sans Pro'; src: local('Source Sans 3'); }
 </style>
+<link rel="stylesheet" href="assets/site.css">
+
 </head>
-<body>
+<body class="nbc-has-actionbar" data-page="index.html">
 
-<div class="wrap">
+<a class="nbc-skip" href="#nbc-main">Skip to content</a>
 
-<header class="masthead">
-  <p class="eyebrow">Northcote Baptist Church · 网站改造包</p>
-  <h1>一个多语言的门，一间多语言的教会</h1>
-  <p class="standfirst">
-    给一个跑在 WordPress + CMSMasters <code>my-religion</code> 主题上的教会网站做的
-    <strong>最小改动</strong>改造包：不换主题、不重做站点、父主题一行不碰。
-    下面每一样都能直接点开看。
-  </p>
-  <a class="repo-link" href="https://github.com/14H034160212/nbc-website-revamp">
-    <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
-    14H034160212/nbc-website-revamp
-  </a>
+<div class="proto">
+  <div class="proto__inner">
+    <b>Prototype</b>
+    <span>Unofficial redesign proposal — not affiliated with, reviewed by, or adopted by Northcote Baptist Church.</span>
+    <span class="proto__spacer"><a href="https://nbc.org.nz/" rel="noopener">The real site →</a></span>
+    <span><a href="package.html">About this package</a></span>
+  </div>
+</div>
 
-  <div class="disclaimer">
-    <p>
-      <strong>说明</strong>：这是一份未经委托的第三方改造提案，与 Northcote Baptist Church
-      没有隶属关系，也未经其审阅或采用。对现网站的技术描述均来自公开可见的页面源码。
-      其中的多语言在线圣经是通用组件，任何教会网站都可以直接使用。
-    </p>
+<div class="nbc-langbar">
+  <div class="nbc-langbar__inner" style="display:block;text-align:right">
+    <div data-lang-switcher style="display:flex;justify-content:flex-end"></div>
+    <p class="lang-note" id="lang-note" style="margin-left:auto" hidden></p>
+  </div>
+</div>
+
+<header class="site-head">
+  <div class="site-head__inner">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><g fill="none" stroke="#d14f42" stroke-width="1.6" stroke-linejoin="round"><path d="M16 3h8l-4 6z"/><path d="M16 3l4 6-8 5z"/><path d="M24 3l-4 6 8 5z"/><path d="M4 14h32l-16 10z"/><path d="M20 24v13"/></g></svg>
+      <span class="brand__name"><b>northcote</b><span>baptist church</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span></button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html" aria-current="page" data-i18n="nav.home">Home</a></li>
+        <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+        <li><a href="first-visit.html" data-i18n="nav.visit">First visit</a></li>
+        <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+        <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+        <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        <li><a class="is-cta" href="give.html" data-i18n="nav.give">Give</a></li>
+      </ul>
+    </nav>
   </div>
 </header>
 
-<section>
-  <p class="sec-label"><span>可以直接点开</span></p>
-  <h2>三个演示</h2>
-  <div class="col">
-    <p>在线圣经连的是真实 API，不是录像；提案文档里也嵌了一个可操作的读经器。</p>
-  </div>
-
-  <div class="cards">
-
-    <a class="card card--wide" href="./bible.html">
-      <span class="card__tag">Live · 连接真实 API</span>
-      <h3 class="card__title">多语言在线圣经</h3>
-      <p class="card__desc">
-        双语并排阅读、四语界面（English / 中文 / 한국어 / Te Reo Māori）、
-        A− A+ 字号调节、← → 翻章、点击复制经节、自动记住上次读到哪里。
-        数据来自 getBible API v2：免费、无需 API key、全本 66 卷、117 个译本，
-        含和合本简繁、新译本、개역、Te Paipera Tapu、Tagalog。
-        22 KB 单文件，粘进 WordPress「自定义 HTML」区块就能上线。
-      </p>
-      <span class="card__go">打开读经器 →</span>
-    </a>
-
-    <a class="card" href="./nbc-proposal.html">
-      <span class="card__tag">文档</span>
-      <h3 class="card__title">完整改造提案</h3>
-      <p class="card__desc">
-        现状体检、分层多语言策略、只改子主题的 UI 方案、四周路线图。
-        含一个内嵌的可操作读经器演示。
-      </p>
-      <span class="card__go">阅读提案 →</span>
-    </a>
-
-    <a class="card" href="./preview.html">
-      <span class="card__tag">预览</span>
-      <h3 class="card__title">7 个粘贴区块</h3>
-      <p class="card__desc">
-        每个「自定义 HTML」区块配上子主题样式渲染出来的实际效果，
-        粘贴到 WordPress 之前先看一眼。
-      </p>
-      <span class="card__go">查看区块 →</span>
-    </a>
-
+<main id="nbc-main" tabindex="-1">
+<!-- Hero. Replaces the LayerSlider carousel: one screen, four facts, one
+     primary action. A carousel rotates exactly this information out of view
+     before a first-time visitor has finished reading it. -->
+<section class="nbc-hero" style="background-image:url('https://nbc.org.nz/wp-content/uploads/2023/10/Church-17.jpg')">
+  <div class="nbc-hero__inner">
+    <p class="nbc-hero__kicker" data-i18n="hero.kicker">Sundays at 10am · Hillcrest, Auckland</p>
+    <h1 data-i18n="hero.title">A church for every generation and culture</h1>
+    <p class="nbc-hero__sub" data-i18n="hero.sub">You do not need to know anyone, believe anything in particular, or dress a certain way. Come as you are.</p>
+    <p class="nbc-hero__actions">
+      <a class="nbc-btn nbc-btn--primary" href="first-visit.html" data-i18n="hero.cta1">Planning your first visit</a>
+      <a class="nbc-btn nbc-btn--ghost" href="sunday.html" data-i18n="hero.cta2">What happens on Sunday</a>
+    </p>
   </div>
 </section>
 
-<section>
-  <p class="sec-label"><span>包里有什么</span></p>
-  <h2>每个文件的作用</h2>
-
-  <div class="scroller">
-  <table>
-    <thead><tr><th>文件</th><th>作用</th></tr></thead>
-    <tbody>
-      <tr>
-        <td><code>nbc-bible-reader.html</code></td>
-        <td>多语言在线圣经。零插件、零主题改动、零构建工具</td>
-      </tr>
-      <tr>
-        <td><code>my-religion-child/style.css</code></td>
-        <td>排版与对比度、语言切换器、移动端底部操作条、焦点样式。原文件只有主题头注释</td>
-      </tr>
-      <tr>
-        <td><code>my-religion-child/functions.php</code></td>
-        <td>语言切换器（有无 Polylang 都能用）、hreflang、schema.org Church 标记、按页卸载多余脚本、管理员专用的资源调试助手。<strong>这个文件原本不存在</strong></td>
-      </tr>
-      <tr>
-        <td><code>pages/vision-mission-values.html</code><br><code>pages/creed.html</code><br><code>pages/strategic-principles.html</code></td>
-        <td>把写死在 JPEG 里的文案还原成真 HTML。CREED 轮盘改成 2 KB 内联 SVG，取代 39 KB 的图片。<strong>这是多语言的前提</strong>——翻译插件看不见图片里的字</td>
-      </tr>
-      <tr>
-        <td><code>pages/first-visit.html</code></td>
-        <td>「第一次来」页面。教会网站上被点最多、而现站没有的一页</td>
-      </tr>
-      <tr>
-        <td><code>pages/welcome-zh.html</code><br><code>pages/welcome-ko.html</code><br><code>pages/welcome-mi.html</code></td>
-        <td>三个母语落地页。内容全部译自教会自己的 <code>/services/</code>、<code>/ministries/kids/</code>、<code>/give-2/</code>，没有编造</td>
-      </tr>
-      <tr>
-        <td><code>content/alt-text.md</code></td>
-        <td>首页 15 张缺 alt 图片的替代文本，逐张写好</td>
-      </tr>
-      <tr>
-        <td><code>README.md</code></td>
-        <td>逐步上线说明、需要教会补齐的信息、回滚方案</td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
-</section>
-
-<section>
-  <p class="sec-label"><span>上线顺序</span></p>
-  <h2>先做零风险的，再动内容和插件</h2>
-
-  <div class="steps">
-    <div class="step">
-      <div class="step__n">0</div>
+<!-- Welcome. Text taken from nbc.org.nz/who-we-are/ -->
+<section class="band">
+  <div class="shell">
+    <div class="split">
       <div>
-        <h3>整站备份 + 建 staging</h3>
-        <p>下面每一步都先在 staging 走一遍。不要跳过。</p>
+        <p class="tag">Who we are</p>
+        <h2>Loving God wholeheartedly, connecting together intentionally, serving others boldly</h2>
+        <p class="lede">
+          We love the many nationalities who call New Zealand home, and we are working
+          towards a more inter-cultural community where we learn from our differences
+          and are strengthened by our diversity.
+        </p>
+        <p>
+          We are an intergenerational, multicultural church in Hillcrest, on Auckland&rsquo;s
+          North Shore. We preach from God&rsquo;s Word, we strive to do what it says, we rest
+          and listen to the Spirit, and we go out and share this love with others.
+          Our history is bathed in mission, and we love supporting family in their work
+          overseas.
+        </p>
       </div>
-    </div>
-    <div class="step">
-      <div class="step__n">1</div>
-      <div>
-        <h3>在线圣经</h3>
-        <p>新建页面 → 插入「自定义 HTML」→ 粘贴 → 发布。想撤回就删掉这个页面，站点其余部分完全不受影响。</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step__n">2</div>
-      <div>
-        <h3>三个母语落地页</h3>
-        <p>同样是粘贴区块。发布前把 <code>{{STREET_ADDRESS}}</code> 和 <code>{{MAP_URL}}</code> 换成真实值。</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step__n">3</div>
-      <div>
-        <h3>子主题：先 style.css，确认没问题再 functions.php</h3>
-        <p>用 FTP 上传，不要用后台的主题文件编辑器——PHP 出错时你会连后台一起进不去。上传前务必跑一次 <code>php -l</code>。</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step__n">4</div>
-      <div>
-        <h3>拆掉图片里的文字，补 alt</h3>
-        <p>把 Vision/Values/Creed 三张图换成 HTML 区块，按 <code>content/alt-text.md</code> 逐张补 alt。</p>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step__n">5</div>
-      <div>
-        <h3>性能瘦身，逐条验证</h3>
-        <p>一个小节一个小节地放开 <code>nbc_slim_assets</code>，每放开一节把站点点一遍。用 <code>?nbc_debug=assets</code> 看某页实际加载了什么。</p>
+      <div class="split__media">
+        <img src="https://nbc.org.nz/wp-content/uploads/2023/10/Church-85.jpg"
+             alt="A pastor preaching from the platform on a Sunday morning, with the wooden cross and band behind him."
+             loading="lazy" width="1200" height="800">
       </div>
     </div>
   </div>
 </section>
 
-<p class="foot">
-  提案依据：2026 年 8 月对 nbc.org.nz 线上 HTML、主题样式表与资源清单的实际勘察。
-  在线圣经组件已完成端到端验证（KJV 单栏、和合本简体 × Te Reo Māori 双栏对照）。
-  <br>
-  <code>bible.html</code> 与 <code>preview.html</code> 由 <code>build-site.py</code> 从源文件生成——
-  <code>pages/</code> 里的文件是给 WordPress 粘贴用的片段，本身没有 <code>&lt;!doctype&gt;</code>。
-</p>
+<!-- Vision / Mission / Values — real text, not a JPEG. -->
+<!-- ============================================================
+     Vision / Mission / Values  —  real HTML, not a JPEG
+     ------------------------------------------------------------
+     REPLACES: NBC_vision-mission-values.jpg, NBC_vision.jpg, NBC_values.jpg
+     Text transcribed verbatim from those images.
 
-</div>
+     WHY THIS MATTERS
+       The current version is a picture. That means: translation
+       plugins cannot see it, Google cannot index it, screen readers
+       read nothing, and it cannot be selected or copied. This block
+       is identical to look at but is real text.
+
+     HOW TO USE
+       Edit the page -> replace the image block with a
+       "Custom HTML" block -> paste this in.
+       Keep the photo as a CSS background (set below), or delete the
+       background rules to use the theme's own section background.
+     ============================================================ -->
+
+<section class="nbc-vmv" aria-labelledby="nbc-vmv-title">
+  <h2 id="nbc-vmv-title" class="nbc-vmv__title">Vision, Mission &amp; Values</h2>
+
+  <div class="nbc-vmv__grid">
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Vision</h3>
+      <p class="nbc-vmv__lead">
+        We are a community of faith that loves God,<br>
+        is united in Christ, makes disciples<br>
+        and serves boldly
+      </p>
+    </div>
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Mission</h3>
+      <p class="nbc-vmv__lead">
+        To make disciples of Jesus<br>
+        from every generation and culture,<br>
+        growing in Him and serving our world
+      </p>
+    </div>
+
+    <div class="nbc-vmv__item">
+      <h3 class="nbc-vmv__label">Values</h3>
+      <dl class="nbc-vmv__values">
+        <div><dt>Love</dt><dd lang="mi">Aroha</dd></div>
+        <div><dt>Connect</dt><dd lang="mi">Whanaungatanga</dd></div>
+        <div><dt>Serve</dt><dd lang="mi">Manaakitanga</dd></div>
+        <div><dt>Truth</dt><dd lang="mi">Pono</dd></div>
+      </dl>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* Move these rules into my-religion-child/style.css once you are happy
+   with them, and delete this <style> block. They live here so the
+   snippet works the moment you paste it. */
+.nbc-vmv{
+  --nbc-red:#d14f42;
+  position:relative;
+  padding:clamp(38px,6vw,64px) clamp(20px,4vw,52px);
+  /* NOT the original NBC_vision-mission-values.jpg — that file already has
+     the vision, mission and values printed onto it, so using it here would
+     show every line twice. Two ways to bring the photo back:
+       a) crop the text off the existing photo and use the clean half, or
+       b) ask the photographer for the plain building shot.
+     Then swap the gradient below for:
+       background:#2b5f96 url('.../clean-photo.jpg') center/cover no-repeat;
+     and keep the ::before overlay so the text stays legible. */
+  background:linear-gradient(135deg,#2f7fd1 0%,#2464a8 55%,#1d5089 100%);
+  color:#fff;
+  overflow:hidden;
+}
+/* Overlay for when a photo is used. Harmless over the flat gradient. */
+.nbc-vmv::before{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(20,60,110,.32) 0%,rgba(20,60,110,.10) 60%,transparent 100%);
+}
+.nbc-vmv > *{position:relative}
+
+.nbc-vmv .nbc-vmv__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.4rem,2.6vw,1.9rem);letter-spacing:.02em;
+  color:#fff;margin:0 0 clamp(24px,3vw,36px);
+}
+.nbc-vmv__grid{display:grid;gap:clamp(24px,3vw,34px)}
+.nbc-vmv .nbc-vmv__label{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:.86rem;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.82);margin:0 0 8px;
+}
+.nbc-vmv .nbc-vmv__lead{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:clamp(1.18rem,2.4vw,1.75rem);line-height:1.32;
+  color:#fff;margin:0;text-wrap:balance;
+}
+.nbc-vmv__values{margin:0;display:grid;gap:6px}
+.nbc-vmv__values > div{display:flex;align-items:baseline;gap:.55em;flex-wrap:wrap}
+.nbc-vmv__values dt{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:700;
+  font-size:clamp(1.18rem,2.4vw,1.7rem);color:#fff;
+}
+.nbc-vmv__values dt::after{content:" |";font-weight:400;opacity:.55}
+.nbc-vmv__values dd{
+  margin:0;font-family:'Source Sans Pro',Arial,sans-serif;font-weight:300;
+  font-size:clamp(1.12rem,2.2vw,1.6rem);color:rgba(255,255,255,.95);
+}
+@media (min-width:900px){
+  .nbc-vmv__grid{grid-template-columns:1fr 1fr;gap:34px 56px}
+  /* Values sits under Mission in the right-hand column; Vision leads. */
+  .nbc-vmv__item:first-child{grid-column:1 / -1}
+}
+</style>
+
+
+<!-- Sunday at a glance. Facts from nbc.org.nz/services/ -->
+<section class="band band--tint">
+  <div class="shell">
+    <p class="tag">On Sunday</p>
+    <h2>An hour and a quarter, and a cup of tea afterwards</h2>
+
+    <div class="nbc-facts">
+      <div class="nbc-fact">
+        <span class="nbc-fact__label">Starts</span>
+        <p class="nbc-fact__value">10:00am every Sunday<br>Finishes around 11:15am</p>
+      </div>
+      <div class="nbc-fact">
+        <span class="nbc-fact__label">Children</span>
+        <p class="nbc-fact__value">Programmes from pre-school to Year 9 during term time</p>
+      </div>
+      <div class="nbc-fact">
+        <span class="nbc-fact__label">Babies</span>
+        <p class="nbc-fact__value">Mum and Baby space with a kitchenette and live video</p>
+      </div>
+      <div class="nbc-fact">
+        <span class="nbc-fact__label">Afterwards</span>
+        <p class="nbc-fact__value">Morning tea — stay as long or as briefly as you like</p>
+      </div>
+    </div>
+
+    <p>
+      A mix of traditional and contemporary worship songs, prayer, and a message from
+      the Bible. Communion is shared on the first Sunday of the month.
+      <a href="sunday.html">More about Sunday →</a>
+    </p>
+  </div>
+</section>
+
+<!-- Language strip. On the real site these are Polylang URLs. -->
+<section class="band">
+  <div class="shell">
+    <p class="tag" data-i18n="foot.langs">Your language</p>
+    <h2>English is not the only language spoken here on a Sunday</h2>
+    <p class="lede">
+      Several languages are spoken in this congregation, and we run a free English
+      class for the community during the week. If English is not your first language,
+      start here.
+    </p>
+
+    <div class="grid">
+      <a class="tile" href="zh.html">
+        <div class="tile__body">
+          <h3 class="tile__title" lang="zh-Hans">中文</h3>
+          <p class="tile__text" lang="zh-Hans">主日几点、地址在哪、孩子怎么安排，以及会讲中文的弟兄姊妹怎么联系。</p>
+          <span class="tile__go">中文页面 →</span>
+        </div>
+      </a>
+      <a class="tile" href="ko.html">
+        <div class="tile__body">
+          <h3 class="tile__title" lang="ko">한국어</h3>
+          <p class="tile__text" lang="ko">예배 시간과 오시는 길, 자녀 프로그램, 한국어가 가능한 성도 안내입니다.</p>
+          <span class="tile__go">한국어 페이지 →</span>
+        </div>
+      </a>
+      <a class="tile" href="mi.html">
+        <div class="tile__body">
+          <h3 class="tile__title" lang="mi">Te Reo Māori</h3>
+          <p class="tile__text">Our values are already named in te reo — Aroha, Whanaungatanga, Manaakitanga, Pono.</p>
+          <span class="tile__go">Te Reo Māori →</span>
+        </div>
+      </a>
+      <a class="tile" href="ask.html">
+        <div class="tile__body">
+          <h3 class="tile__title">Find a passage</h3>
+          <p class="tile__text">Pick what is going on — anxious, grieving, facing a decision — and read what the Bible says, in your language beside English.</p>
+          <span class="tile__go">Open the passage finder →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Ministries -->
+<section class="band band--tint">
+  <div class="shell">
+    <p class="tag">Through the week</p>
+    <h2>There is more to us than Sunday morning</h2>
+
+    <div class="grid">
+      <a class="tile" href="https://nbc.org.nz/ministries/kids/">
+        <div class="tile__body">
+          <h3 class="tile__title">Kids</h3>
+          <p class="tile__text">Kids Rock for school years 1–6 on Sunday mornings, plus pre-schoolers and intermediates.</p>
+          <span class="tile__go">Read more →</span>
+        </div>
+      </a>
+      <a class="tile" href="https://nbc.org.nz/ministries/youth/">
+        <div class="tile__body">
+          <h3 class="tile__title">Youth &amp; Young Adults</h3>
+          <p class="tile__text">Space to ask real questions, make friends, and work out what faith looks like day to day.</p>
+          <span class="tile__go">Read more →</span>
+        </div>
+      </a>
+      <a class="tile" href="https://nbc.org.nz/home-group/">
+        <div class="tile__body">
+          <h3 class="tile__title">Home Groups</h3>
+          <p class="tile__text">Small groups meeting during the week. Easier to get to know people here than in a crowd.</p>
+          <span class="tile__go">Read more →</span>
+        </div>
+      </a>
+      <a class="tile" href="https://nbc.org.nz/kays-english-class/">
+        <div class="tile__body">
+          <h3 class="tile__title">Kay&rsquo;s English Class</h3>
+          <p class="tile__text">Free English classes open to the community. Many families first meet us here.</p>
+          <span class="tile__go">Read more →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CAP. The phone number is real text, not pixels — see content/alt-text.md
+     for why that matters more here than anywhere else on the site. -->
+<section class="band">
+  <div class="shell">
+    <div class="split split--flip">
+      <div class="split__media">
+        <img src="https://nbc.org.nz/wp-content/uploads/2024/05/cap.jpg"
+             alt="Christians Against Poverty — free, confidential budgeting and debt counselling."
+             loading="lazy" width="1000" height="600">
+      </div>
+      <div>
+        <p class="tag">Christians Against Poverty</p>
+        <h2>Struggling with loans, bills, credit cards or debt?</h2>
+        <p class="lede">
+          Caring support, budget help and debt counselling, for as long as you need it.
+          Our help is free and confidential.
+        </p>
+        <p>
+          Call <a href="tel:0508227111"><strong>0508 227 111</strong></a> — your local
+          CAP Centre is ready to help our community.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CREED — inline SVG, real text labels. -->
+<!-- ============================================================
+     CREED for Mission Effectiveness  —  real HTML + inline SVG
+     ------------------------------------------------------------
+     REPLACES: Creed.jpg
+     The five words are transcribed verbatim from that image.
+
+     The wheel is now inline SVG instead of a photograph, so it stays
+     sharp on retina screens, weighs ~2 KB instead of 39 KB, and the
+     five labels sit beside it as real text that can be translated,
+     searched and read aloud.
+
+     PASTE INTO: a "Custom HTML" block on /what-we-believe/ (or
+     wherever Creed.jpg currently sits).
+     ============================================================ -->
+
+<section class="nbc-creed" aria-labelledby="nbc-creed-title">
+
+  <h2 id="nbc-creed-title" class="nbc-creed__title">CREED for Mission Effectiveness</h2>
+
+  <div class="nbc-creed__layout">
+
+    <svg class="nbc-creed__wheel" viewBox="0 0 300 300" role="img"
+         aria-label="A five-part wheel around a cross: Contact, Relate, Educate, Evangelise, Disciple.">
+      <g>
+        <circle cx="150" cy="150" r="139" fill="#f2f2f4"/>
+        <path d="M150.0 18.0 A132 132 0 0 1 275.5 109.2 L195.7 135.2 A48 48 0 0 0 150.0 102.0 Z" fill="#9C2C8E"/>
+        <path d="M275.5 109.2 A132 132 0 0 1 227.6 256.8 L178.2 188.8 A48 48 0 0 0 195.7 135.2 Z" fill="#4B4CAE"/>
+        <path d="M227.6 256.8 A132 132 0 0 1 72.4 256.8 L121.8 188.8 A48 48 0 0 0 178.2 188.8 Z" fill="#6DB52E"/>
+        <path d="M72.4 256.8 A132 132 0 0 1 24.5 109.2 L104.3 135.2 A48 48 0 0 0 121.8 188.8 Z" fill="#EF8A1C"/>
+        <path d="M24.5 109.2 A132 132 0 0 1 150.0 18.0 L150.0 102.0 A48 48 0 0 0 104.3 135.2 Z" fill="#DF272C"/>
+
+        <circle cx="150" cy="150" r="44" fill="#fff"/>
+        <path d="M144 122h12v20h18v12h-18v34h-12v-34h-18v-12h18z" fill="#c9ccd4"/>
+
+        <circle cx="227.6" cy="43.2" r="17" fill="#fff"/>
+        <text x="227.6" y="43.2" fill="#9C2C8E" class="nbc-creed__letter">C</text>
+        <circle cx="275.5" cy="190.8" r="17" fill="#fff"/>
+        <text x="275.5" y="190.8" fill="#4B4CAE" class="nbc-creed__letter">R</text>
+        <circle cx="150.0" cy="282.0" r="17" fill="#fff"/>
+        <text x="150.0" y="282.0" fill="#6DB52E" class="nbc-creed__letter">E</text>
+        <circle cx="24.5" cy="190.8" r="17" fill="#fff"/>
+        <text x="24.5" y="190.8" fill="#EF8A1C" class="nbc-creed__letter">E</text>
+        <circle cx="72.4" cy="43.2" r="17" fill="#fff"/>
+        <text x="72.4" y="43.2" fill="#DF272C" class="nbc-creed__letter">D</text>
+      </g>
+    </svg>
+
+    <ol class="nbc-creed__list">
+      <li style="--c:#9C2C8E"><b>C</b><span>Contact</span></li>
+      <li style="--c:#4B4CAE"><b>R</b><span>Relate</span></li>
+      <li style="--c:#6DB52E"><b>E</b><span>Educate</span></li>
+      <li style="--c:#EF8A1C"><b>E</b><span>Evangelise</span></li>
+      <li style="--c:#DF272C"><b>D</b><span>Disciple</span></li>
+    </ol>
+
+  </div>
+</section>
+
+<style>
+/* Move into my-religion-child/style.css when you are happy with it. */
+.nbc-creed{
+  background:#3a1113;
+  color:#fff;
+  padding:clamp(30px,5vw,54px) clamp(20px,4vw,48px);
+}
+.nbc-creed .nbc-creed__title{
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;
+  font-size:clamp(1.25rem,2.4vw,1.7rem);letter-spacing:.03em;
+  color:#fff;margin:0 0 clamp(22px,3vw,34px);text-align:center;
+}
+.nbc-creed__layout{
+  display:flex;flex-wrap:wrap;gap:clamp(26px,5vw,58px);
+  align-items:center;justify-content:center;
+}
+.nbc-creed__wheel{width:min(300px,72vw);height:auto;flex:0 0 auto}
+.nbc-creed__letter{
+  font-family:'Fjalla One',Arial,sans-serif;font-size:19px;
+  text-anchor:middle;dominant-baseline:central;
+}
+.nbc-creed__list{
+  list-style:none;margin:0;padding:0;
+  display:grid;gap:11px;flex:0 1 260px;
+}
+.nbc-creed__list li{display:flex;align-items:center;gap:14px}
+.nbc-creed .nbc-creed__list b{
+  flex:0 0 34px;height:34px;border-radius:50%;
+  background:var(--c);color:#fff;
+  font-family:'Fjalla One',Arial,sans-serif;font-weight:400;font-size:1.05rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.nbc-creed .nbc-creed__list span{
+  font-family:'Source Sans Pro',Arial,sans-serif;font-weight:600;
+  font-size:1.12rem;letter-spacing:.05em;text-transform:uppercase;color:#fff;
+}
+@media (max-width:560px){
+  .nbc-creed__layout{flex-direction:column}
+  .nbc-creed__list{flex:1 1 auto;width:min(260px,80vw)}
+}
+</style>
+
+
+</main>
+
+<footer class="site-foot">
+  <div class="shell">
+    <div class="foot-grid">
+      <div>
+        <h3 data-i18n="foot.visit">Visit</h3>
+        <p data-i18n="foot.when">Sundays, 10:00am — finishes around 11:15am</p>
+        <p data-i18n="foot.where">Hillcrest, Auckland, New Zealand</p>
+        <p><a href="first-visit.html" data-i18n="nav.visit">First visit</a></p>
+      </div>
+      <div>
+        <h3 data-i18n="foot.explore">Explore</h3>
+        <ul>
+          <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+          <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+          <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+          <li><a href="give.html" data-i18n="nav.give">Give</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.contact">Contact</h3>
+        <ul>
+          <li><a href="tel:+6494807064">(09) 480 7064</a></li>
+          <li><a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.langs">Your language</h3>
+        <ul>
+          <li><a href="index.html">English</a></li>
+          <li><a href="zh.html" lang="zh-Hans">&#20013;&#25991;</a></li>
+          <li><a href="ko.html" lang="ko">&#54620;&#44397;&#50612;</a></li>
+          <li><a href="mi.html" lang="mi">Te Reo M&#257;ori</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-bottom">
+      This is an unofficial prototype of a redesign proposal. It is not affiliated
+      with, reviewed by, or adopted by Northcote Baptist Church, and it is excluded
+      from search engines. Content and photographs belong to the church and are shown
+      here to illustrate the proposed layout. The real site is at
+      <a href="https://nbc.org.nz/" rel="noopener">nbc.org.nz</a> ·
+      <a href="package.html">what is in this package</a> ·
+      <a href="https://github.com/14H034160212/nbc-website-revamp" rel="noopener">source</a>
+    </p>
+  </div>
+</footer>
+
+<nav class="nbc-actionbar" aria-label="Quick links">
+  <a class="nbc-actionbar__link" href="sunday.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span data-i18n="bar.sunday">Sunday 10am</span>
+  </a>
+  <a class="nbc-actionbar__link" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+    <span data-i18n="bar.find">Find us</span>
+  </a>
+  <a class="nbc-actionbar__link" href="give.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg>
+    <span data-i18n="bar.give">Give</span>
+  </a>
+</nav>
+
+<script src="assets/site.js"></script>
+
 </body>
 </html>

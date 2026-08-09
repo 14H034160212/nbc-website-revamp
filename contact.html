@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contact — Northcote Baptist Church (prototype)</title>
+<meta name="description" content="Phone, email and how to reach someone who speaks your language.">
+<!-- This prototype must never compete with the real church website in search. -->
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://nbc.org.nz/">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>&#9962;</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fjalla+One&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600;700&display=swap">
+<style>
+/* The parent theme calls the body face "Source Sans Pro"; Google now serves
+   it as "Source Sans 3". Alias it so the theme's own font stacks resolve. */
+@font-face { font-family: 'Source Sans Pro'; src: local('Source Sans 3'); }
+</style>
+<link rel="stylesheet" href="assets/site.css">
+
+</head>
+<body class="nbc-has-actionbar" data-page="contact.html">
+
+<a class="nbc-skip" href="#nbc-main">Skip to content</a>
+
+<div class="proto">
+  <div class="proto__inner">
+    <b>Prototype</b>
+    <span>Unofficial redesign proposal — not affiliated with, reviewed by, or adopted by Northcote Baptist Church.</span>
+    <span class="proto__spacer"><a href="https://nbc.org.nz/" rel="noopener">The real site →</a></span>
+    <span><a href="package.html">About this package</a></span>
+  </div>
+</div>
+
+<div class="nbc-langbar">
+  <div class="nbc-langbar__inner" style="display:block;text-align:right">
+    <div data-lang-switcher style="display:flex;justify-content:flex-end"></div>
+    <p class="lang-note" id="lang-note" style="margin-left:auto" hidden></p>
+  </div>
+</div>
+
+<header class="site-head">
+  <div class="site-head__inner">
+    <a class="brand" href="index.html">
+      <svg class="brand__mark" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><g fill="none" stroke="#d14f42" stroke-width="1.6" stroke-linejoin="round"><path d="M16 3h8l-4 6z"/><path d="M16 3l4 6-8 5z"/><path d="M24 3l-4 6 8 5z"/><path d="M4 14h32l-16 10z"/><path d="M20 24v13"/></g></svg>
+      <span class="brand__name"><b>northcote</b><span>baptist church</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu"><span></span></button>
+    <nav class="site-nav" id="site-nav" aria-label="Main">
+      <ul>
+        <li><a href="index.html" data-i18n="nav.home">Home</a></li>
+        <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+        <li><a href="first-visit.html" data-i18n="nav.visit">First visit</a></li>
+        <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+        <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+        <li><a href="contact.html" aria-current="page" data-i18n="nav.contact">Contact</a></li>
+        <li><a class="is-cta" href="give.html" data-i18n="nav.give">Give</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="nbc-main" tabindex="-1">
+<div class="shell shell--narrow">
+
+  <div class="page-head">
+    <p class="page-head__kicker" data-i18n="nav.contact">Contact</p>
+    <h1>We want to hear from you</h1>
+  </div>
+
+  <div class="nbc-facts">
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Phone</span>
+      <p class="nbc-fact__value"><a href="tel:+6494807064">(09) 480 7064</a></p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Email</span>
+      <p class="nbc-fact__value"><a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a></p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Address</span>
+      <!-- The live site publishes no street address anywhere. This is the
+           single most important gap on it: a first-time visitor cannot
+           find the front door. -->
+      <p class="nbc-fact__value"><mark class="todo">Street address to be supplied</mark><br>Hillcrest, Auckland</p>
+    </div>
+    <div class="nbc-fact">
+      <span class="nbc-fact__label">Office hours</span>
+      <p class="nbc-fact__value"><mark class="todo">Office hours to be supplied</mark></p>
+    </div>
+  </div>
+
+  <div class="nbc-qa">
+    <h3 class="nbc-qa__q">If English is not your first language</h3>
+    <p class="nbc-qa__a">
+      Email <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> and put your
+      language in the subject line — <span lang="zh-Hans">中文</span>,
+      <span lang="ko">한국어</span> — and we will arrange for someone who speaks it
+      to meet you at the door on your first Sunday.
+      <br><br>
+      <a href="zh.html">中文页面</a> ·
+      <a href="ko.html">한국어 페이지</a> ·
+      <a href="mi.html">Te Reo Māori</a>
+    </p>
+
+    <h3 class="nbc-qa__q">Send us a message</h3>
+    <p class="nbc-qa__a">
+      On the live site this is a Contact Form 7 form, which the church already has
+      installed — the multilingual versions are copies of the same form with
+      translated labels, so no new plugin is needed.
+    </p>
+  </div>
+
+  <form class="proto-form" onsubmit="return false">
+    <p class="proto-form__note">
+      <strong>Prototype</strong> — this form is not connected to anything and sends
+      nothing. On the real site it would be the church&rsquo;s existing contact form.
+    </p>
+    <label>
+      <span>Your name</span>
+      <input type="text" name="name" autocomplete="name">
+    </label>
+    <label>
+      <span>Email</span>
+      <input type="email" name="email" autocomplete="email">
+    </label>
+    <label>
+      <span>Preferred language</span>
+      <select name="lang">
+        <option>English</option>
+        <option lang="zh-Hans">中文</option>
+        <option lang="ko">한국어</option>
+        <option lang="mi">Te Reo Māori</option>
+        <option>Other — please say in your message</option>
+      </select>
+    </label>
+    <label>
+      <span>Message</span>
+      <textarea name="message" rows="5"></textarea>
+    </label>
+    <button type="submit" class="nbc-btn nbc-btn--primary">Send</button>
+  </form>
+
+</div>
+
+</main>
+
+<footer class="site-foot">
+  <div class="shell">
+    <div class="foot-grid">
+      <div>
+        <h3 data-i18n="foot.visit">Visit</h3>
+        <p data-i18n="foot.when">Sundays, 10:00am — finishes around 11:15am</p>
+        <p data-i18n="foot.where">Hillcrest, Auckland, New Zealand</p>
+        <p><a href="first-visit.html" data-i18n="nav.visit">First visit</a></p>
+      </div>
+      <div>
+        <h3 data-i18n="foot.explore">Explore</h3>
+        <ul>
+          <li><a href="sunday.html" data-i18n="nav.sunday">On Sunday</a></li>
+          <li><a href="bible.html" data-i18n="nav.bible">Bible</a></li>
+          <li><a href="ask.html" data-i18n="nav.ask">Find a passage</a></li>
+          <li><a href="give.html" data-i18n="nav.give">Give</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.contact">Contact</h3>
+        <ul>
+          <li><a href="tel:+6494807064">(09) 480 7064</a></li>
+          <li><a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a></li>
+          <li><a href="contact.html" data-i18n="nav.contact">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 data-i18n="foot.langs">Your language</h3>
+        <ul>
+          <li><a href="index.html">English</a></li>
+          <li><a href="zh.html" lang="zh-Hans">&#20013;&#25991;</a></li>
+          <li><a href="ko.html" lang="ko">&#54620;&#44397;&#50612;</a></li>
+          <li><a href="mi.html" lang="mi">Te Reo M&#257;ori</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot-bottom">
+      This is an unofficial prototype of a redesign proposal. It is not affiliated
+      with, reviewed by, or adopted by Northcote Baptist Church, and it is excluded
+      from search engines. Content and photographs belong to the church and are shown
+      here to illustrate the proposed layout. The real site is at
+      <a href="https://nbc.org.nz/" rel="noopener">nbc.org.nz</a> ·
+      <a href="package.html">what is in this package</a> ·
+      <a href="https://github.com/14H034160212/nbc-website-revamp" rel="noopener">source</a>
+    </p>
+  </div>
+</footer>
+
+<nav class="nbc-actionbar" aria-label="Quick links">
+  <a class="nbc-actionbar__link" href="sunday.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    <span data-i18n="bar.sunday">Sunday 10am</span>
+  </a>
+  <a class="nbc-actionbar__link" href="https://www.google.com/maps/search/?api=1&query=Northcote+Baptist+Church+Hillcrest+Auckland" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+    <span data-i18n="bar.find">Find us</span>
+  </a>
+  <a class="nbc-actionbar__link" href="give.html">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg>
+    <span data-i18n="bar.give">Give</span>
+  </a>
+</nav>
+
+<script src="assets/site.js"></script>
+
+</body>
+</html>
