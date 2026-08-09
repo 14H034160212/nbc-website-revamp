@@ -430,6 +430,13 @@ a.nbc-btn--outline:hover,
 	color: var(--nbc-ink);
 	margin: 0;
 }
+.nbc-fact .nbc-fact__when {
+	display: inline-block;
+	margin-top: 4px;
+	font-size: .88rem;
+	line-height: 1.4;
+	color: var(--nbc-muted, #6a6b76);
+}
 
 /* Question-and-answer list, used on the first-visit and welcome pages. */
 .nbc-qa { margin: 26px 0; }

@@ -224,6 +224,13 @@
 	color: var(--nbc-ink);
 	margin: 0;
 }
+.nbc-fact .nbc-fact__when {
+	display: inline-block;
+	margin-top: 4px;
+	font-size: .88rem;
+	line-height: 1.4;
+	color: var(--nbc-muted, #6a6b76);
+}
 
 .nbc-qa { margin: 26px 0; }
 .nbc-qa__q {

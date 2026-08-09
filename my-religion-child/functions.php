@@ -50,6 +50,20 @@ define( 'NBC_SERVICE_TIME',  '10:00' );
 define( 'NBC_SERVICE_ENDS',  '11:15' );
 
 /**
+ * Office hours, from the church's Google listing.
+ *
+ * Distinct from the service: the listing also shows Sunday 10:00-12:30, but
+ * that is the building being open for the service and morning tea, not the
+ * office being staffed. Both belong in openingHoursSpecification, which means
+ * "when is this place open"; only the weekday hours belong next to the phone
+ * number, which is what a person is actually asking when they look this up.
+ */
+define( 'NBC_OFFICE_OPENS', '09:00' );
+define( 'NBC_OFFICE_CLOSES', '15:00' );
+define( 'NBC_SUNDAY_OPENS', '10:00' );
+define( 'NBC_SUNDAY_CLOSES', '12:30' );
+
+/**
  * Language landing pages. Key = hreflang code, value = path on this site.
  * Leave a value empty to hide that language until its page exists.
  */
@@ -298,6 +312,21 @@ function nbc_schema() {
 			'longitude' => NBC_LNG,
 		);
 	}
+
+	$schema['openingHoursSpecification'] = array(
+		array(
+			'@type'     => 'OpeningHoursSpecification',
+			'dayOfWeek' => array( 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ),
+			'opens'     => NBC_OFFICE_OPENS,
+			'closes'    => NBC_OFFICE_CLOSES,
+		),
+		array(
+			'@type'     => 'OpeningHoursSpecification',
+			'dayOfWeek' => 'Sunday',
+			'opens'     => NBC_SUNDAY_OPENS,
+			'closes'    => NBC_SUNDAY_CLOSES,
+		),
+	);
 
 	$schema['event'] = array(
 		'@type'         => 'Event',
