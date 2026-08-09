@@ -110,16 +110,19 @@ def our_title(url_path, lang):
     title = f"{OUR_TITLES[url_path][lang]} - {SITE_NAME[lang]}"
     return title + " (prototype)" if lang == "en" else title
 
-# Values the live site does not publish anywhere. Shown as a visible marker
-# rather than invented — a made-up address on a church site is worse than an
-# obvious gap.
+# Details the live site does not publish. The address and parking came from
+# OpenStreetMap (the building is tagged place_of_worship at this number),
+# corroborated by three NZ directories and by the phone number matching the
+# one on nbc.org.nz — not from the church, so it is worth one confirming
+# glance before this goes live.
+#
+# Anything still unknown is rendered as a visible <mark class="todo"> rather
+# than invented: a made-up address on a church site is worse than an obvious
+# gap. Office hours are the one remaining unknown, and rather than carry a
+# marker they are simply not claimed anywhere — see README.
 FILLS = {
     "STREET_ADDRESS": "67 Eban Avenue",
-    "PARKING": "On-site car park, with a wheelchair-accessible park and entrance",
-    "OFFICE_HOURS": '<mark class="todo">Office hours to be supplied</mark>',
-    "BANK_ACCOUNT": '<mark class="todo">Account number — see nbc.org.nz/give-2</mark>',
     "MAP_URL": "https://www.google.com/maps/search/?api=1&query=67+Eban+Avenue%2C+Hillcrest%2C+Auckland+0627%2C+New+Zealand",
-    "TE REO": "",
 }
 
 
