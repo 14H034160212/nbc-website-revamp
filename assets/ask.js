@@ -362,30 +362,71 @@
     show([ref], null, true);
   });
 
-  var first = true;
-  window.NBC.onLang(function (l) {
-    var previous = elChips.querySelector('.ask-chip.is-on');
-    var keep = previous ? previous.dataset.topic : null;
+  /* ---- language: self-contained, no dependency on the rest of the page ---
+     The prototype's header switcher navigates between the /zh/, /ko/ and /mi/
+     landing pages, the way Polylang would on the real site. This page is
+     genuinely multilingual in itself, so it carries its own control. */
+  var LANGS = [
+    ['en', 'English'],
+    ['zh-Hans', '中文'],
+    ['ko', '한국어'],
+    ['mi', 'Te Reo Māori']
+  ];
+  var LS = 'nbc-ask-lang';
+  var elLang = root.querySelector('[data-ask-lang]');
 
-    lang = l;
+  function initialLang() {
+    var q = new URLSearchParams(location.search).get('lang');
+    if (q && UI[q]) return q;
+    try {
+      var v = localStorage.getItem(LS);
+      if (v && UI[v]) return v;
+    } catch (e) {}
+    var nav = (navigator.language || 'en').toLowerCase();
+    if (nav.indexOf('zh') === 0) return 'zh-Hans';
+    if (nav.indexOf('ko') === 0) return 'ko';
+    if (nav.indexOf('mi') === 0) return 'mi';
+    return 'en';
+  }
+
+  function setLang(next, keepTopic) {
+    lang = next;
     cache = {};
+    document.documentElement.setAttribute('lang', lang === 'zh-Hans' ? 'zh-Hans' : lang);
+    try { localStorage.setItem(LS, lang); } catch (e) {}
+
     paint();
     elOut.hidden = true;
     elOut.innerHTML = '';
     elFoot.hidden = true;
 
-    if (first && openFromUrl()) { first = false; return; }
-    first = false;
-
-    // Switching language mid-read should re-show the same passages in the new
+    // Switching language mid-read re-shows the same passages in the new
     // language rather than dumping the reader back to an empty page.
-    if (keep) {
+    if (keepTopic) {
       for (var i = 0; i < TOPICS.length; i++) {
-        if (TOPICS[i].id === keep) {
-          select(TOPICS[i], elChips.querySelector('[data-topic="' + keep + '"]'));
-          break;
+        if (TOPICS[i].id === keepTopic) {
+          select(TOPICS[i], elChips.querySelector('[data-topic="' + keepTopic + '"]'), false);
+          return;
         }
       }
     }
+  }
+
+  LANGS.forEach(function (pair) {
+    var o = document.createElement('option');
+    o.value = pair[0];
+    o.textContent = pair[1];
+    o.lang = pair[0];
+    elLang.appendChild(o);
   });
+
+  elLang.addEventListener('change', function () {
+    var on = elChips.querySelector('.ask-chip.is-on');
+    setLang(this.value, on ? on.dataset.topic : null);
+  });
+
+  lang = initialLang();
+  elLang.value = lang;
+  setLang(lang, null);
+  openFromUrl();
 })();

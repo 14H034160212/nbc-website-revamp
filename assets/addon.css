@@ -1,0 +1,345 @@
+/* ===========================================================================
+   Additions only.
+
+   The prototype loads nbc.org.nz's own stylesheets, so the site looks exactly
+   as it does today. This file adds nothing cosmetic — only what the new
+   functionality needs:
+
+     · the prototype banner
+     · the language switcher strip
+     · the mobile action bar
+     · the passage finder
+     · the components used by the paste-in blocks (facts rows, Q&A lists,
+       buttons) — these normally live in my-religion-child/style.css, and are
+       repeated here because the prototype does not load the child theme
+
+   Deliberately NOT included: the typography and contrast changes from
+   my-religion-child/style.css. Those change how the existing site looks, and
+   this prototype is meant to show the current design plus new function. They
+   are a separate, optional step — see README.md.
+   ========================================================================= */
+
+:root {
+	--nbc-red: #d14f42;
+	--nbc-red-dk: #98433a;
+	--nbc-blue: #216ea3;
+	--nbc-ink: #3b3d4a;
+	--nbc-body: #5c5d69;
+	--nbc-mut: #71727f;
+	--nbc-line: #e4e4e4;
+	--nbc-bar-h: 58px;
+}
+
+/* ---- prototype banner -------------------------------------------------- */
+.proto {
+	position: relative;
+	z-index: 1000;
+	background: #22242d;
+	color: #d6d9e2;
+	font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	line-height: 1.5;
+}
+.proto__inner {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 9px 20px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 4px 14px;
+}
+.proto b { color: #fff; font-weight: 600; }
+.proto a { color: #8fbde0; text-decoration: underline; text-underline-offset: .16em; }
+.proto a:hover { color: #b7d6ee; }
+.proto__spacer { margin-left: auto; }
+
+/* ---- language switcher ------------------------------------------------- */
+.nbc-langbar {
+	background: #f7f7f9;
+	border-bottom: 1px solid var(--nbc-line);
+}
+.nbc-langbar__inner {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 20px;
+	display: flex;
+	justify-content: flex-end;
+}
+.nbc-lang {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
+}
+.nbc-lang__item { display: block; }
+.nbc-lang__item + .nbc-lang__item { border-left: 1px solid var(--nbc-line); }
+.nbc-lang__link {
+	display: block;
+	padding: 6px 12px;
+	font-size: 14px;
+	line-height: 1.2;
+	color: var(--nbc-ink);
+	text-decoration: none;
+	white-space: nowrap;
+}
+.nbc-lang__link:hover { background: #efeff2; color: var(--nbc-red); }
+.nbc-lang__item.is-current .nbc-lang__link {
+	color: var(--nbc-red);
+	font-weight: 600;
+	box-shadow: inset 0 -2px 0 var(--nbc-red);
+}
+@media (max-width: 1024px) {
+	.nbc-langbar__inner { padding: 0; }
+	.nbc-lang { flex-wrap: wrap; gap: 0; width: 100%; }
+	.nbc-lang__item { flex: 1 1 auto; }
+	.nbc-lang__link {
+		min-height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 15px;
+	}
+}
+
+/* The two menu items added to the theme's own navigation get a quiet marker,
+   so it is obvious in the prototype which entries are new. Remove the ::after
+   rule when this ships — on the real site they are just menu items. */
+.menu-item.nbc-new > a .nav_title::after {
+	content: "+";
+	margin-left: .35em;
+	font-size: .8em;
+	vertical-align: .35em;
+	color: var(--nbc-red);
+}
+
+/* ---- skip link --------------------------------------------------------- */
+.nbc-skip {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 100000;
+	padding: 12px 20px;
+	background: var(--nbc-ink);
+	color: #fff;
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 15px;
+	text-decoration: none;
+}
+.nbc-skip:focus { left: 12px; top: 12px; }
+
+/* ---- mobile action bar ------------------------------------------------- */
+.nbc-actionbar { display: none; }
+@media (max-width: 767px) {
+	.nbc-actionbar {
+		position: fixed;
+		left: 0; right: 0; bottom: 0;
+		z-index: 9990;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		background: #fff;
+		border-top: 1px solid var(--nbc-line);
+		box-shadow: 0 -2px 14px rgba(59, 61, 74, .10);
+		padding-bottom: env(safe-area-inset-bottom, 0);
+	}
+	.nbc-actionbar__link {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 3px;
+		min-height: var(--nbc-bar-h);
+		padding: 7px 4px;
+		font-family: 'Source Sans Pro', Arial, sans-serif;
+		font-size: 12px;
+		line-height: 1.25;
+		text-align: center;
+		color: var(--nbc-ink);
+		text-decoration: none;
+	}
+	.nbc-actionbar__link + .nbc-actionbar__link { border-left: 1px solid var(--nbc-line); }
+	.nbc-actionbar__link svg {
+		width: 19px; height: 19px;
+		fill: none; stroke: var(--nbc-red); stroke-width: 1.7;
+		stroke-linecap: round; stroke-linejoin: round;
+	}
+	body.nbc-has-actionbar #footer,
+	body.nbc-has-actionbar .footer_wrap {
+		padding-bottom: calc(var(--nbc-bar-h) + env(safe-area-inset-bottom, 0px));
+	}
+}
+
+/* ---- components used by the paste-in blocks ---------------------------- */
+/* Duplicated from my-religion-child/style.css, which the prototype does not
+   load. On the real site these come from the child theme. */
+.nbc-facts {
+	display: grid;
+	gap: 0;
+	background: #fff;
+	border: 1px solid var(--nbc-line);
+	margin: 26px 0;
+	overflow: hidden;
+}
+@media (min-width: 620px) {
+	.nbc-facts { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+}
+.nbc-fact {
+	background: #fff;
+	padding: 18px 20px;
+	border-top: 1px solid var(--nbc-line);
+	border-left: 1px solid var(--nbc-line);
+	margin: -1px 0 0 -1px;
+}
+.nbc-fact__label {
+	display: block;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .72rem;
+	letter-spacing: .13em;
+	text-transform: uppercase;
+	color: var(--nbc-red);
+	margin-bottom: 6px;
+}
+.nbc-fact__value {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: 1.02rem;
+	line-height: 1.45;
+	color: var(--nbc-ink);
+	margin: 0;
+}
+
+.nbc-qa { margin: 26px 0; }
+.nbc-qa__q {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-weight: 700;
+	font-size: 1.05rem;
+	color: var(--nbc-ink);
+	margin: 22px 0 6px;
+}
+.nbc-qa__a { margin: 0; max-width: 68ch; line-height: 1.75; }
+
+.nbc-copy {
+	display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+	padding: 14px 16px; background: #f7f7f9;
+	border: 1px solid var(--nbc-line); border-radius: 3px; margin: 14px 0;
+}
+.nbc-copy__value {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 1.05rem; color: var(--nbc-ink); font-variant-numeric: tabular-nums;
+}
+.nbc-copy__btn {
+	margin-left: auto; min-height: 38px; padding: 0 16px;
+	font-family: 'Source Sans Pro', Arial, sans-serif; font-size: .88rem;
+	color: #fff; background: var(--nbc-blue); border: 0; border-radius: 3px; cursor: pointer;
+}
+
+.nbc-btn {
+	display: inline-flex; align-items: center; min-height: 46px; padding: 0 24px;
+	font-family: 'Fjalla One', Arial, sans-serif; font-size: .95rem;
+	letter-spacing: .06em; text-transform: uppercase; text-decoration: none;
+	border-radius: 3px; border: 1px solid transparent;
+}
+a.nbc-btn, .entry a.nbc-btn { text-decoration: none; }
+a.nbc-btn--primary, .entry a.nbc-btn--primary { background: var(--nbc-red); color: #fff; }
+a.nbc-btn--primary:hover, .entry a.nbc-btn--primary:hover { background: var(--nbc-red-dk); color: #fff; }
+a.nbc-btn--outline, .entry a.nbc-btn--outline { border-color: var(--nbc-red); color: var(--nbc-red); background: transparent; }
+a.nbc-btn--outline:hover, .entry a.nbc-btn--outline:hover { background: var(--nbc-red); color: #fff; }
+
+mark.todo {
+	background: #fff4d6; color: #6b5316; padding: 1px 6px; border-radius: 2px;
+	font-size: .92em; font-style: normal;
+	box-decoration-break: clone; -webkit-box-decoration-break: clone;
+}
+
+/* ---- passage finder ---------------------------------------------------- */
+.ask-head {
+	display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px;
+	margin: 0 0 22px;
+}
+.ask-head label {
+	display: flex; align-items: center; gap: 8px;
+	font-family: 'Source Sans Pro', Arial, sans-serif; font-size: .8rem;
+	letter-spacing: .1em; text-transform: uppercase; color: var(--nbc-mut);
+}
+.ask-head select {
+	padding: 8px 12px; font-size: .95rem; font-family: inherit;
+	color: var(--nbc-ink); background: #fff;
+	border: 1px solid var(--nbc-line); border-radius: 3px; cursor: pointer;
+	letter-spacing: normal; text-transform: none;
+}
+
+.ask-lead { font-size: 1.1rem; line-height: 1.7; max-width: 58ch; margin: 0 0 22px; }
+
+.ask-topics { display: flex; flex-wrap: wrap; gap: 9px; margin: 0 0 24px; }
+.ask-chip {
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	/* The theme uppercases buttons. These are people's own words about hard
+	   things — shouting them back is the wrong register. */
+	text-transform: none;
+	letter-spacing: normal;
+	font-size: .95rem; line-height: 1.35; text-align: left;
+	padding: 10px 16px; min-height: 44px;
+	color: var(--nbc-ink); background: #fff;
+	border: 1px solid var(--nbc-line); border-radius: 22px; cursor: pointer;
+	transition: border-color .15s, background .15s, color .15s;
+}
+.ask-chip:hover { border-color: var(--nbc-red); color: var(--nbc-red); }
+.ask-chip.is-on { background: var(--nbc-red); border-color: var(--nbc-red); color: #fff; }
+
+.ask-form { display: flex; flex-wrap: wrap; gap: 10px; max-width: 34rem; margin: 0; }
+.ask-form input {
+	flex: 1 1 15rem; min-height: 46px; padding: 10px 15px;
+	font-family: inherit; font-size: 1rem; color: var(--nbc-ink);
+	background: #fff; border: 1px solid var(--nbc-line); border-radius: 3px;
+}
+.ask-form button {
+	min-height: 46px; padding: 0 24px;
+	font-family: 'Fjalla One', Arial, sans-serif; font-size: .95rem;
+	letter-spacing: .06em; text-transform: uppercase;
+	color: #fff; background: var(--nbc-blue);
+	border: 0; border-radius: 3px; cursor: pointer;
+}
+.ask-form button:hover { background: #1a577f; }
+
+.ask-out { margin: 32px 0 0; }
+.ask-out__head {
+	font-family: 'Fjalla One', Arial, sans-serif; font-weight: 400;
+	font-size: 1.5rem; color: var(--nbc-ink);
+	margin: 0 0 18px; padding-bottom: 12px; border-bottom: 1px solid var(--nbc-line);
+}
+[lang^="zh"] .ask-out__head, [lang^="ko"] .ask-out__head { font-weight: 700; }
+
+.ask-card {
+	border: 1px solid var(--nbc-line); border-left: 3px solid var(--nbc-red);
+	background: #fff; padding: 20px 22px 18px; margin: 0 0 16px;
+}
+.ask-card__ref {
+	font-family: 'Fjalla One', Arial, sans-serif; font-weight: 400;
+	font-size: 1.06rem; letter-spacing: .04em; color: var(--nbc-ink); margin: 0 0 14px;
+}
+.ask-card__cols { display: grid; gap: 20px; }
+@media (min-width: 780px) { .ask-card__cols.is-parallel { grid-template-columns: 1fr 1fr; gap: 30px; } }
+.ask-col__ed {
+	font-family: 'Source Sans Pro', Arial, sans-serif; font-size: .7rem;
+	letter-spacing: .11em; text-transform: uppercase; color: var(--nbc-red); margin: 0 0 8px;
+}
+.ask-verses { font-family: 'Crimson Text', Georgia, serif; font-size: 1.1rem; line-height: 1.75; color: #4a4b57; }
+[lang^="zh"] .ask-verses, [lang^="ko"] .ask-verses { font-family: inherit; line-height: 1.9; }
+.ask-verse { margin: 0 0 6px; }
+.ask-verse__n {
+	font-family: 'Fjalla One', Arial, sans-serif; font-size: .68em;
+	color: var(--nbc-red); vertical-align: .45em; margin-right: .4em; user-select: none;
+}
+.ask-card__more { display: inline-block; margin: 14px 0 0; font-size: .88rem; color: var(--nbc-blue); }
+.ask-card__loading { margin: 0; color: var(--nbc-mut); font-size: .92rem; }
+.ask-card__error { margin: 0; color: var(--nbc-red); font-size: .92rem; }
+
+#nbc-ask + h2 { margin-top: 2.4em; }
+
+.ask-pastoral {
+	margin: 30px 0 0; padding: 16px 20px; background: #f7f7f9;
+	border-left: 2px solid var(--nbc-blue);
+	font-size: .93rem; line-height: 1.7; max-width: 62ch;
+}

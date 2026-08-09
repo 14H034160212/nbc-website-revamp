@@ -19,50 +19,38 @@
 在线预览（可点的完整站点原型）：**https://nbc-website-revamp.pages.dev/**
 
 ```
-src/                           原型站点的源文件（不进 WordPress）
-  home.html sunday.html        首页与内页正文
-  contact.html give.html
-  ask.html ask.js ask.css      圣经多语言问答：按主题查经 + 经文地址查询
-  chrome.css site.js           头部/导航/页脚/四语界面切换
-  booknames.json               66 卷书名，6 种语言
-  package.html                 改造包说明页（开发者视角）
-build-site.py                  由上面这些 + pages/ 生成整站
-assets/                        生成物：site.css / site.js / ask.js
-index.html sunday.html …       生成物：可直接部署的静态站点
+src/
+  addon.css                  只有新增功能需要的样式（不含排版改动）
+  ask.html ask.js            圣经多语言问答：按主题查经 + 经文地址查询
+  booknames.json             66 卷书名，6 种语言
+  package.html               改造包说明页（开发者视角）
+  live/                      官网页面缓存，不入库（--fetch 生成）
+build-site.py                以官网真实页面为底，注入功能增量，生成整站
+assets/                      生成物：addon.css / ask.js
+index.html sunday.html …     生成物：可直接部署的静态原型
 
 —— 以下是真正要进 WordPress 的东西 ——
 
-nbc-bible-reader.html          在线圣经，22 KB，粘进「自定义 HTML」区块即可
-nbc-proposal.html              提案文档
-
-my-religion-child/
-  style.css                    子主题样式（含 NBC 定制段落，原文件只有主题头注释）
-  functions.php                子主题功能（全新文件，原本不存在）
-
-pages/                         每个文件 = 一个「自定义 HTML」区块，整段粘贴
-  vision-mission-values.html   替换 NBC_vision-mission-values.jpg 等三张图
-  creed.html                   替换 Creed.jpg，轮盘改为内联 SVG
-  strategic-principles.html    替换 NBC-Strategic-Principles.jpg
-  first-visit.html             新页面：第一次来（英文）
-  welcome-zh.html              新页面：/zh/ 中文落地页
-  welcome-ko.html              新页面：/ko/ 한국어 落地页
-  welcome-mi.html              新页面：/mi/ Te Reo Māori 落地页（双语）
-
-content/
-  alt-text.md                  首页 15 张缺 alt 图片的替代文本，逐张写好
-```
-
 ## 关于站点原型
 
-`https://nbc-website-revamp.pages.dev/` 是**改造后网站的可点原型**，不是最终产品：
+`https://nbc-website-revamp.pages.dev/` 是**改造后网站的可点原型**。它刻意**不重新设计**：
 
-- 每页顶部有常驻声明，说明这是未经委托的第三方提案、与教会无隶属关系；
-  所有页面 `noindex, nofollow`，`canonical` 指向 nbc.org.nz，不会跟真站抢搜索结果。
-- 照片直接引用 nbc.org.nz 上的原图（未复制到本仓库）。
-- 语言切换在原型里是**客户端 JS**；真站上应该由 Polylang 提供真实的 `/zh/` `/ko/` `/mi/`
-  路径，这样 Google 才能收录。原型演示的是效果，不是实现方式。
-- 现网站查不到的信息（街道地址、停车、办公时间）在原型里渲染成黄色高亮标记，
-  而不是编一个填进去。
+- **底稿就是 nbc.org.nz 的真实页面**。`build-site.py --fetch` 抓下首页、
+  On Sunday、Who We Are、Contact、Give 的原始 HTML，加载官网自己的样式表，
+  只注入五样东西：① 原型声明条 ② 语言切换栏 ③ 导航里多出的一个 Bible 菜单
+  （子项：Read the Bible / Find a Passage）④ 移动端底部操作条 ⑤ noindex + canonical。
+  现有页面的其余部分**一行不改**。
+- **新页面**（在线圣经、按主题查经、`/zh/` `/ko/` `/mi/`、第一次来）用主题自己的
+  页面外壳渲染，所以看起来是原生的，不像外挂上去的。
+- **导航只加一项**，不是两项：现有 7 项在 1280px 下已经顶到右边缘，
+  再加两个顶级项会溢出。用一个带子菜单的父项，跟 About Us / Community 的组织方式一致。
+- **首页的 Vision / CREED / Strategic Principles 图没有换成 HTML**——
+  它们是 LayerSlider 的幻灯片，替换属于后台内容编辑，不是标记注入。
+  HTML 版本在 `pages/` 里，可以在 `/preview` 查看。
+- **子主题的排版改动没有进原型**。那部分会改变现有站点的观感，而这个原型要展示的是
+  「现有设计 + 新功能」。排版是另一个可选步骤。
+- `src/live/` 里的官网 HTML 缓存**不入库**；重新构建需要 `--fetch`。
+- 现网站查不到的信息（街道地址、停车、办公时间）渲染成黄色高亮标记，而不是编一个填进去。
 
 > `pages/` 里的文件和 `nbc-bible-reader.html` 是**片段**——它们是给 WordPress
 > 「自定义 HTML」区块用的，本身没有 `<!doctype>`、`<head>`、viewport。

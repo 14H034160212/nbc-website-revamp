@@ -155,20 +155,23 @@ tbody tr td:first-child code{font-size:.82em}
 
 <section>
   <p class="sec-label"><span>可以直接点开</span></p>
-  <h2>四个演示</h2>
+  <h2>三个入口</h2>
   <div class="col">
-    <p>站点原型是改造后的整站，可以逐页点开；在线圣经连的是真实 API，不是录像。</p>
+    <p>原型保持官网原有 UI 不变，只叠加功能；在线圣经连的是真实 API，不是录像。</p>
   </div>
 
   <div class="cards">
 
     <a class="card card--wide" href="./index.html">
-      <span class="card__tag">原型 · 完整站点</span>
+      <span class="card__tag">原型 · 官网真实页面 + 功能增量</span>
       <h3 class="card__title">改造后的教会网站</h3>
       <p class="card__desc">
-        首页、主日、第一次来、在线圣经、按主题查经、三个母语页、联系与奉献，全部可点。
-        静态 hero 取代轮播、四语界面切换、移动端底部操作条、图片里的文案已还原成真文本。
-        页面顶部有常驻声明，并对搜索引擎 noindex。
+        <strong>不是重新设计</strong>——直接以 nbc.org.nz 真实页面的 HTML 为底，
+        加载官网自己的样式表，只注入五样东西：原型声明条、语言切换栏、
+        导航里多出的一个 Bible 菜单（含两个子项）、移动端底部操作条、noindex。
+        现有页面的其余部分一行不动，看到的就是今天的站点加上新功能。
+        在线圣经、按主题查经、三个母语页这些原本不存在的页面，
+        用主题自己的页面外壳渲染，所以看起来是原生的。
       </p>
       <span class="card__go">进入站点原型 →</span>
     </a>

@@ -15,3 +15,4 @@ cp*/
 
 # local tooling
 .claude/
+src/live/
