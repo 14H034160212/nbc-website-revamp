@@ -92,6 +92,16 @@
 	white-space: nowrap;
 }
 .nbc-lang__link:hover { background: #efeff2; color: var(--nbc-red); }
+/* A language whose version of this page does not exist yet: still clickable
+   (it goes to that language's home page) but visibly not a like-for-like
+   switch, so nobody wonders why the page did not change. */
+.nbc-lang__item.is-fallback .nbc-lang__link { color: var(--nbc-mut); }
+.nbc-lang__item.is-fallback .nbc-lang__link::after {
+	content: "\00B7";
+	margin-left: .35em;
+	color: var(--nbc-red);
+}
+
 .nbc-lang__item.is-current .nbc-lang__link {
 	color: var(--nbc-red);
 	font-weight: 600;

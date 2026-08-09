@@ -229,12 +229,24 @@ def banner():
     )
 
 
+# Shown on a language link when the current page has no translation, so the
+# link is visibly a redirect rather than appearing broken.
+NO_TRANSLATION = {
+    "zh-Hans": "本页暂无中文版 — 前往中文首页",
+    "ko": "이 페이지는 한국어 번역이 없습니다 — 한국어 홈으로 이동합니다",
+    "mi": "This page has no te reo Māori version yet — goes to the te reo home page",
+    "en": "",
+}
+
+
 def langbar(url_path, lang="en"):
     """
-    Point each language at the *same* page, the way Polylang would.
+    Point each language at the *same* page where a translation exists.
 
-    Pages we have not translated fall back to English rather than dead-ending —
-    a switcher that 404s is worse than one that admits the page is English-only.
+    Where it does not, fall back to that language's home page — the way
+    Polylang does. Pointing at the current URL instead (the obvious reading of
+    "fall back to English") produces a link that navigates nowhere, which reads
+    as broken rather than as "this page is English only".
     """
     base = url_path
     for _, _, prefix in LANGS:
@@ -242,13 +254,26 @@ def langbar(url_path, lang="en"):
             base = base[len(prefix):]
             break
 
+    translated = base in TRANSLATED
     items = []
     for code, label, prefix in LANGS:
-        target = (prefix + base) if (prefix and base in TRANSLATED) else base
-        cur = " is-current" if code == lang else ""
+        if not prefix:                       # English is the source
+            target, hint = base, ""
+        elif translated:
+            target, hint = prefix + base, ""
+        else:
+            target, hint = prefix + "/", NO_TRANSLATION.get(code, "")
+
+        classes = "nbc-lang__item"
+        if code == lang:
+            classes += " is-current"
+        if hint:
+            classes += " is-fallback"
+        title = f' title="{hint}"' if hint else ""
+
         items.append(
-            f'<li class="nbc-lang__item{cur}">'
-            f'<a class="nbc-lang__link" href="{target}" lang="{code}" hreflang="{code}">{label}</a></li>'
+            f'<li class="{classes}">'
+            f'<a class="nbc-lang__link" href="{target}" lang="{code}" hreflang="{code}"{title}>{label}</a></li>'
         )
     return (
         '<div class="nbc-langbar"><div class="nbc-langbar__inner">'
