@@ -16,3 +16,4 @@ cp*/
 # local tooling
 .claude/
 src/live/
+src/mirror/

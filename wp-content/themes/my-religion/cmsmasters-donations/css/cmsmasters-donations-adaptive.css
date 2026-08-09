@@ -1,0 +1,183 @@
+/**
+ * @package 	WordPress
+ * @subpackage 	My Religion
+ * @version		1.0.7
+ * 
+ * Responsive CMSMasters Donations CSS Rules
+ * Created by CMSMasters
+ * 
+ */
+/*-------------------------------------------------------------------------
+
+	0.	LESS Variables + Functions
+	1.	Large Monitor
+	2.	Tablet Monitor
+	3.	Small Tablet Monitor
+	4.	Phone Monitor
+	5.	Small Phone Monitor
+
+-------------------------------------------------------------------------*/
+/*-------------------------------------------------------------------------*/
+/*	0.	LESS Variables & Functions	*/
+/*-------------------------------------------------------------------------*/
+/***************** Variables ******************/
+/***************** Functions ******************/
+@media only screen {
+  /*-------------------------------------------------------------------------*/
+  /*	1.	Large Monitor
+	/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /*	2.	Tablet Monitor
+	/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /*	Tablet Monitor 950
+	/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /*	3.	Small Tablet Monitor
+	/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /*	Tablet Monitor 600
+	/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /*	4.	Phone Monitor
+	/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /*	5.	Small Phone Monitor
+	/*-------------------------------------------------------------------------*/
+}
+@media only screen and (min-width: 1440px) {
+  .header_donation_but_wrap .header_donation_but .cmsmasters_button {
+    padding-left: 30px;
+    padding-right: 30px;
+  }
+}
+@media only screen and (min-width: 1025px) {
+  .donations {
+    outline: none;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  #page .donations.opened-article > .donation .cmsmasters_donation_info {
+    text-align: center;
+  }
+  #page .donations.opened-article > .donation .cmsmasters_donation_info_img {
+    width: 40%;
+    padding: 0 0 30px;
+  }
+  #page .donations.opened-article > .donation .cmsmasters_donation_info_cont {
+    display: block;
+    width: 100%;
+  }
+  #page .header_top_donation_but {
+    margin: 10px 0 0;
+    padding: 5px 20px;
+  }
+}
+@media only screen and (max-width: 950px) {
+  .donations {
+    outline: none;
+  }
+}
+@media only screen and (max-width: 768px) {
+  #page .header_donation_but_wrap {
+    display: inline-block;
+    height: 40px;
+    vertical-align: top;
+    float: none;
+    margin: 0 8px 20px;
+    padding: 0;
+    clear: both;
+  }
+  #page .header_donation_but_wrap .header_donation_but_wrap_inner {
+    display: block;
+    width: 100%;
+  }
+  #page .header_donation_but_wrap .header_donation_but_wrap_inner .header_donation_but {
+    height: 100%;
+    display: block;
+    text-align: center;
+  }
+  #page .header_donation_but_wrap .header_donation_but_wrap_inner .header_donation_but:after {
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    height: 100%;
+  }
+  #page .header_donation_but_wrap .header_donation_but_wrap_inner .header_donation_but .cmsmasters_button {
+    display: inline-block;
+    vertical-align: middle;
+  }
+  #page .donations.opened-article > .donation .cmsmasters_donation_info_img {
+    width: 60%;
+  }
+  #page .cmsmasters_featured_campaign .campaign {
+    text-align: center;
+  }
+  #page .cmsmasters_featured_campaign .campaign > div {
+    margin: 0;
+  }
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_wrap_img {
+    display: inline-block;
+    float: none;
+    width: 50%;
+    vertical-align: middle;
+    margin-bottom: 25px;
+  }
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_donated_percent {
+    display: inline-block;
+    float: none;
+    width: 50%;
+    vertical-align: middle;
+    padding: 30px 0;
+  }
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_donated_percent .cmsmasters_stats.stats_mode_circles .cmsmasters_stat_wrap {
+    text-align: center;
+  }
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_donate_button_inner,
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_content,
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_wrap_heading {
+    text-align: center;
+  }
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_cont {
+    float: none;
+    width: 100%;
+    padding: 0;
+    clear: both;
+  }
+}
+@media only screen and (max-width: 600px) {
+  .donations {
+    outline: none;
+  }
+}
+@media only screen and (max-width: 540px) {
+  #page .opened-article > .campaign .campaign_meta_wrap {
+    display: block;
+  }
+  #page .opened-article > .campaign .campaign_meta_wrap > div {
+    display: block;
+    width: 100%;
+    border-top-width: 0;
+    border-top-style: solid;
+  }
+  #page .opened-article > .campaign .campaign_meta_wrap > div:first-child {
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  #page .donations.opened-article > .donation .cmsmasters_donation_info {
+    padding: 30px;
+  }
+  #page .cmsmasters_featured_campaign .campaign {
+    text-align: center;
+  }
+  #page .cmsmasters_featured_campaign .campaign .cmsmasters_campaign_donated_percent {
+    display: block;
+    width: 100%;
+    padding-bottom: 5px;
+  }
+}
+@media only screen and (max-width: 320px) {
+  .donations {
+    outline: none;
+  }
+}

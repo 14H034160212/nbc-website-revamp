@@ -75,7 +75,12 @@
 	list-style: none;
 	font-family: 'Source Sans Pro', Arial, Helvetica, sans-serif;
 }
+/* The theme decorates list items inside content with separator glyphs.
+   The switcher supplies its own dividers, so switch those off. */
 .nbc-lang__item { display: block; }
+.nbc-lang__item::before,
+.nbc-lang__item::after { content: none !important; display: none !important; }
+.nbc-lang { list-style: none !important; }
 .nbc-lang__item + .nbc-lang__item { border-left: 1px solid var(--nbc-line); }
 .nbc-lang__link {
 	display: block;

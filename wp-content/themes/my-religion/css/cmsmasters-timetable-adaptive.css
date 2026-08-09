@@ -1,0 +1,105 @@
+/**
+ * @package 	WordPress
+ * @subpackage 	My Religion
+ * @version 	1.1.9
+ * 
+ * Timetable Responsive CSS Rules
+ * Created by CMSMasters
+ * 
+ */
+@media only screen {
+  /*-------------------------------------------------------------------------*/
+  /* Large Monitor
+/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /* Medium Monitor
+/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /* Tablet Monitor
+/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /* Tablet Monitor 950
+/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /* Small Tablet Monitor
+/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /* Phone Monitor
+/*-------------------------------------------------------------------------*/
+  /*-------------------------------------------------------------------------*/
+  /* Small Phone Monitor
+/*-------------------------------------------------------------------------*/
+}
+@media only screen and (min-width: 1440px) {
+  .cmsmasters_tt_event .cmsmasters_tt_event_content_wrap.with_sidebar {
+    padding-right: 40px;
+  }
+}
+@media only screen and (min-width: 1025px) {
+  .cmsmasters_tt_event {
+    outline: none;
+  }
+}
+@media only screen and (max-width: 1024px) {
+  .cmsmasters_tt_event {
+    outline: none;
+  }
+}
+@media only screen and (max-width: 950px) {
+  .cmsmasters_tt_event .cmsmasters_tt_event_content_wrap.with_sidebar {
+    width: 100%;
+    float: none;
+    clear: both;
+    padding-right: 0;
+    padding-bottom: 25px;
+  }
+  .cmsmasters_tt_event .cmsmasters_tt_event_sidebar {
+    width: 100%;
+    float: none;
+    clear: both;
+    padding-bottom: 50px;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .tt_timetable {
+    display: none;
+  }
+  .tt_timetable.small {
+    display: block;
+  }
+  .ui-tabs .tt_tabs_navigation.ui-widget-header {
+    border-width: 0;
+    border-style: solid;
+  }
+  .ui-tabs .tt_tabs_navigation.ui-widget-header li {
+    display: block;
+    margin: 0;
+  }
+  .ui-tabs .tt_tabs_navigation.ui-widget-header li.ui-tabs-active {
+    margin: 0;
+  }
+  .ui-tabs .tt_tabs_navigation.ui-widget-header li:first-child a {
+    border-top-width: 1px;
+    border-top-style: solid;
+  }
+  .ui-tabs .tt_tabs_navigation.ui-widget-header li a {
+    float: none;
+    border-top-width: 0;
+    border-top-style: solid;
+  }
+  .ui-tabs .tt_tabs_navigation.ui-widget-header li a:before {
+    height: auto;
+    width: 2px;
+    bottom: -1px;
+  }
+}
+@media only screen and (max-width: 540px) {
+  .cmsmasters_tt_event {
+    outline: none;
+  }
+}
+@media only screen and (max-width: 320px) {
+  .cmsmasters_tt_event {
+    outline: none;
+  }
+}
