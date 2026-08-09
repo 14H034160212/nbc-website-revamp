@@ -156,8 +156,21 @@ export function checkQuestion(question) {
  * does not need a deep reasoning budget. "medium" is the shipped default;
  * "low" is worth measuring if latency matters more than nuance.
  */
-export async function askClaude(client, { question, lang, model = MODEL, effort = "medium" }) {
-  const params = {
+/**
+ * One call to the Messages API, over plain fetch.
+ *
+ * WHY NOT THE OFFICIAL SDK
+ * The SDK is the right default and works fine on Workers — but adding a
+ * package.json to this repo turns the Cloudflare Pages project from "upload
+ * this directory" into "build this project", and that build fails here (the
+ * site is a mirrored WordPress tree, not an npm project). Three deploys
+ * silently never shipped before that was caught. A dependency-free Function
+ * keeps the project purely static, which is what actually deploys.
+ *
+ * The trade is small: one endpoint, one request shape, no streaming.
+ */
+export async function askClaude({ apiKey }, { question, lang, model = MODEL, effort = "medium" }) {
+  const body = {
     model,
     max_tokens: 3000,          // thinking shares max_tokens with the reply on
                                // current models — leave room for both
@@ -168,19 +181,36 @@ export async function askClaude(client, { question, lang, model = MODEL, effort 
 
   // Haiku 4.5 rejects `effort`; every current Opus/Sonnet accepts it.
   if (!model.startsWith("claude-haiku")) {
-    params.output_config.effort = effort;
+    body.output_config.effort = effort;
   }
+
+  const headers = {
+    "content-type": "application/json",
+    "x-api-key": apiKey,
+    "anthropic-version": "2023-06-01",
+  };
 
   // A safety decline is retried on another model server-side rather than
   // surfacing to the reader as a dead end. Opus-tier only.
   if (model === "claude-opus-5" || model === "claude-fable-5") {
-    params.betas = ["server-side-fallback-2026-07-01"];
-    params.fallbacks = "default";
+    body.fallbacks = "default";
+    headers["anthropic-beta"] = "server-side-fallback-2026-07-01";
   }
 
-  const response = params.betas
-    ? await client.beta.messages.create(params)
-    : await client.messages.create(params);
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text().catch(() => "");
+    const err = new Error(`anthropic ${res.status}: ${detail.slice(0, 300)}`);
+    err.status = res.status;
+    throw err;
+  }
+
+  const response = await res.json();
 
   if (response.stop_reason === "refusal") {
     return { refused: true, response };

@@ -13,8 +13,7 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import Anthropic from "@anthropic-ai/sdk";
-import { askClaude, checkQuestion, LANGUAGES } from "../functions/api/_ask-core.js";
+import { askClaude, checkQuestion, LANGUAGES } from "../functions/api/_ask-core.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PORT = Number(process.env.PORT || 8788);
@@ -50,8 +49,10 @@ async function handleAsk(req, res) {
   if (problem) return send(res, 400, JSON.stringify({ error: "invalid_question", message: problem }));
 
   try {
-    const client = new Anthropic();
-    const { refused, result } = await askClaude(client, { question: body.question.trim(), lang });
+    const { refused, result } = await askClaude(
+      { apiKey: process.env.ANTHROPIC_API_KEY },
+      { question: body.question.trim(), lang },
+    );
     if (refused) return send(res, 200, JSON.stringify({ error: "declined" }));
     return send(res, 200, JSON.stringify(result));
   } catch (err) {

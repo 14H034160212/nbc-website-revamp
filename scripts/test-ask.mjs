@@ -9,8 +9,13 @@
  * matters: the model must never write scripture text itself.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
-import { askClaude, BOOKS, MODEL } from "../functions/api/_ask-core.js";
+import { askClaude, BOOKS, MODEL } from "../functions/api/_ask-core.mjs";
+
+const API_KEY = process.env.ANTHROPIC_API_KEY;
+if (!API_KEY) {
+  console.error("Set ANTHROPIC_API_KEY to run this.");
+  process.exit(1);
+}
 
 const QUESTIONS = [
   { lang: "en", q: "My dad died last month and I can't stop crying. Is that a lack of faith?" },
@@ -39,11 +44,12 @@ function ref(r) {
   return `${BOOKS[r.book - 1]} ${r.chapter}:${range}`;
 }
 
-async function run(client, model, effort, { q, lang }) {
+async function run(model, effort, { q, lang }) {
   const started = Date.now();
-  const { refused, result, response } = await askClaude(client, {
-    question: q, lang, model, effort,
-  });
+  const { refused, result, response } = await askClaude(
+    { apiKey: API_KEY },
+    { question: q, lang, model, effort },
+  );
   const ms = Date.now() - started;
   if (refused) return { ms, refused: true, model, response };
 
@@ -54,7 +60,6 @@ async function run(client, model, effort, { q, lang }) {
 }
 
 async function main() {
-  const client = new Anthropic();
   const compare = process.argv.includes("--compare");
   const models = compare
     ? [["claude-opus-5", "medium"], ["claude-sonnet-5", "medium"], ["claude-haiku-4-5", null]]
@@ -69,7 +74,7 @@ async function main() {
     for (const item of QUESTIONS) {
       let out;
       try {
-        out = await run(client, model, effort, item);
+        out = await run(model, effort, item);
       } catch (err) {
         console.log(`\n✗ ${item.q.slice(0, 50)}\n  ERROR ${err.status || ""} ${err.message}`);
         failures++;

@@ -41,7 +41,7 @@ Pages 项目 → **Settings**：
 
 **建议用 Opus 5。** 按教会的实际量算：每周 50 次提问 = 一年 2600 次 ≈ **一年 39 美元**。Sonnet 是 22 美元，Haiku 是 6 美元。三者的差价一年不到 35 美元，而买到的正是 Haiku 明确失手的那一项 —— 判断一个人现在需要的是经文还是一个人。
 
-在 `functions/api/_ask-core.js` 顶部改 `MODEL` 一行即可切换。`effort` 目前是 `medium`；这是个短任务，`low` 值得测一下能不能省一半延迟。
+在 `functions/api/_ask-core.mjs` 顶部改 `MODEL` 一行即可切换。`effort` 目前是 `medium`；这是个短任务，`low` 值得测一下能不能省一半延迟。
 
 ---
 
@@ -63,10 +63,10 @@ Pages 项目 → **Settings**：
 ## 本地测试
 
 ```sh
-npm install
+# 无需 npm install —— 整个功能零依赖（原因见下）
 
 # 跑一遍真实 API，检查模型有没有写经文、有没有正确婉拒
-ANTHROPIC_API_KEY=... npm run test:ask
+ANTHROPIC_API_KEY=... node scripts/test-ask.mjs
 
 # 三个模型横向对比（上面那张表就是这么来的）
 ANTHROPIC_API_KEY=... node scripts/test-ask.mjs --compare
@@ -75,9 +75,22 @@ ANTHROPIC_API_KEY=... node scripts/test-ask.mjs --compare
 ANTHROPIC_API_KEY=... node scripts/dev-server.mjs   # http://localhost:8788/ask/
 ```
 
-`scripts/dev-server.mjs` 和 Cloudflare Function 引用的是**同一个** `_ask-core.js`，所以本地测过的就是线上跑的。
+`scripts/dev-server.mjs` 和 Cloudflare Function 引用的是**同一个** `_ask-core.mjs`，所以本地测过的就是线上跑的。
 
 深链：`/ask/?q=...` 会自动填入并提交，方便在讲道页或牧养邮件里直接指向一个问题。
+
+### 为什么没用官方 SDK
+
+按理应该用 `@anthropic-ai/sdk`，它在 Workers 上跑得很好。但在这个仓库里加一个根目录
+`package.json`，会把 Cloudflare Pages 项目从「上传这个目录」变成「构建这个项目」——
+而这个仓库是一棵镜像下来的 WordPress 站点，不是 npm 工程，构建会失败。
+
+**代价是三次推送静默地没有部署**：站点一直在服务加 `package.json` 之前的那一版，
+页面能打开、内容也对，所以完全看不出来。是逐个检查线上文件里有没有新代码才发现的。
+
+所以这个功能改成零依赖：一个 `fetch` 调 Messages API。项目回到纯静态，
+`functions/` 才会被当成 Functions 而不是静态文件。
+共享模块用 `.mjs` 后缀，是为了让 Node 和 Workers 的打包器对「这是 ESM」达成一致。
 
 ---
 

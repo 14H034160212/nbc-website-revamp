@@ -19,8 +19,7 @@
  * secret degrades to the curated topical finder rather than erroring.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
-import { askClaude, checkQuestion, LANGUAGES } from "./_ask-core.js";
+import { askClaude, checkQuestion, LANGUAGES } from "./_ask-core.mjs";
 
 const PER_IP_PER_HOUR = 10;
 const DEFAULT_DAILY_CAP = 300;
@@ -115,8 +114,10 @@ export async function onRequestPost({ request, env }) {
   }
 
   try {
-    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-    const { refused, result } = await askClaude(client, { question: question.trim(), lang });
+    const { refused, result } = await askClaude(
+      { apiKey: env.ANTHROPIC_API_KEY },
+      { question: question.trim(), lang },
+    );
 
     if (refused) return json({ error: "declined" }, 200);
     return json(result);

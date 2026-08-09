@@ -14,7 +14,7 @@
       The model never writes scripture. Every verse on this page — curated or
       AI-chosen — is fetched from api.getbible.net by the code below. Language
       models paraphrase scripture confidently and wrongly, so that job is taken
-      away from the model entirely. See functions/api/_ask-core.js.
+      away from the model entirely. See functions/api/_ask-core.mjs.
 
    Passage text comes from api.getbible.net (free, no key, CORS-open,
    public-domain translations). Verse ranges are sliced client-side because
@@ -412,7 +412,7 @@
   /* ---- AI question box -------------------------------------------------
      The model chooses references and writes the framing; the verse text is
      fetched from getBible by the same code the curated finder uses. A model
-     never supplies scripture here — see functions/api/_ask-core.js. */
+     never supplies scripture here — see functions/api/_ask-core.mjs. */
   var elAiForm  = root.querySelector('[data-ai-form]');
   var elAiLabel = root.querySelector('[data-ai-label]');
   var elAiInput = root.querySelector('[data-ai-input]');
