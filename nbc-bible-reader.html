@@ -258,12 +258,23 @@
      it picks both the interface and the edition; a stored choice always wins,
      because someone who has chosen a translation meant it. */
   function fromUrl() {
+    // The page itself declares its language (/zh/bible/ etc.); ?lang= is kept
+    // for deep links from elsewhere.
+    var onPage = document.body.getAttribute('data-page-lang');
+    if (onPage && DEFAULT_VERSION[onPage]) return onPage;
     var q = new URLSearchParams(location.search).get('lang');
     return (q && DEFAULT_VERSION[q]) ? q : null;
   }
 
   var wanted = fromUrl();
-  var state = load() || {
+  var stored = load();
+  // A reader who navigated to /ko/bible/ asked for Korean by choosing that
+  // page; honour it over whatever they last looked at.
+  if (stored && document.body.getAttribute('data-page-lang')) {
+    stored.ui = wanted;
+    stored.a = DEFAULT_VERSION[wanted];
+  }
+  var state = stored || {
     ui: wanted || 'en',
     a: DEFAULT_VERSION[wanted] || app.dataset.defaultTranslation || 'kjv',
     b: '', book: 43, chap: 3, size: 1.125

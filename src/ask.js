@@ -40,6 +40,11 @@
   /* ---- interface strings ------------------------------------------------ */
   var UI = {
     'en': {
+      howH2: "How this works",
+      how1: "There are two ways to use this page, and they work differently.",
+      how2: "<strong>The questions above are a curated index.</strong> Each maps to a short list of references chosen by hand — the same references a printed topical index or a pastor would give you. Nothing about them is generated, so nothing can be invented.",
+      how3: "<strong>The box where you type your own question uses an AI assistant</strong>, and only for one job: reading what you wrote and choosing which passages speak to it. <strong>It never writes out scripture.</strong> Every verse you see is fetched from a real translation via <a href=\"https://api.getbible.net/\" rel=\"noopener\" target=\"_blank\">getBible</a>. Language models paraphrase scripture confidently and wrongly, so that job is taken away from it entirely.",
+      how4: "The assistant will not answer for the church on questions of doctrine or position, and it is not pastoral care. When a question is about something heavy, the reply says so and offers the church office instead. If it is ever the choice between a passage and a person, please choose the person.",
       h1: 'Find a Passage',
       aiLabel: 'Or describe what is going on, in your own words.',
       aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
@@ -62,6 +67,11 @@
       pastoral: 'These passages are a starting point, not a diagnosis. If you are going through something hard, please talk to someone — you can reach the church office any weekday.'
     },
     'zh-Hans': {
+      howH2: "这个功能是怎么做的",
+      how1: "这个页面有两种用法，工作方式不一样。",
+      how2: "<strong>上面那些问题是人工整理的索引。</strong>每一个都对应一份手工挑选的经文清单——和一本纸质主题索引、或一位牧者会给你的出处是一样的。它们完全不由机器生成，所以不会有凭空编出来的东西。",
+      how3: "<strong>你自己打字提问的那个框用的是 AI 助手</strong>，而且只做一件事：读懂你写的话，挑出哪几段经文说到了这件事。<strong>它绝不写出经文原文。</strong>你看到的每一节都由 <a href=\"https://api.getbible.net/\" rel=\"noopener\" target=\"_blank\">getBible</a> 从真实译本取回。语言模型会用非常笃定的语气把经文记错、改写，所以这件事被彻底从它手里拿走了。",
+      how4: "AI 不会替教会回答教义或立场问题，它也不是牧养辅导。遇到沉重的问题，回复里会说明并附上教会办公室的联系方式。如果要在一段经文和一个人之间选，请选人。",
       h1: '按主题查经',
       aiLabel: '或者用你自己的话，说说此刻的处境。',
       aiPlaceholder: '例如：我要做一个很难的决定，不知道该怎么祷告',
@@ -84,6 +94,11 @@
       pastoral: '这些经文是一个起点，不是答案的全部。如果你正经历难处，请找人聊聊 —— 平日都可以联系教会办公室。'
     },
     'zh-Hant': {
+      howH2: "這個功能是怎麼做的",
+      how1: "這個頁面有兩種用法，工作方式不一樣。",
+      how2: "<strong>上面那些問題是人工整理的索引。</strong>每一個都對應一份手工挑選的經文清單——和一本紙本主題索引、或一位牧者會給你的出處是一樣的。它們完全不由機器生成，所以不會有憑空編出來的東西。",
+      how3: "<strong>你自己打字提問的那個框用的是 AI 助手</strong>，而且只做一件事：讀懂你寫的話，挑出哪幾段經文說到了這件事。<strong>它絕不寫出經文原文。</strong>你看到的每一節都由 <a href=\"https://api.getbible.net/\" rel=\"noopener\" target=\"_blank\">getBible</a> 從真實譯本取回。語言模型會用非常篤定的語氣把經文記錯、改寫，所以這件事被徹底從它手裡拿走了。",
+      how4: "AI 不會替教會回答教義或立場問題，它也不是牧養輔導。遇到沉重的問題，回覆裡會說明並附上教會辦公室的聯絡方式。如果要在一段經文和一個人之間選，請選人。",
       h1: '按主題查經',
       aiLabel: '或者用你自己的話，說說此刻的處境。',
       aiPlaceholder: '例如：我要做一個很難的決定，不知道該怎麼禱告',
@@ -106,6 +121,11 @@
       pastoral: '這些經文是一個起點，不是答案的全部。如果你正經歷難處，請找人聊聊 —— 平日都可以聯絡教會辦公室。'
     },
     'ko': {
+      howH2: "이 기능에 대하여",
+      how1: "이 페이지는 두 가지 방식으로 쓰실 수 있고, 작동 방식이 서로 다릅니다.",
+      how2: "<strong>위의 질문들은 사람이 정리한 색인입니다.</strong> 각 질문은 직접 고른 짧은 본문 목록과 연결되어 있습니다. 인쇄된 주제 색인이나 목회자가 알려 줄 구절과 같습니다. 기계가 생성한 부분이 없으므로 지어낸 내용도 있을 수 없습니다.",
+      how3: "<strong>직접 입력하는 질문 상자는 AI 도우미를 사용합니다.</strong> 하는 일은 하나뿐입니다. 쓰신 내용을 읽고 어떤 본문이 그 상황에 맞닿아 있는지 고르는 것입니다. <strong>본문을 직접 써 내려가지 않습니다.</strong> 보시는 모든 구절은 <a href=\"https://api.getbible.net/\" rel=\"noopener\" target=\"_blank\">getBible</a>를 통해 실제 역본에서 가져옵니다. 언어 모델은 성경을 확신에 찬 어조로 잘못 옮기기 때문에, 그 역할은 아예 맡기지 않았습니다.",
+      how4: "이 도우미는 교리나 교회의 입장에 대해 교회를 대신해 답하지 않으며, 목회 상담도 아닙니다. 무거운 질문에는 그렇게 말씀드리고 교회 사무실 연락처를 안내합니다. 본문과 사람 중에 골라야 한다면 사람을 택해 주십시오.",
       h1: '주제별 말씀 찾기',
       aiLabel: '또는 지금의 상황을 직접 적어 주셔도 됩니다.',
       aiPlaceholder: '예: 어려운 결정을 앞두고 있는데 어떻게 기도해야 할지 모르겠습니다',
@@ -128,6 +148,11 @@
       pastoral: '이 말씀들은 시작점이며 전부는 아닙니다. 어려운 일을 지나고 계시다면 누군가와 이야기해 주십시오. 평일에 교회 사무실로 연락하실 수 있습니다.'
     },
     'mi': {
+      howH2: "How this works",
+      how1: "There are two ways to use this page, and they work differently.",
+      how2: "<strong>The questions above are a curated index</strong>, each mapped by hand to a short list of references. Nothing about them is generated.",
+      how3: "<strong>The box where you type your own question uses an AI assistant</strong>, only to choose which passages speak to what you wrote. <strong>It never writes out scripture.</strong> Every verse comes from a real translation via <a href=\"https://api.getbible.net/\" rel=\"noopener\" target=\"_blank\">getBible</a>.",
+      how4: "It will not answer for the church on doctrine, and it is not pastoral care. If it is ever the choice between a passage and a person, please choose the person.",
       h1: 'Rapua he kupu',
       aiLabel: 'Or describe what is going on, in your own words.',
       aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
@@ -566,6 +591,8 @@
   var elLang = root.querySelector('[data-ask-lang]');
 
   function initialLang() {
+    var onPage = document.body.getAttribute('data-page-lang');
+    if (onPage && UI[onPage]) return onPage;
     var q = new URLSearchParams(location.search).get('lang');
     if (q && UI[q]) return q;
     try {

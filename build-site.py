@@ -75,7 +75,12 @@ LANGS = [
 # Pages translated in full. The rest of the site stays English and falls back,
 # which is the tiered strategy in the proposal — not every page, just the ones
 # a visitor needs. Mirrors Polylang's /zh/who-we-are/ URL shape.
-TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/"]
+TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
+              "/bible/", "/ask/"]
+
+# The two feature pages are ours, not mirrored, so they are built first in
+# English and then copied per language from that output.
+OUR_PAGES = ["/bible/", "/ask/"]
 
 # Values the live site does not publish anywhere. Shown as a visible marker
 # rather than invented — a made-up address on a church site is worse than an
@@ -310,10 +315,11 @@ def nav_extra(current, lang="en"):
     translation pass, so it would otherwise stay English on a translated page.
     """
     parent, read, find = NAV_LABELS.get(lang, NAV_LABELS["en"])
-    # Carry the page language through, so a reader on a Chinese page opens the
-    # Chinese Bible rather than English with a language selector to find.
-    q = f"?lang={lang}" if lang != "en" else ""
-    kids = [(f"/bible/{q}", read), (f"/ask/{q}", find)]
+    # Point at that language's copy of the page, so the chrome around the
+    # reader is translated too — a Korean page linking to an English-framed
+    # Bible was the same "content translated, header not" bug twice over.
+    prefix = next((p for c, _, p in LANGS if c == lang and p), "")
+    kids = [(f"{prefix}/bible/", read), (f"{prefix}/ask/", find)]
 
     sub = "".join(
         f'<li class="menu-item menu-item-type-post_type menu-item-object-page '
@@ -322,11 +328,11 @@ def nav_extra(current, lang="en"):
         f"</span></span></a></li>"
         for href, title in kids
     )
-    ancestor = " current-menu-ancestor" if current in ("/bible/", "/ask/") else ""
+    ancestor = " current-menu-ancestor" if current.endswith(("/bible/", "/ask/")) else ""
     return (
         f'<li class="menu-item menu-item-type-custom menu-item-object-custom '
         f'menu-item-has-children menu-item-depth-0 nbc-new{ancestor}">'
-        f'<a href="/bible/{q}"><span class="nav_item_wrap"><span class="nav_title">{parent}'
+        f'<a href="{prefix}/bible/"><span class="nav_item_wrap"><span class="nav_title">{parent}'
         f'</span></span></a><ul class="sub-menu">{sub}</ul></li>'
     )
 
@@ -759,6 +765,31 @@ def build():
     # language) for a church that does not want to translate whole pages yet.
     for path, size in made:
         print(f"  new page {path:16s} {size:>8,} bytes")
+
+    # -- language copies of our own pages -----------------------------------
+    for url_path in OUR_PAGES:
+        english = (ROOT / url_path.strip("/") / "index.html").read_text(encoding="utf-8")
+        for code, _, prefix in LANGS:
+            if not prefix:
+                continue
+            table = load_dictionary(code)
+            stats = {"hit": set(), "miss": set()}
+            out = translate_page(english, table, stats)
+            out = fix_depth(out, 1)
+            # The widget reads this to pick its own interface and edition.
+            out = out.replace("<body ", f'<body data-page-lang="{code}" ', 1)
+            # The English copy already carries the injections; swap the
+            # per-language bits rather than injecting a second time.
+            out = re.sub(r'<div class="nbc-langbar">.*?</div></div>',
+                         langbar(prefix + url_path, code), out, count=1, flags=re.S)
+            out = re.sub(r'<li class="menu-item menu-item-type-custom menu-item-object-custom '
+                         r'menu-item-has-children menu-item-depth-0 nbc-new.*?</ul></li>',
+                         nav_extra(prefix + url_path, code), out, count=1, flags=re.S)
+            out = re.sub(r'<html([^>]*?)\slang="[^"]*"', r'<html\1 lang="%s"' % code, out, count=1)
+            target = ROOT / (prefix + url_path).strip("/") / "index.html"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(out, encoding="utf-8")
+        print(f"  language copies {url_path:12s} x{len(LANGS) - 1}")
 
 
 def build_preview():
