@@ -41,6 +41,7 @@ import shutil
 import subprocess
 import sys
 import urllib.request
+from html import escape, unescape
 from pathlib import Path
 
 ROOT = Path(__file__).parent
@@ -64,11 +65,16 @@ SHELL_PAGE = "contact/index.html"
 NEW_PAGES = [("/bible/", "Read the Bible"), ("/ask/", "Find a Passage")]
 
 LANGS = [
-    ("en", "English", "/"),
-    ("zh-Hans", "中文", "/zh/"),
-    ("ko", "한국어", "/ko/"),
-    ("mi", "Te Reo Māori", "/mi/"),
+    ("en", "English", ""),
+    ("zh-Hans", "中文", "/zh"),
+    ("ko", "한국어", "/ko"),
+    ("mi", "Te Reo Māori", "/mi"),
 ]
+
+# Pages translated in full. The rest of the site stays English and falls back,
+# which is the tiered strategy in the proposal — not every page, just the ones
+# a visitor needs. Mirrors Polylang's /zh/who-we-are/ URL shape.
+TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/"]
 
 # Values the live site does not publish anywhere. Shown as a visible marker
 # rather than invented — a made-up address on a church site is worse than an
@@ -223,15 +229,30 @@ def banner():
     )
 
 
-def langbar(current):
-    items = "".join(
-        f'<li class="nbc-lang__item{" is-current" if href == current else ""}">'
-        f'<a class="nbc-lang__link" href="{href}" lang="{code}" hreflang="{code}">{label}</a></li>'
-        for code, label, href in LANGS
-    )
+def langbar(url_path, lang="en"):
+    """
+    Point each language at the *same* page, the way Polylang would.
+
+    Pages we have not translated fall back to English rather than dead-ending —
+    a switcher that 404s is worse than one that admits the page is English-only.
+    """
+    base = url_path
+    for _, _, prefix in LANGS:
+        if prefix and base.startswith(prefix + "/"):
+            base = base[len(prefix):]
+            break
+
+    items = []
+    for code, label, prefix in LANGS:
+        target = (prefix + base) if (prefix and base in TRANSLATED) else base
+        cur = " is-current" if code == lang else ""
+        items.append(
+            f'<li class="nbc-lang__item{cur}">'
+            f'<a class="nbc-lang__link" href="{target}" lang="{code}" hreflang="{code}">{label}</a></li>'
+        )
     return (
         '<div class="nbc-langbar"><div class="nbc-langbar__inner">'
-        f'<ul class="nbc-lang">{items}</ul></div></div>'
+        f'<ul class="nbc-lang">{"".join(items)}</ul></div></div>'
     )
 
 
@@ -243,26 +264,40 @@ def actionbar():
 </nav>"""
 
 
-def nav_extra(current):
+NAV_LABELS = {
+    "en": ("Bible", "Read the Bible", "Find a Passage"),
+    "zh-Hans": ("圣经", "在线读经", "按主题查经"),
+    "ko": ("성경", "온라인 성경", "주제별 말씀 찾기"),
+    "mi": ("Te Paipera Tapu", "Pānui i te Paipera", "Rapua he kupu"),
+}
+
+
+def nav_extra(current, lang="en"):
     """
     One new top-level item with a submenu, in the theme's own markup.
 
     Two top-level items would make nine, and the existing seven already reach
     the right edge at 1280px. A parent with children costs one slot and matches
     how About Us and Community are already organised.
+
+    Labels follow the page language — this item is injected after the
+    translation pass, so it would otherwise stay English on a translated page.
     """
+    parent, read, find = NAV_LABELS.get(lang, NAV_LABELS["en"])
+    kids = [("/bible/", read), ("/ask/", find)]
+
     sub = "".join(
         f'<li class="menu-item menu-item-type-post_type menu-item-object-page '
         f'menu-item-depth-1{" current-menu-item" if href == current else ""}">'
         f'<a href="{href}"><span class="nav_item_wrap"><span class="nav_title">{title}'
         f"</span></span></a></li>"
-        for href, title in NEW_PAGES
+        for href, title in kids
     )
-    ancestor = " current-menu-ancestor" if current in dict(NEW_PAGES) else ""
+    ancestor = " current-menu-ancestor" if current in dict(kids) else ""
     return (
         f'<li class="menu-item menu-item-type-custom menu-item-object-custom '
         f'menu-item-has-children menu-item-depth-0 nbc-new{ancestor}">'
-        f'<a href="/bible/"><span class="nav_item_wrap"><span class="nav_title">Bible'
+        f'<a href="/bible/"><span class="nav_item_wrap"><span class="nav_title">{parent}'
         f'</span></span></a><ul class="sub-menu">{sub}</ul></li>'
     )
 
@@ -274,13 +309,17 @@ HEAD_EXTRA = (
 )
 
 
-def inject(html, url_path, canonical, title=None):
+def inject(html, url_path, canonical, title=None, lang="en"):
     if title:
         html = re.sub(r"<title>.*?</title>", f"<title>{title}</title>", html, count=1, flags=re.S)
 
     # Our canonical should be the only one.
     html = re.sub(r'<link rel="canonical"[^>]*>', "", html, count=1)
-    html = html.replace("</head>", HEAD_EXTRA.format(canonical=canonical) + "</head>", 1)
+    html = html.replace("</head>", HEAD_EXTRA.format(canonical=canonical)
+                        + hreflang_links(url_path) + "</head>", 1)
+
+    if lang != "en":
+        html = re.sub(r'(<html[^>]*?)\slang="[^"]*"', r'\1 lang="%s"' % lang, html, count=1)
 
     m = re.search(r"<body[^>]*>", html)
     if m:
@@ -290,18 +329,136 @@ def inject(html, url_path, canonical, title=None):
         html = html.replace(
             tag,
             new + '<a class="nbc-skip" href="#middle">Skip to content</a>'
-                + banner() + langbar(url_path),
+                + banner() + langbar(url_path, lang),
             1,
         )
 
     # The theme closes its menu with </ul></div></nav>.
-    html = html.replace("</ul></div></nav>", nav_extra(url_path) + "</ul></div></nav>", 1)
+    html = html.replace("</ul></div></nav>", nav_extra(url_path, lang) + "</ul></div></nav>", 1)
     html = html.replace("</body>", actionbar() + "</body>", 1)
     return html
 
 
+def hreflang_links(url_path):
+    """Tell search engines these pages are alternates of one another."""
+    base = url_path
+    for _, _, prefix in LANGS:
+        if prefix and base.startswith(prefix + "/"):
+            base = base[len(prefix):]
+            break
+    if base not in TRANSLATED:
+        return ""
+    out = [f'<link rel="alternate" hreflang="{code}" href="{REAL}{prefix}{base}">'
+           for code, _, prefix in LANGS]
+    out.append(f'<link rel="alternate" hreflang="x-default" href="{REAL}{base}">')
+    return "\n".join(out) + "\n"
+
+
 # ==========================================================================
-# step 2c: our own pages, inside the theme's shell
+# step 2d: translated copies — same markup, text nodes only
+# ==========================================================================
+
+# Text between tags, excluding anything inside a script/style/comment. The
+# negative lookahead keeps us out of tags themselves.
+TEXT_NODE = re.compile(r">([^<>]+)<")
+SKIP_REGION = re.compile(r"<(script|style|noscript)\b.*?</\1>", re.S | re.I)
+
+
+def load_dictionary(lang):
+    data = json.loads((SRC / "i18n" / f"{lang}.json").read_text(encoding="utf-8"))
+    return {k: v for k, v in data.items() if not k.startswith("_") and v}
+
+
+def translate_page(html, table, stats):
+    """
+    Replace visible text with its translation, leaving every tag, attribute,
+    image, script and stylesheet untouched.
+
+    Matching is exact on the collapsed-whitespace string, so a translation only
+    ever applies where the English it was written for actually appears — no
+    substring surprises, and an untranslated string is reported rather than
+    silently machine-translated.
+    """
+    # Protect script/style bodies from substitution by blanking them out first
+    # and restoring afterwards.
+    holes = []
+
+    def stash(m):
+        holes.append(m.group(0))
+        return f"\x00{len(holes) - 1}\x00"
+
+    guarded = SKIP_REGION.sub(stash, html)
+
+    # <title> lives in <head>, outside the body text pass — handle it here so a
+    # translated page does not show an English tab label.
+    def swap_title(m):
+        key = re.sub(r"\s+", " ", unescape(m.group(1))).strip()
+        if key in table:
+            stats["hit"].add(key)
+            return "<title>" + escape(table[key], quote=False) + "</title>"
+        stats["miss"].add(key)
+        return m.group(0)
+
+    guarded = re.sub(r"<title>(.*?)</title>", swap_title, guarded, count=1, flags=re.S)
+
+    def swap(m):
+        raw = m.group(1)
+        key = re.sub(r"\s+", " ", unescape(raw)).strip()
+        if len(key) < 2 or not re.search(r"[A-Za-z]{2}", key):
+            return m.group(0)
+        if key in table:
+            stats["hit"].add(key)
+            # Preserve the original leading/trailing whitespace so inline
+            # layout (spacing between elements) is unchanged.
+            lead = raw[: len(raw) - len(raw.lstrip())]
+            tail = raw[len(raw.rstrip()):]
+            return ">" + lead + escape(table[key], quote=False) + tail + "<"
+        stats["miss"].add(key)
+        return m.group(0)
+
+    out = TEXT_NODE.sub(swap, guarded)
+    return re.sub(r"\x00(\d+)\x00", lambda m: holes[int(m.group(1))], out)
+
+
+COVERAGE = {}
+
+REL_ASSET = re.compile(r'((?:href|src)=)(["\'])((?!https?:|//|#|mailto:|tel:|data:|/)[^"\']*)\2')
+
+# Background images live in inline style attributes and in the theme's own
+# <style> blocks, not just href/src — a page whose hero photo silently vanishes
+# is the symptom of missing these.
+REL_CSS_URL = re.compile(
+    r"""(url\(\s*)(['"]?)((?!https?:|//|data:|#|/)[^'")]+)(\2\s*\))""")
+
+
+def fix_depth(html, extra):
+    """
+    Add `extra` levels of ../ to every relative reference.
+
+    A translated page lives one directory deeper than its English original
+    (/zh/services/ vs /services/), so wp-content paths that resolved from the
+    original no longer do.
+    """
+    up = "../" * extra
+    html = REL_ASSET.sub(lambda m: m.group(1) + m.group(2) + up + m.group(3) + m.group(2), html)
+    return REL_CSS_URL.sub(lambda m: m.group(1) + m.group(2) + up + m.group(3) + m.group(4), html)
+
+
+MI_NOTE = (
+    '<div style="background:#f7f7f9;border-top:1px solid #e4e4e4;'
+    'padding:16px 20px;font:14px/1.65 \'Source Sans Pro\',Arial,sans-serif;'
+    'color:#5c5d69;text-align:center">'
+    '<b lang="mi">He kupu whakamārama</b> &middot; Only short, standard phrases on this '
+    'page are in te reo Māori. The longer text stays in English on purpose — we would '
+    'rather publish a little te reo well than a lot of it badly. If you speak te reo and '
+    'would help us finish it, please '
+    '<a href="mailto:office@nbc.org.nz" style="color:#216ea3">get in touch</a>.'
+    "</div>"
+)
+
+
+# ==========================================================================
+# step 2e: our own pages, inside the theme's shell
 # ==========================================================================
 
 START, FINISH = "<!-- Start Content -->", "<!-- Finish Content -->"
@@ -444,7 +601,8 @@ def build():
                      encoding="utf-8")
         touched += 1
 
-    # -- inject into every mirrored page ------------------------------------
+    # -- inject into every mirrored page, and build the translated copies ----
+    translated_count = 0
     for f in sorted(pages):
         rel = f.relative_to(ROOT).as_posix()
         url_path = "/" + rel[: -len("index.html")]
@@ -454,10 +612,43 @@ def build():
         for gone in dropped:
             html = re.sub(r'(?:\.\./)*' + re.escape(gone), f"{REAL}/{gone}", html)
 
+        # Translated copies first, from the same source markup.
+        if url_path in TRANSLATED:
+            depth = url_path.count("/") - 1
+            for code, _, prefix in LANGS:
+                if not prefix:
+                    continue
+                table = load_dictionary(code)
+                stats = {"hit": set(), "miss": set()}
+                out = translate_page(html, table, stats)
+                # One directory deeper than the English page, so every relative
+                # asset path needs one more ../ to resolve.
+                out = fix_depth(out, 1)
+                out = inject(out, prefix + url_path,
+                             REAL + prefix + url_path, lang=code)
+                if code == "mi":
+                    out = out.replace("</body>", MI_NOTE + "</body>", 1)
+                target = ROOT / (prefix + url_path).strip("/") / "index.html"
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text(out, encoding="utf-8")
+                translated_count += 1
+                COVERAGE.setdefault(code, {"hit": set(), "miss": set()})
+                COVERAGE[code]["hit"] |= stats["hit"]
+                COVERAGE[code]["miss"] |= stats["miss"]
+
         f.write_text(inject(html, url_path, REAL + url_path), encoding="utf-8")
 
     print(f"  mirrored {len(pages)} pages, renamed {renamed} query-string assets, "
           f"rewrote {touched} stylesheets")
+    print(f"  built {translated_count} translated pages "
+          f"({len(TRANSLATED)} pages x {len(LANGS) - 1} languages)")
+    for code in COVERAGE:
+        hit, miss = COVERAGE[code]["hit"], COVERAGE[code]["miss"]
+        total = len(hit) + len(miss)
+        print(f"    {code:8s} {len(hit):3d}/{total} strings translated")
+        if miss and code != "mi":
+            for k in sorted(miss)[:6]:
+                print(f"             untranslated: {k[:70]}")
     if dropped:
         for gone in dropped:
             print(f"  left on the church's server (over {TOO_BIG // 1024 // 1024} MB): {gone}")
@@ -477,13 +668,10 @@ def build():
                  "Planning your first visit — Northcote Baptist Church (prototype)",
                  None, fragment(ROOT / "pages" / "first-visit.html", own_heading=True)),
     ]
-    for out, src, lang, title in [
-        ("zh", "welcome-zh.html", "zh-Hans", "中文 — 北岸浸信会（原型）"),
-        ("ko", "welcome-ko.html", "ko", "한국어 — 노스코트 뱁티스트 교회 (프로토타입)"),
-        ("mi", "welcome-mi.html", "mi", "Te Reo Māori — Northcote Baptist Church (prototype)"),
-    ]:
-        made.append(new_page(out, title, None,
-                             fragment(ROOT / "pages" / src, own_heading=True), lang=lang))
+    # No bespoke /zh/ /ko/ /mi/ landing pages: those are now translated copies
+    # of the real pages, built in the mirror loop above. pages/welcome-*.html
+    # remain in the repo as the cheaper Tier-0 option (one hand-written page per
+    # language) for a church that does not want to translate whole pages yet.
     for path, size in made:
         print(f"  new page {path:16s} {size:>8,} bytes")
 
