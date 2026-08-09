@@ -36,6 +36,7 @@ USAGE
 """
 
 import json
+import posixpath
 import re
 import shutil
 import subprocess
@@ -281,11 +282,11 @@ def langbar(url_path, lang="en"):
     )
 
 
-def actionbar():
+def actionbar(prefix=""):
     return f"""<nav class="nbc-actionbar" aria-label="Quick links">
-<a class="nbc-actionbar__link" href="/services/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Sunday 10am</span></a>
+<a class="nbc-actionbar__link" href="{prefix}/services/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Sunday 10am</span></a>
 <a class="nbc-actionbar__link" href="{FILLS['MAP_URL']}" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Find us</span></a>
-<a class="nbc-actionbar__link" href="/give-2/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg><span>Give</span></a>
+<a class="nbc-actionbar__link" href="{prefix}/give-2/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg><span>Give</span></a>
 </nav>"""
 
 
@@ -309,7 +310,10 @@ def nav_extra(current, lang="en"):
     translation pass, so it would otherwise stay English on a translated page.
     """
     parent, read, find = NAV_LABELS.get(lang, NAV_LABELS["en"])
-    kids = [("/bible/", read), ("/ask/", find)]
+    # Carry the page language through, so a reader on a Chinese page opens the
+    # Chinese Bible rather than English with a language selector to find.
+    q = f"?lang={lang}" if lang != "en" else ""
+    kids = [(f"/bible/{q}", read), (f"/ask/{q}", find)]
 
     sub = "".join(
         f'<li class="menu-item menu-item-type-post_type menu-item-object-page '
@@ -318,11 +322,11 @@ def nav_extra(current, lang="en"):
         f"</span></span></a></li>"
         for href, title in kids
     )
-    ancestor = " current-menu-ancestor" if current in dict(kids) else ""
+    ancestor = " current-menu-ancestor" if current in ("/bible/", "/ask/") else ""
     return (
         f'<li class="menu-item menu-item-type-custom menu-item-object-custom '
         f'menu-item-has-children menu-item-depth-0 nbc-new{ancestor}">'
-        f'<a href="/bible/"><span class="nav_item_wrap"><span class="nav_title">{parent}'
+        f'<a href="/bible/{q}"><span class="nav_item_wrap"><span class="nav_title">{parent}'
         f'</span></span></a><ul class="sub-menu">{sub}</ul></li>'
     )
 
@@ -360,7 +364,10 @@ def inject(html, url_path, canonical, title=None, lang="en"):
 
     # The theme closes its menu with </ul></div></nav>.
     html = html.replace("</ul></div></nav>", nav_extra(url_path, lang) + "</ul></div></nav>", 1)
-    html = html.replace("</body>", actionbar() + "</body>", 1)
+    # /services/ and /give-2/ are both translated, so the mobile bar can stay
+    # in-language on a translated page.
+    lang_prefix = next((p for c, _, p in LANGS if c == lang and p), "")
+    html = html.replace("</body>", actionbar(lang_prefix) + "</body>", 1)
     return html
 
 
@@ -454,6 +461,58 @@ REL_ASSET = re.compile(r'((?:href|src)=)(["\'])((?!https?:|//|#|mailto:|tel:|dat
 # is the symptom of missing these.
 REL_CSS_URL = re.compile(
     r"""(url\(\s*)(['"]?)((?!https?:|//|data:|#|/)[^'")]+)(\2\s*\))""")
+
+
+PAGE_LINK = re.compile(
+    r'(href=)(["\'])((?!https?:|//|#|mailto:|tel:|data:|javascript:)[^"\']*)\2')
+
+
+def relink_within_language(html, prefix, orig_url):
+    """
+    Rewrite internal page links on a translated page, resolved against the
+    page's ORIGINAL location and emitted root-absolute.
+
+    Two things go wrong if you instead shift relative links by one `../`, the
+    way asset paths are shifted:
+
+    * A self-link (`index.html` on /services/) has no leading `../` to shift,
+      so `../index.html` resolves to /zh/ — the nav item for the page you are
+      on sends you to the language home instead.
+    * A bare `#` becomes `../index.html#`.
+
+    Root-absolute output sidesteps the depth question entirely: a link to a
+    translated page gets the language prefix, everything else points at the
+    English original, which is genuinely where that content lives.
+    """
+    def fix(m):
+        attr, quote, value = m.group(1), m.group(2), m.group(3)
+
+        # Fragment-only and empty hrefs (the theme's dropdown parents) stay put.
+        if not value or value.startswith("#"):
+            return m.group(0)
+
+        page, hashmark, fragment = value.partition("#")
+        # The theme's dropdown parents are href="#", which wget rewrites to
+        # "index.html#". Resolving that lands on the current page; it must stay
+        # inert or "About Us" navigates instead of opening its submenu.
+        if hashmark and not fragment:
+            return f'{attr}{quote}#{quote}'
+        if not page.endswith(("/", "index.html")):
+            return m.group(0)                      # an asset, not a page
+
+        target = posixpath.normpath(posixpath.join(orig_url, page))
+        if target.endswith("/index.html"):
+            target = target[: -len("index.html")]
+        elif target == "/index.html":
+            target = "/"
+        if not target.endswith("/"):
+            target += "/"
+
+        if target in TRANSLATED:
+            target = prefix + target
+        return f'{attr}{quote}{target}{"#" + fragment if fragment else ""}{quote}'
+
+    return PAGE_LINK.sub(fix, html)
 
 
 def fix_depth(html, extra):
@@ -648,6 +707,7 @@ def build():
                 out = translate_page(html, table, stats)
                 # One directory deeper than the English page, so every relative
                 # asset path needs one more ../ to resolve.
+                out = relink_within_language(out, prefix, url_path)
                 out = fix_depth(out, 1)
                 out = inject(out, prefix + url_path,
                              REAL + prefix + url_path, lang=code)

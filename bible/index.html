@@ -550,22 +550,50 @@ height:300px !important;
 
   /* ---- interface strings ---- */
   var UI = {
-    en:{ name:'English', ui:'Interface', version:'Version', parallel:'Side by side',
+    en:{ h1:'Online Bible', lead:'Read any chapter in two languages side by side. Free to use, no account needed.', name:'English', ui:'Interface', version:'Version', parallel:'Side by side',
          book:'Book', chapter:'Chapter', off:'Off', credit:'Scripture text served by',
          copied:'Verse copied', failed:'Could not load this chapter. Please try again.', retry:'Retry' },
-    zh:{ name:'中文', ui:'界面', version:'译本', parallel:'对照译本',
+    'zh-Hans':{ h1:'在线圣经', lead:'任意一章都可以双语并排阅读。免费使用，无需注册。', name:'简体中文', ui:'界面', version:'译本', parallel:'对照译本',
          book:'书卷', chapter:'章', off:'关闭', credit:'经文数据来自',
          copied:'已复制经文', failed:'本章加载失败，请重试。', retry:'重试' },
-    ko:{ name:'한국어', ui:'인터페이스', version:'역본', parallel:'대조 역본',
+    'zh-Hant':{ h1:'線上聖經', lead:'任意一章都可以雙語並排閱讀。免費使用，無需註冊。', name:'繁體中文', ui:'介面', version:'譯本', parallel:'對照譯本',
+         book:'書卷', chapter:'章', off:'關閉', credit:'經文資料來自',
+         copied:'已複製經文', failed:'本章載入失敗，請重試。', retry:'重試' },
+    ko:{ h1:'온라인 성경', lead:'어느 장이든 두 언어를 나란히 놓고 읽으실 수 있습니다. 무료이며 계정이 필요 없습니다.', name:'한국어', ui:'인터페이스', version:'역본', parallel:'대조 역본',
          book:'성경', chapter:'장', off:'끕', credit:'본문 제공',
          copied:'구절을 복사했습니다', failed:'불러오지 못했습니다.', retry:'다시' },
-    mi:{ name:'Te Reo Māori', ui:'Reo', version:'Whakamāoritanga', parallel:'Whakarite',
+    mi:{ h1:'Te Paipera Tapu', lead:'Pānuitia tētahi upoko i ngā reo e rua. He kore utu, kāore he pūkete e hiahiatia ana.', name:'Te Reo Māori', ui:'Reo', version:'Whakamāoritanga', parallel:'Whakarite',
          book:'Pukapuka', chapter:'Upoko', off:'Kati', credit:'Nā',
          copied:'Kua kape', failed:'Kāore i taea te tīkina.', retry:'Anō' }
   };
 
+  /* Which translation each interface language opens with. A reader who
+     arrives from a Chinese page should land on 和合本, not on KJV with a
+     dropdown to hunt through. Simplified and Traditional are separate
+     choices — 和合本繁體 is not a font setting, it is a different edition. */
+  var DEFAULT_VERSION = {
+    'en': 'kjv',
+    'zh-Hans': 'cus',
+    'zh-Hant': 'cut',
+    'ko': 'korean',
+    'mi': 'maori'
+  };
+
   var LS = 'nbc-bible-v1';
-  var state = load() || { ui:'en', a:app.dataset.defaultTranslation || 'kjv', b:'', book:43, chap:3, size:1.125 };
+  /* ?lang= comes from the Bible menu on a translated page. On a first visit
+     it picks both the interface and the edition; a stored choice always wins,
+     because someone who has chosen a translation meant it. */
+  function fromUrl() {
+    var q = new URLSearchParams(location.search).get('lang');
+    return (q && DEFAULT_VERSION[q]) ? q : null;
+  }
+
+  var wanted = fromUrl();
+  var state = load() || {
+    ui: wanted || 'en',
+    a: DEFAULT_VERSION[wanted] || app.dataset.defaultTranslation || 'kjv',
+    b: '', book: 43, chap: 3, size: 1.125
+  };
 
   function load(){ try { return JSON.parse(localStorage.getItem(LS)); } catch(e){ return null; } }
   function save(){ try { localStorage.setItem(LS, JSON.stringify(state)); } catch(e){} }
@@ -624,6 +652,14 @@ height:300px !important;
   }
   function paintLabels(){
     app.querySelectorAll('[data-i18n]').forEach(function (n) { n.textContent = t(n.dataset.i18n); });
+
+    // The page shell renders one heading for every language; keep it in step
+    // with the interface selector so a Chinese reader is not met by English.
+    var h1 = document.querySelector('.cmsmasters_heading');
+    if (h1 && t('h1')) h1.textContent = t('h1');
+    var lead = document.querySelector('.cmsmasters_text > p');
+    if (lead && t('lead')) lead.textContent = t('lead');
+    document.documentElement.lang = state.ui;
   }
 
   /* ---------- fetching ---------- */
@@ -693,7 +729,19 @@ height:300px !important;
   }
 
   /* ---------- events ---------- */
-  elUi.onchange   = function () { state.ui = this.value; paintLabels(); groupVersions(elB, true); save(); };
+  elUi.onchange = function () {
+    state.ui = this.value;
+    // Follow the interface into that language's Bible; the version dropdown
+    // is still there for anyone who wants a different edition.
+    if (DEFAULT_VERSION[state.ui]) {
+      state.a = DEFAULT_VERSION[state.ui];
+      groupVersions(elA, false);
+      fillBooks();
+    }
+    paintLabels();
+    groupVersions(elB, true);
+    render();
+  };
   elA.onchange    = function () { state.a = this.value; fillBooks(); render(); };
   elB.onchange    = function () { state.b = this.value; render(); };
   elBook.onchange = function () { state.book = +this.value; state.chap = 1; fillChapters(); render(); };

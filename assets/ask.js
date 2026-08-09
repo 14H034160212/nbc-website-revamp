@@ -33,8 +33,8 @@
      English edition to put beside it. WEB is used rather than KJV because
      the people most likely to need the parallel column are the ones for
      whom 17th-century English is an extra obstacle. */
-  var PRIMARY = { 'en': 'web', 'zh-Hans': 'cus', 'ko': 'korean', 'mi': 'maori' };
-  var BOOKSET = { 'web': 'kjv', 'cus': 'cus', 'korean': 'korean', 'maori': 'maori' };
+  var PRIMARY = { 'en': 'web', 'zh-Hans': 'cus', 'zh-Hant': 'cut', 'ko': 'korean', 'mi': 'maori' };
+  var BOOKSET = { 'web': 'kjv', 'cus': 'cus', 'cut': 'cut', 'korean': 'korean', 'maori': 'maori' };
   var ENGLISH = 'web';
 
   /* ---- interface strings ------------------------------------------------ */
@@ -82,6 +82,28 @@
       notfound: '没有读懂这个经文地址，试试「约翰福音 3:16」这样的写法。',
       parallel: '英文',
       pastoral: '这些经文是一个起点，不是答案的全部。如果你正经历难处，请找人聊聊 —— 平日都可以联系教会办公室。'
+    },
+    'zh-Hant': {
+      h1: '按主題查經',
+      aiLabel: '或者用你自己的話，說說此刻的處境。',
+      aiPlaceholder: '例如：我要做一個很難的決定，不知道該怎麼禱告',
+      aiGo: '提問',
+      aiNote: '回應由 AI 助手撰寫，只負責指出相關經文；經文原文來自真實譯本。這不是牧養輔導。',
+      aiThinking: '正在查找…',
+      aiFailed: '出了點問題，請重試，或從上面的問題裡選一個。',
+      aiBusy: '現在提問的人有點多，請稍後再試。',
+      aiLimited: '你在短時間內問了幾次，請稍後再試。',
+      aiOff: '這個部署沒有開啟提問框。下面的常見處境查經不需要它也能用。',
+      aiHuman: '有些事更適合和人聊聊。平日都可以聯絡教會辦公室：<a href="tel:+6494807064">(09) 480 7064</a> 或 <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>。',
+      lead: '選一個此刻的處境，我們把聖經裡相關的經文找出來給你。',
+      ph: '或直接輸入經文地址 —— 約翰福音 3:16',
+      go: '查找',
+      whole: '讀整章',
+      loading: '載入中…',
+      failed: '這段經文載入失敗，請重試。',
+      notfound: '沒有讀懂這個經文地址，試試「約翰福音 3:16」這樣的寫法。',
+      parallel: '英文',
+      pastoral: '這些經文是一個起點，不是答案的全部。如果你正經歷難處，請找人聊聊 —— 平日都可以聯絡教會辦公室。'
     },
     'ko': {
       h1: '주제별 말씀 찾기',
@@ -198,7 +220,11 @@
   var cache = {};
 
   function t(k) { return (UI[lang] || UI.en)[k] || UI.en[k]; }
-  function label(topic) { return topic.label[lang] || topic.label.en; }
+  function label(topic) {
+    // The curated labels are written in Simplified; a Traditional reader is
+    // better served by those than by falling all the way back to English.
+    return topic.label[lang] || (lang === 'zh-Hant' && topic.label['zh-Hans']) || topic.label.en;
+  }
   function books() { return DATA.names[BOOKSET[PRIMARY[lang]] || 'kjv'] || DATA.names.kjv; }
 
   /* ---- fetching --------------------------------------------------------- */
@@ -531,7 +557,8 @@
      genuinely multilingual in itself, so it carries its own control. */
   var LANGS = [
     ['en', 'English'],
-    ['zh-Hans', '中文'],
+    ['zh-Hans', '简体中文'],
+    ['zh-Hant', '繁體中文'],
     ['ko', '한국어'],
     ['mi', 'Te Reo Māori']
   ];
