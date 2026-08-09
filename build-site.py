@@ -76,11 +76,11 @@ LANGS = [
 # which is the tiered strategy in the proposal — not every page, just the ones
 # a visitor needs. Mirrors Polylang's /zh/who-we-are/ URL shape.
 TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
-              "/bible/", "/ask/"]
+              "/bible/", "/ask/", "/first-visit/"]
 
 # The two feature pages are ours, not mirrored, so they are built first in
 # English and then copied per language from that output.
-OUR_PAGES = ["/bible/", "/ask/"]
+OUR_PAGES = ["/bible/", "/ask/", "/first-visit/"]
 
 # Values the live site does not publish anywhere. Shown as a visible marker
 # rather than invented — a made-up address on a church site is worse than an
