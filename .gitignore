@@ -11,7 +11,9 @@ tmp/
 
 # stray local artefacts
 cp*/
-*.png
+# Screenshots I write while checking renders land in the repo root.
+# Must not be "*.png" — that would swallow the site's own images.
+/*.png
 
 # local tooling
 .claude/
