@@ -251,7 +251,7 @@
     return art;
   }
 
-  function show(refs, heading) {
+  function show(refs, heading, scroll) {
     elOut.innerHTML = '';
     if (heading) {
       var h = document.createElement('h2');
@@ -262,7 +262,10 @@
     refs.forEach(function (r) { elOut.appendChild(card(r)); });
     elOut.hidden = false;
     elFoot.hidden = false;
-    elOut.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Scroll only when the reader picked something. On a ?topic= deep link the
+    // page would otherwise open already scrolled past the question list, so
+    // the reader never sees that there are other questions.
+    if (scroll) elOut.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /* ---- reference parsing ------------------------------------------------
@@ -322,15 +325,15 @@
       b.className = 'ask-chip';
       b.dataset.topic = topic.id;
       b.textContent = label(topic);
-      b.addEventListener('click', function () { select(topic, b); });
+      b.addEventListener('click', function () { select(topic, b, true); });
       elChips.appendChild(b);
     });
   }
 
-  function select(topic, btn) {
+  function select(topic, btn, scroll) {
     elChips.querySelectorAll('.ask-chip').forEach(function (n) { n.classList.remove('is-on'); });
     if (btn) btn.classList.add('is-on');
-    show(topic.refs, label(topic));
+    show(topic.refs, label(topic), scroll);
   }
 
   /* Deep link: ask.html?topic=grief — so a sermon page, a notice sheet or a
@@ -356,7 +359,7 @@
       return;
     }
     elChips.querySelectorAll('.ask-chip').forEach(function (n) { n.classList.remove('is-on'); });
-    show([ref], null);
+    show([ref], null, true);
   });
 
   var first = true;
