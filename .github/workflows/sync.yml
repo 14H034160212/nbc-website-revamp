@@ -1,0 +1,114 @@
+name: Sync from nbc.org.nz
+
+# Re-mirror the church's site, rebuild the prototype, and push. Cloudflare
+# Pages deploys on push, so a green run here is a deploy.
+#
+# WHY WEEKLY AND NOT NIGHTLY
+#   This fetches every page and asset from a small church's server. Their
+#   content changes on the order of weeks — a sermon series, a term's
+#   programme — so nightly would be a lot of traffic for very little news.
+#   Monday 03:00 NZ so a Sunday's changes are picked up before anyone looks.
+#
+# WHY IT COMMITS THE BUILT SITE
+#   Cloudflare Pages serves this repo as a static upload. There is no build
+#   step there on purpose: adding one is what silently broke three deploys
+#   (see functions/README.md). So the built pages are the artifact, and this
+#   workflow is what keeps them current.
+
+on:
+  schedule:
+    - cron: "0 14 * * 0"        # Sunday 14:00 UTC = Monday 03:00 NZST
+  workflow_dispatch:            # and whenever someone wants it now
+
+# One at a time. Two runs racing to commit the same 220 pages helps nobody.
+concurrency:
+  group: sync
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Mirror nbc.org.nz
+        id: mirror
+        run: |
+          python3 build-site.py --fetch 2>&1 | tee mirror.log
+          # wget exits non-zero on partial failures that do not matter (a 404
+          # on one asset), so judge by what actually landed instead.
+          pages=$(find src/mirror -name 'index.html' | wc -l)
+          echo "pages=$pages" >> "$GITHUB_OUTPUT"
+          echo "mirrored $pages pages"
+          if [ "$pages" -lt 40 ]; then
+            echo "::error::only $pages pages mirrored — nbc.org.nz may be down."
+            echo "Leaving the current build in place rather than replacing it with a broken one."
+            exit 1
+          fi
+
+      - name: Build
+        run: python3 build-site.py 2>&1 | tee build.log
+
+      - name: Check
+        id: check
+        run: |
+          set +e
+          python3 scripts/check-build.py --summary "$GITHUB_STEP_SUMMARY"
+          code=$?
+          set -e
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          # 2 means a translation went stale: ship it, but say so.
+          if [ "$code" = "1" ]; then exit 1; fi
+
+      - name: Commit and push
+        id: push
+        run: |
+          git config user.name  "nbc-sync"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet && git diff --cached --quiet; then
+            echo "nothing changed on nbc.org.nz this week"
+            echo "changed=no" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git add -A
+          # Name what moved, so git log stays a record of the church's site
+          # rather than 220 identical "sync" commits.
+          python3 scripts/sync-commit-message.py > /tmp/msg.txt
+          cat /tmp/msg.txt
+          git commit -F /tmp/msg.txt
+          git push
+          echo "changed=yes" >> "$GITHUB_OUTPUT"
+
+      - name: Say what happened
+        if: always()
+        run: |
+          {
+            echo "### Sync"
+            echo ""
+            echo "- mirrored: ${{ steps.mirror.outputs.pages }} pages from nbc.org.nz"
+            echo "- pushed: ${{ steps.push.outputs.changed || 'no' }}"
+            if [ "${{ steps.check.outputs.code }}" = "2" ]; then
+              echo "- ⚠️ a translated page is serving English again — see above"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # A stale translation is not worth failing the run over — the deploy is
+      # still an improvement — but it must not disappear into a green tick
+      # either. This turns the run yellow-then-red only for that reason, after
+      # the push has already happened.
+      - name: Flag stale translations
+        if: steps.check.outputs.code == '2'
+        run: |
+          echo "::warning::The English changed under a translated page. The site"
+          echo "::warning::is deployed and correct; the affected paragraphs are"
+          echo "::warning::English again. Re-translate them in src/i18n/*.json."
+          exit 1
