@@ -86,7 +86,9 @@ LANGS = [
 #     rest canonicalise to the English original and carry a visible note, so
 #     nobody is told a page is in their language when it is not.
 TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
-              "/bible/", "/ask/", "/first-visit/"]
+              "/bible/", "/ask/", "/first-visit/",
+              "/what-we-believe/", "/history/", "/sermons/", "/health-safety/",
+              "/home-group/"]
 
 
 # Filled during the build with every page that exists, so relink_within_language
@@ -533,9 +535,33 @@ TEXT_NODE = re.compile(r">([^<>]+)<")
 SKIP_REGION = re.compile(r"<(script|style|noscript)\b.*?</\1>", re.S | re.I)
 
 
+# WordPress's editor splits a paragraph across several identically-styled
+# <span>s at arbitrary points — mid-clause, mid-word sometimes. Translating each
+# fragment separately produces Chinese and Korean that reads like it was cut up
+# and taped back together, because the word order does not survive the English
+# break points. So the whole paragraph goes into the first fragment and the rest
+# are marked [merged], which renders as nothing.
+#
+# It has to be distinct from "": that already means "leave the English alone",
+# which is how Aroha, Whanaungatanga and the other te reo words stay themselves.
+MERGED = "[merged]"
+
+
 def load_dictionary(lang):
+    """
+    Three states, not two:
+
+        "译文"      translate to this
+        ""          leave the English alone (Aroha, Whanaungatanga, …)
+        "[merged]"  render nothing; this fragment's text is in the one before it
+    """
     data = json.loads((SRC / "i18n" / f"{lang}.json").read_text(encoding="utf-8"))
-    return {k: v for k, v in data.items() if not k.startswith("_") and v}
+    out = {}
+    for k, v in data.items():
+        if k.startswith("_") or v == "":
+            continue
+        out[k] = "" if v == MERGED else v
+    return out
 
 
 def translate_page(html, table, stats):
@@ -613,9 +639,24 @@ WIDGET_STRINGS = {
 }
 
 
+# Names of English-only content. A sermon series is the title of an English
+# playlist on YouTube; translating it tells a Chinese reader the series is about
+# rebuilding, then hands them forty minutes of English. Better to leave the name
+# as it is, so the label and the thing it opens agree.
+ENGLISH_TITLES = {
+    "Haggai – A Time to Rebuild", "Renew Together 2024", "Winning the Battle",
+    "My Redeemer Lives", "Topical Sermons", "Psalm 23", "Top Ten", "Easter", "VII",
+}
+
+
 def deliberately_english(s):
     # Page titles are built from OUR_TITLES, not the dictionaries.
-    return s in WIDGET_STRINGS or s.endswith(("(prototype)", "Baptist Church"))
+    # endswith("Baptist Church") was too greedy: it swallowed the heading
+    # "The foundational beliefs of Northcote Baptist Church", which then sat in
+    # English on an otherwise Chinese page and never appeared in the report.
+    return (s in WIDGET_STRINGS or s in ENGLISH_TITLES
+            or s.endswith("(prototype)")
+            or s in ("Northcote Baptist Church", "Northcote Baptist Church."))
 
 # `javascript:` must be excluded for the same reason PAGE_LINK excludes it: the
 # theme uses href="javascript:void(0);" for four inert controls, and shifting
