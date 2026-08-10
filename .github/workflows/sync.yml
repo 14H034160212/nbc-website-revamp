@@ -75,6 +75,13 @@ jobs:
           code=$?
           set -e
           echo "code=$code" >> "$GITHUB_OUTPUT"
+          # Snapshot these two before anything overwrites them. check-build.py
+          # runs again after drafting, and by then nothing is stale — so the
+          # review-required list it writes is empty. Routing off that file merged
+          # a doctrinal page automatically, which is the one outcome this whole
+          # split exists to prevent.
+          cp translation-todo.json translation-todo.pre.json
+          cp translation-review-required.json translation-review-required.pre.json
           # 1 = broken, do not ship. 2 = ship, but a translation went stale.
           if [ "$code" = "1" ]; then exit 1; fi
 
@@ -107,6 +114,7 @@ jobs:
           KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
+          cp translation-todo.pre.json translation-todo.json
           node scripts/translate-new.mjs
           python3 build-site.py
 
@@ -115,7 +123,7 @@ jobs:
         if: steps.translate.outcome == 'success'
         run: |
           set +e
-          node scripts/check-translations.mjs --only translation-todo.json
+          node scripts/check-translations.mjs --only translation-todo.pre.json
           echo "translations=$?" >> "$GITHUB_OUTPUT"
           python3 scripts/check-build.py
           echo "build=$?" >> "$GITHUB_OUTPUT"
@@ -125,7 +133,7 @@ jobs:
         id: route
         if: steps.translate.outcome == 'success'
         run: |
-          review=$(python3 -c "import json;print(len(json.load(open('translation-review-required.json'))))")
+          review=$(python3 -c "import json;print(len(json.load(open('translation-review-required.pre.json'))))")
           if [ "${{ steps.verify.outputs.translations }}" != "0" ] \
              || [ "${{ steps.verify.outputs.build }}" = "1" ]; then
             echo "route=pr" >> "$GITHUB_OUTPUT"

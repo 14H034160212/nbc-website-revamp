@@ -25,3 +25,5 @@ node_modules/
 
 translation-todo.json
 translation-review-required.json
+translation-todo.pre.json
+translation-review-required.pre.json
