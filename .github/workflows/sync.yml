@@ -179,8 +179,16 @@ jobs:
           The site is already deployed with the English in place, so nothing is
           broken while this waits.
           BODY
+          # Assigned explicitly rather than relying on watch settings: a PR
+          # opened by github-actions[bot] should land in someone's list, not
+          # only in a feed they might have muted.
           gh pr create --title "Draft translations for this week's changes" \
-                       --body-file /tmp/pr-body.md
+                       --body-file /tmp/pr-body.md \
+                       --assignee "${{ github.repository_owner }}" \
+                       --label "translations" || \
+          gh pr create --title "Draft translations for this week's changes" \
+                       --body-file /tmp/pr-body.md \
+                       --assignee "${{ github.repository_owner }}"
 
       # ── 4. report ────────────────────────────────────────────────────────
       - name: Say what happened
