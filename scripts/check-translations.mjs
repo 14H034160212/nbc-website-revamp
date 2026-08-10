@@ -173,7 +173,16 @@ function checkOne(lang, source, value) {
     }
   }
 
-  // 5. Words that stay themselves. Addresses come out first: "NBC" matches
+  // 5. Words that stay themselves.
+  //
+  //    This was a note until a real run shipped 유튜브 for YouTube. It is
+  //    mechanically checkable and objectively inconsistent — the button on the
+  //    page says YouTube, and the rest of the dictionary keeps it — so it is a
+  //    failure now. That routes the batch to a pull request rather than
+  //    discarding it, which is the right amount of ceremony: a person decides
+  //    whether 유튜브 is fine, and nobody has to notice it first.
+  //
+  //    Addresses come out first: "NBC" matches
   //    inside nbc.org.nz, so an email in both source and translation was being
   //    reported as a dropped word. The comparison is case-insensitive for the
   //    same reason — nbc.org.nz is not a missing NBC.
@@ -182,7 +191,8 @@ function checkOne(lang, source, value) {
   for (const word of KEEP_AS_IS) {
     const inSource = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i");
     if (inSource.test(bare) && !bareValue.includes(word.toLowerCase())) {
-      notes.push(`${where}\n    "${word}" is in the English but not the translation`);
+      problems.push(`${where}\n    "${word}" is in the English but not the `
+        + `translation — it should stay as it is\n    ${value.slice(0, 80)}`);
     }
   }
 
