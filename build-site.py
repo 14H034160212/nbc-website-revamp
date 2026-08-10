@@ -88,7 +88,9 @@ LANGS = [
 TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
               "/bible/", "/ask/", "/first-visit/",
               "/what-we-believe/", "/history/", "/sermons/", "/health-safety/",
-              "/home-group/"]
+              "/home-group/",
+              "/ministries/", "/ministries/kids/", "/ministries/youth/",
+              "/ministries/intermediates/", "/ministries/young-adults/"]
 
 
 # Filled during the build with every page that exists, so relink_within_language
@@ -643,6 +645,17 @@ WIDGET_STRINGS = {
 # playlist on YouTube; translating it tells a Chinese reader the series is about
 # rebuilding, then hands them forty minutes of English. Better to leave the name
 # as it is, so the label and the thing it opens agree.
+# Brand names. Translating them would be wrong in any language.
+BRANDS = {"Instagram", "Facebook", "YouTube", "Twitter", "Mailchimp", "Zoom"}
+
+# Te reo that stays te reo on every page, in every language — the whakataukī on
+# /ministries/ and the values on the home page. Its English gloss sits beside it
+# and is translated; the te reo itself is the point and is left alone.
+TE_REO = {
+    "He aha te mea nui o te ao", "He tangata, he tangata, he tangata",
+    "Aroha", "Whanaungatanga", "Manaakitanga", "Pono",
+}
+
 ENGLISH_TITLES = {
     "Haggai – A Time to Rebuild", "Renew Together 2024", "Winning the Battle",
     "My Redeemer Lives", "Topical Sermons", "Psalm 23", "Top Ten", "Easter", "VII",
@@ -654,7 +667,7 @@ def deliberately_english(s):
     # endswith("Baptist Church") was too greedy: it swallowed the heading
     # "The foundational beliefs of Northcote Baptist Church", which then sat in
     # English on an otherwise Chinese page and never appeared in the report.
-    return (s in WIDGET_STRINGS or s in ENGLISH_TITLES
+    return (s in WIDGET_STRINGS or s in ENGLISH_TITLES or s in BRANDS or s in TE_REO
             or s.endswith("(prototype)")
             or s in ("Northcote Baptist Church", "Northcote Baptist Church."))
 
