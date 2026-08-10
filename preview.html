@@ -256,6 +256,12 @@ textarea:focus-visible,
 		right: 0;
 		bottom: 0;
 		z-index: 9990;
+		/* The parent theme has a bare `nav { height: 100% }` in its style.css.
+		   This is a <nav>, and 100% of a fixed element is 100% of the viewport
+		   — so without this line the bar is a full-screen white sheet over
+		   every page on every phone. Specificity here (0,1,0) beats the
+		   element selector (0,0,1); it has to be stated, not inherited. */
+		height: auto;
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
 		background: #fff;
