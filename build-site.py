@@ -199,6 +199,79 @@ def fetch():
 QUERY_IN_NAME = re.compile(r"\?.*$")
 
 
+# ==========================================================================
+# step 2a-: make the mirror reproducible
+# ==========================================================================
+
+# Four things in the mirrored HTML change on every single fetch while the page
+# says exactly the same thing. Left alone they make the weekly sync commit 220
+# files of churn a week and bury the one paragraph the church actually edited.
+#
+#   cmsmasters_row_6a7849ba6d1113_87423528   the theme's per-request block ids
+#   "nonce":"bc4c0a4cac…"                    WordPress nonces
+#   WP-Super-Cache on 2026-08-09 06:37:12    cache stamp
+#   dynamic page generated in 0.093 seconds  render time
+#
+# The block ids have to stay unique within a page — the theme's own <style>
+# block selects on them — so they are renumbered per page in order of first
+# appearance rather than blanked. The page structure is stable, so the
+# numbering is stable, so the same content produces the same bytes.
+# WordPress's uniqid() shape: 13 hex digits, an underscore, then digits. The
+# theme stamps it into cmsmasters_row_…, featured_campaign_…, portfolio_…,
+# ilightbox[…] and bare JS strings, so match the shape rather than chasing
+# prefixes — a new widget would otherwise reintroduce the churn silently.
+# No \b on the left: these ids sit behind an underscore (cmsmasters_row_6a78…)
+# and _6 is not a word boundary, so anchoring there matches nothing at all.
+UNIQID = re.compile(r"([0-9a-f]{12,16}_\d+)(?![0-9A-Za-z_])")
+# Some widgets emit the bare uniqid with no counter suffix
+# (cmsmasters_slider_6a785224d6ef9). Anchored on the theme prefix rather
+# than on "underscore then hex", which would also rename real filenames.
+UNIQID_BARE = re.compile(r"(cmsmasters_[a-z_]+_)([0-9a-f]{12,16})(?![0-9A-Za-z_])")
+NONCE = re.compile(r'("(?:nonce|security|nonce_ajax_like|_?wpnonce)"\s*:\s*")([0-9a-f]{6,})(")')
+CACHE_STAMP = re.compile(r"(WP-Super-Cache on )\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}")
+RENDER_TIME = re.compile(r"(page generated in )[\d.]+")
+UA_SNIFFED = {"csstransition", "chrome_only", "safari_only"}
+UA_CLASS = re.compile(r'(<div id="page" class=")([^"]*)(")')
+ICON_LINK = re.compile(
+    r'(<link rel="icon" href=")(?:https://nbc\.org\.nz/wp-content/|(?:\.\./)*wp-content/)'
+    r'([^"]+)(")')
+
+
+def normalise_volatile(html):
+    """Replace per-request noise with stable values. Content is untouched."""
+    seen = {}
+
+    def stable_id(m):
+        raw = m.group(1)
+        if raw not in seen:
+            seen[raw] = len(seen) + 1
+        return f"nbc{seen[raw]:04d}_0"
+
+    # wget's -k only rewrites links to files it actually fetched, and the
+    # favicons are fetched only sometimes — so the same page comes back with
+    # absolute URLs one week and relative the next, for no reason a reader
+    # would notice. Pin them absolute: two small requests to the church's own
+    # server, and a build that does not depend on wget's luck.
+    html = ICON_LINK.sub(
+        lambda m: m.group(1) + REAL + "/wp-content/" + m.group(2) + m.group(3), html)
+    # The theme sniffs the User-Agent and stamps #page with exactly one of
+    # csstransition / chrome_only / safari_only. The church runs WP-Super-Cache,
+    # which caches per UA group, so which variant wget is handed is luck: the
+    # mirror came back 204 / 12 / 4. None of the three is selected on anywhere
+    # in the theme's CSS or JS — all dead classes — so the churn they cause is
+    # pure cost and they come out.
+    html = UA_CLASS.sub(
+        lambda m: m.group(1) + " ".join(c for c in m.group(2).split()
+                                        if c not in UA_SNIFFED) + m.group(3),
+        html)
+    html = UNIQID.sub(stable_id, html)
+    html = UNIQID_BARE.sub(
+        lambda m: m.group(1) + stable_id(re.match(r'(.*)', m.group(2))), html)
+    html = NONCE.sub(r"\g<1>0000000000\g<3>", html)
+    html = CACHE_STAMP.sub(r"\g<1>0000-00-00 00:00:00", html)
+    return RENDER_TIME.sub(r"\g<1>0.000", html)
+
+
 def strip_query_filenames(root):
     """
     style.css?ver=1.0.0.css -> style.css
@@ -998,7 +1071,8 @@ def build():
     for f in sorted(pages):
         rel = f.relative_to(ROOT).as_posix()
         url_path = "/" + rel[: -len("index.html")]
-        html = strip_query_links(f.read_text(encoding="utf-8", errors="replace"))
+        html = normalise_volatile(
+            strip_query_links(f.read_text(encoding="utf-8", errors="replace")))
 
         # Files we removed for size stay on the church's own server.
         for gone in dropped:
