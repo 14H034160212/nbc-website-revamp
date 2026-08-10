@@ -190,7 +190,26 @@ ANTHROPIC_API_KEY=... node scripts/test-ask.mjs --compare
 
 # 本地起一个带 /api/ask 的服务器，浏览器里点
 ANTHROPIC_API_KEY=... node scripts/dev-server.mjs   # http://localhost:8788/ask/
+
+# 在浏览器里直接试开源模型（Ollama / vLLM / 任何 OpenAI 兼容端点）
+ASK_PROVIDER=openai-compatible \
+ASK_BASE_URL=http://localhost:11434/v1 \
+ASK_MODEL=qwen3:30b \
+node scripts/dev-server.mjs
+
+# 排练超限降级：付费模型答 3 次，之后交给本地模型
+ANTHROPIC_API_KEY=... ASK_DAILY_CAP=3 \
+ASK_FALLBACK_PROVIDER=openai-compatible \
+ASK_FALLBACK_BASE_URL=http://localhost:11434/v1 \
+ASK_FALLBACK_MODEL=qwen3:30b \
+node scripts/dev-server.mjs
 ```
+
+`--compare` 的表格告诉你哪个模型得了几分；**点着用**才知道你愿不愿意把它放在
+一个刚失去父亲的人面前。两件事都做，别只做前一件。
+
+本地能跑：安全兜底、小结、多语言、超限降级（用内存计数模拟 KV）。
+本地跑不了：真正的 KV 限流、Workers AI 绑定 —— 那两个只在 Cloudflare 上存在。
 
 `scripts/dev-server.mjs` 和 Cloudflare Function 引用的是**同一个** `_ask-core.mjs`，所以本地测过的就是线上跑的。
 
