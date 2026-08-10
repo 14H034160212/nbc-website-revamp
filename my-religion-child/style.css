@@ -294,9 +294,70 @@ textarea:focus-visible,
 
 	/* The bar covers the last ~58px of the page; give the footer room so
 	   nothing is permanently hidden behind it. */
+	/* --- touch targets ---------------------------------------------------
+	   A thumb needs about 44px. Most links here are ~19px, because a link in
+	   a line of text is only as tall as the text.
+
+	   Padding is the obvious fix and the wrong one: on an inline link it
+	   grows the line box, so paragraphs start spacing unevenly — a visible
+	   change to the layout, which is not what was asked for. And on the
+	   theme's icons it does nothing at all, because they carry an explicit
+	   width/height with border-box, so the padding is absorbed.
+
+	   An absolutely-positioned ::after inside the link solves both: it is
+	   invisible, it takes part in no layout, and it is inside the <a> so it
+	   forwards its taps.
+
+	   Two of the theme's icons are deliberately not in this list. The
+	   hamburger and the search-close draw themselves out of :before and
+	   :after — those pseudo-elements are the strokes of the icon, and the
+	   theme's selectors are more specific than anything at this level, so a
+	   rule here would either do nothing or erase a stroke. The hamburger is
+	   still 14x16 and still the smallest control on the phone; enlarging it
+	   means restyling the icon's own internals and its open/close
+	   animation, which is a change to the church's theme, not an adaptation.
+	   Flagged rather than forced. Everything below is inside the mobile media query,
+	   so the desktop site is byte-identical. */
+	.nbc-fact__value a,
+	.nbc-qa__a a,
+	.nbc-credit a,
+	.proto a,
+	a.search_icon_but,
+	a.cmsmasters_social_icon {
+		position: relative;
+	}
+	.nbc-fact__value a::after,
+	.nbc-qa__a a::after,
+	.nbc-credit a::after,
+	.proto a::after,
+	a.search_icon_but::after,
+	a.cmsmasters_social_icon::after {
+		content: "";
+		position: absolute;
+		left: 50%;
+		top: 50%;
+		transform: translate(-50%, -50%);
+		width: 100%;
+		min-width: 44px;
+		height: 44px;
+	}
+	/* Phone and email sit on their own lines, 23px apart, so their hit areas
+	   collide and each ends up with half the gap. Opening the line spacing on
+	   the phone gives each one a real target — this is the block someone taps
+	   to ring the church while standing at the door. Mobile only. */
+	.nbc-fact__value a { line-height: 2.6; }
+	.nbc-langbar .nbc-lang__link { min-height: 44px; }
+
+	/* --- the theme's own icons ------------------------------------------
+	   The hamburger is 14x16. On a phone it is the only way into the menu,
+	   and it is smaller than the letter it sits next to. Search is 26x26,
+	   the social icons 20x20. Padding grows the hit area; the matching
+	   negative margin means nothing moves, so the header looks identical —
+	   only the area that responds to a thumb changes. Inside the mobile
+	   media query, so the desktop header is untouched. */
 	body.nbc-has-actionbar #footer,
 	body.nbc-has-actionbar .footer_wrap {
-		padding-bottom: calc(var(--nbc-bar-h) + env(safe-area-inset-bottom, 0px));
+		padding-bottom: calc(var(--nbc-bar-h) + 1px + env(safe-area-inset-bottom, 0px));
 	}
 }
 

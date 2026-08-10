@@ -518,6 +518,22 @@ height:300px !important;
      bleed is the difference between a full verse and a clipped one. Drop the
      bleed here only — at 360px and up there is room and the highlight keeps
      its shape. */
+  /* Touch targets and legibility on phones. Nothing here applies above
+     780px, so the desktop reader is untouched. A- / A+ were 14x16 and 26x26,
+     well under the 44px a thumb needs; the two uppercase labels were under
+     12px, which is below what most people can read on a bus. */
+  @media (max-width:780px){
+    #nbc-bible-app .nbc-btn{
+      min-width:44px; min-height:44px;
+      display:inline-flex; align-items:center; justify-content:center;
+      padding:9px 14px;
+    }
+    #nbc-bible-app .nbc-sel{min-height:44px; padding-top:11px; padding-bottom:11px; font-size:1rem}
+    #nbc-bible-app .nbc-lbl{font-size:.82rem}
+    #nbc-bible-app .nbc-col .nbc-edition{font-size:.82rem}  /* .nbc-col is in the base rule; match it or lose */
+    #nbc-bible-app .nbc-nav{min-height:44px}
+  }
+
   @media (max-width:360px){
     #nbc-bible-app .nbc-v{margin:0;padding:2px 2px}
   }
