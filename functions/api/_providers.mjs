@@ -192,4 +192,32 @@ export async function workersAi(
   return { text, usage: response.result?.usage, response };
 }
 
-export const PROVIDERS = { anthropic, "openai-compatible": openaiCompatible, "workers-ai": workersAi };
+/**
+ * Workers AI through a binding, which is how a Pages Function should reach it:
+ * no account id, no token, nothing to leak. `creds.ai` is env.AI.
+ *
+ * This is the overflow path. When the day's budget for the paid model is gone,
+ * a reader gets a smaller model rather than "too many people are asking right
+ * now" — see the note on graceful degradation in ask.js.
+ */
+export async function workersAiBinding({ ai }, { system, user, schema, model, maxTokens }) {
+  const response = await ai.run(model, {
+    max_tokens: maxTokens,
+    temperature: 0.3,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: user + "\n\nReply with a single JSON object and nothing else." },
+    ],
+    response_format: { type: "json_schema", json_schema: schema },
+  });
+  const text = response?.response ?? (typeof response === "string" ? response : null);
+  if (!text) return { refused: true, response };
+  return { text, usage: response?.usage, response };
+}
+
+export const PROVIDERS = {
+  anthropic,
+  "openai-compatible": openaiCompatible,
+  "workers-ai": workersAi,
+  "workers-ai-binding": workersAiBinding,
+};

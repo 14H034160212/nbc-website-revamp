@@ -13,13 +13,18 @@
  *      counters, which a determined caller can walk around (see below).
  *   3. Optional — set ASK_DAILY_CAP to a number of questions per day across the
  *      whole site. Defaults to 300. Requires the KV binding to be enforceable.
+ *   4. Optional — bind Workers AI as AI and set ASK_FALLBACK_MODEL to a model
+ *      from its catalogue. Once the day's cap is reached, or the provider is
+ *      overloaded, readers get an answer from that model instead of being
+ *      turned away. See overflowModel() for why that is safe here.
  *
- * Nothing here runs unless the secret is set: with no key the endpoint returns
- * a disabled response and the page hides the feature, so a deploy without the
- * secret degrades to the curated topical finder rather than erroring.
+ * Nothing here runs unless one of those credentials is set: with neither the
+ * endpoint returns a disabled response and the page hides the feature, so a
+ * deploy without them degrades to the curated topical finder rather than
+ * erroring.
  */
 
-import { askClaude, checkQuestion, enforceSafetyFloor, LANGUAGES } from "./_ask-core.mjs";
+import { askModel, checkQuestion, enforceSafetyFloor, LANGUAGES, MODEL } from "./_ask-core.mjs";
 
 const PER_IP_PER_HOUR = 10;
 const DEFAULT_DAILY_CAP = 300;
@@ -77,6 +82,34 @@ async function tooManyFromKV(kv, ip, dailyCap) {
   return null;
 }
 
+/**
+ * The overflow model.
+ *
+ * Two things can stop a paid answer: the day's site-wide cap, and the provider
+ * being overloaded. Both used to end the same way — "a lot of people are asking
+ * right now" — and both are most likely to happen in the hour after a Sunday
+ * notice, which is exactly when the people asking are real.
+ *
+ * So instead of turning them away, fall through to a smaller model on Workers
+ * AI. It runs on the Cloudflare account this site already has, needs a binding
+ * rather than a key, and has a free daily allocation.
+ *
+ * This is only defensible because talk_to_someone has a deterministic floor
+ * under it. A smaller model reads distress less well, and overflow is when
+ * that matters most; without the floor, degrading here would mean the weakest
+ * judgment serving the moment of highest real need. With it, what degrades is
+ * how well-chosen the passages are — worth it, against being turned away.
+ *
+ * Unconfigured, nothing changes: no binding, no ASK_FALLBACK_MODEL, same 429.
+ */
+function overflowModel(env) {
+  if (!env.AI || !env.ASK_FALLBACK_MODEL) return null;
+  return {
+    creds: { provider: "workers-ai-binding", ai: env.AI },
+    model: env.ASK_FALLBACK_MODEL,
+  };
+}
+
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
     status,
@@ -89,11 +122,17 @@ function json(body, status = 200) {
 
 /** The page calls this on load to decide whether to show the feature at all. */
 export function onRequestGet({ env }) {
-  return json({ enabled: Boolean(env.ANTHROPIC_API_KEY) });
+  return json({
+    enabled: Boolean(env.ANTHROPIC_API_KEY) || Boolean(overflowModel(env)),
+  });
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.ANTHROPIC_API_KEY) {
+  // Either credential is enough. A church that wants the feature without an
+  // Anthropic account can bind Workers AI alone and run entirely on the
+  // overflow model — the guardrails do not depend on which model answers.
+  const overflow = overflowModel(env);
+  if (!env.ANTHROPIC_API_KEY && !overflow) {
     return json({ error: "not_configured" }, 503);
   }
 
@@ -135,20 +174,43 @@ export async function onRequestPost({ request, env }) {
     else console.error(`ASK_DAILY_CAP is not a positive number (${env.ASK_DAILY_CAP}); using ${DEFAULT_DAILY_CAP}`);
   }
 
+  let useOverflow = !env.ANTHROPIC_API_KEY;
+
   if (env.ASK_RATELIMIT) {
     const limited = await tooManyFromKV(env.ASK_RATELIMIT, ip, dailyCap);
+    // Per-IP is abuse protection, not budget: one person asking eleven times in
+    // an hour does not need a cheaper model, they need to wait.
     if (limited === "ip") return json({ error: "rate_limited_ip" }, 429);
-    if (limited === "day") return json({ error: "rate_limited_day" }, 429);
+    if (limited === "day") {
+      if (!overflow) return json({ error: "rate_limited_day" }, 429);
+      useOverflow = true;
+      console.log("daily cap reached; serving from the overflow model");
+    }
   } else if (tooManyFromMemory(ip)) {
     return json({ error: "rate_limited_ip" }, 429);
   }
 
-  try {
-    const { refused, result } = await askClaude(
-      { apiKey: env.ANTHROPIC_API_KEY },
-      { question: question.trim(), lang },
-    );
+  const primary = {
+    creds: { provider: "anthropic", apiKey: env.ANTHROPIC_API_KEY },
+    model: MODEL,
+  };
 
+  try {
+    let pick = useOverflow ? overflow : primary;
+    let out;
+    try {
+      out = await askModel(pick.creds, { question: question.trim(), lang, model: pick.model });
+    } catch (err) {
+      // Provider overloaded, and there is somewhere else to ask. Same reasoning
+      // as the daily cap: a smaller answer beats no answer.
+      const overloaded = err?.status === 429 || err?.status === 529 || err?.status === 503;
+      if (!overloaded || useOverflow || !overflow) throw err;
+      console.log(`primary returned ${err.status}; retrying on the overflow model`);
+      out = await askModel(overflow.creds, { question: question.trim(), lang, model: overflow.model });
+      pick = overflow;
+    }
+
+    const { refused, result } = out;
     if (refused) return json({ error: "declined" }, 200);
 
     // The model's judgment is a union with the deterministic floor, never an
