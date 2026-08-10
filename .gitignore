@@ -22,3 +22,6 @@ src/mirror/
 
 # npm (the Anthropic SDK; Cloudflare bundles it into the Function at deploy)
 node_modules/
+
+translation-todo.json
+translation-review-required.json

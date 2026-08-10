@@ -37,6 +37,18 @@ ROOT = Path(__file__).resolve().parent.parent
 # nine tenths of their website.
 MIN_PAGES = 150
 
+# Content where a translation error is not a rough edge but a misrepresentation:
+# what the church believes, what it says about baptism, the words of scripture.
+# A draft for one of these always waits for a person, however clean the
+# automated checks came back — no check can read register or doctrine.
+REVIEW_REQUIRED = {
+    "/what-we-believe/",
+    "/services/",
+    "/who-we-are/",
+    "/first-visit/",
+    "/",
+}
+
 problems = []   # blocks the deploy
 warnings = []   # ships, but says so loudly
 
@@ -172,6 +184,20 @@ def main():
         print(f"FAIL  {p}")
     for w in warnings:
         print(f"WARN  {w}")
+
+    # Machine-readable, for scripts/translate-new.mjs. Written whether or not
+    # anything is stale, so a stale run and a clean run look the same to the
+    # workflow: it reads the file and finds it empty.
+    Path(ROOT / "translation-todo.json").write_text(
+        json.dumps(stale, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+    # Pages where being wrong matters more than being fast. A clumsy sentence
+    # about a youth camp costs little; a mistranslated statement of belief is a
+    # different kind of mistake, so these never merge without a person.
+    needs_person = sorted({url for urls in stale.values() for url in urls
+                           if url in REVIEW_REQUIRED})
+    Path(ROOT / "translation-review-required.json").write_text(
+        json.dumps(needs_person, ensure_ascii=False) + "\n", encoding="utf-8")
 
     if "--summary" in sys.argv:
         lines = ["## Sync check", "",
