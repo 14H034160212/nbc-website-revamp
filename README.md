@@ -178,6 +178,26 @@ Instagram、YouTube、Twitter、Contact Form 7 的 CSS/JS。句柄名是从线�
 
 ---
 
+## 顺带发现：官网上有 6 个页面挂着占位文
+
+翻译时逐页读过内容，发现这些页面**公开可访问，但内容是主题自带的演示稿**：
+
+| 页面 | 情况 |
+|---|---|
+| `/get-involved/` | Lorem Ipsum 占位文 |
+| `/couses-list/` | Lorem Ipsum 占位文 |
+| `/quotes/` | Lorem Ipsum 占位文 |
+| `/give/` | Lorem Ipsum + 演示数据（注意：真正的奉献页是 `/give-2/`） |
+| `/our-team/` | 演示数据：「Jeremy Thompson」「Next Seremon」（Sermon 拼错）、「Please add your Twitter API keys」 |
+| `/our-leadership/` | 同上 |
+
+它们都在 `page-sitemap.xml` 里，也就是搜索引擎能找到。**建议教会把这些页面删掉或设为草稿** ——
+比翻译它们有价值得多。真正的同工介绍在 `/our-people/`，已翻译。
+
+这几页因此**没有翻译**：把 Lorem Ipsum 译成中文没有意义。
+
+---
+
 ## 资料来源与确认
 
 这些在现网站上**找不到**。除停车外，其余来自第三方资料，

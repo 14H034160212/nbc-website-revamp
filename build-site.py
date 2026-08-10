@@ -92,7 +92,8 @@ TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
               "/ministries/", "/ministries/kids/", "/ministries/youth/",
               "/ministries/intermediates/", "/ministries/young-adults/",
               "/ministries/preschoolers/", "/ministries/community/",
-              "/ministries/after-school-programme/", "/ministries/globalmission/"]
+              "/ministries/after-school-programme/", "/ministries/globalmission/",
+              "/our-people/", "/christians-against-poverty/"]
 
 
 # Filled during the build with every page that exists, so relink_within_language
@@ -599,6 +600,13 @@ def translate_page(html, table, stats):
         return m.group(0)
 
     guarded = re.sub(r"<title>(.*?)</title>", swap_title, guarded, count=1, flags=re.S)
+
+    # Stash the finished title so the text-node pass below cannot see it. It
+    # already ran through swap_title; left visible, a translation that keeps an
+    # English word — "Christians Against Poverty - 北岸浸信会" — is matched a
+    # second time, missed, and reported as untranslated. The output was always
+    # right; the report was crying wolf about its own work.
+    guarded = re.sub(r"<title>.*?</title>", stash, guarded, count=1, flags=re.S)
 
     def swap(m):
         raw = m.group(1)
