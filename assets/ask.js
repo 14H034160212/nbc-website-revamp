@@ -34,6 +34,25 @@
      the people most likely to need the parallel column are the ones for
      whom 17th-century English is an extra obstacle. */
   var PRIMARY = { 'en': 'web', 'zh-Hans': 'cus', 'zh-Hant': 'cut', 'ko': 'korean', 'mi': 'maori' };
+
+  /* What to call each edition on screen.
+     getBible's own `translation` field says "Union Simplified" and "Korean",
+     which is how its database names them, not how a reader names their Bible.
+     A Chinese reader seeing "Union Simplified" has to work out that it means
+     和合本 — and the Bible reader on this same site already says 和合本（简体）
+     in its dropdown, so the site was calling one thing two names.
+     All public domain or freely licensed; that is why these editions and not
+     NIV or 新译本. */
+  var EDITION = {
+    'web': 'World English Bible',
+    'kjv': 'King James Version',
+    'cus': '和合本（简体）',
+    'cut': '和合本（繁體）',
+    'korean': '개역개정',
+    'maori': 'Te Paipera Tapu'
+  };
+
+  function editionName(id, fallback) { return EDITION[id] || fallback || id; }
   var BOOKSET = { 'web': 'kjv', 'cus': 'cus', 'cut': 'cut', 'korean': 'korean', 'maori': 'maori' };
   var ENGLISH = 'web';
 
@@ -48,6 +67,8 @@
       h1: 'Find a Passage',
       aiLabel: 'Or describe what is going on, in your own words.',
       aiSummary: 'In short',
+      credit: 'Scripture text served by',
+      publicDomain: 'public domain',
       aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
       aiGo: 'Ask',
       aiNote: 'Answers are written by an AI assistant and point you to passages; the passages themselves come from a real translation. It is not pastoral advice.',
@@ -76,6 +97,8 @@
       h1: '按主题查经',
       aiLabel: '或者用你自己的话，说说此刻的处境。',
       aiSummary: '小结',
+      credit: '经文由',
+      publicDomain: '公有领域译本',
       aiPlaceholder: '例如：我要做一个很难的决定，不知道该怎么祷告',
       aiGo: '提问',
       aiNote: '回应由 AI 助手撰写，只负责指出相关经文；经文原文来自真实译本。这不是牧养辅导。',
@@ -104,6 +127,8 @@
       h1: '按主題查經',
       aiLabel: '或者用你自己的話，說說此刻的處境。',
       aiSummary: '小結',
+      credit: '經文由',
+      publicDomain: '公有領域譯本',
       aiPlaceholder: '例如：我要做一個很難的決定，不知道該怎麼禱告',
       aiGo: '提問',
       aiNote: '回應由 AI 助手撰寫，只負責指出相關經文；經文原文來自真實譯本。這不是牧養輔導。',
@@ -132,6 +157,8 @@
       h1: '주제별 말씀 찾기',
       aiLabel: '또는 지금의 상황을 직접 적어 주셔도 됩니다.',
       aiSummary: '요약',
+      credit: '성경 본문 제공:',
+      publicDomain: '퍼블릭 도메인 역본',
       aiPlaceholder: '예: 어려운 결정을 앞두고 있는데 어떻게 기도해야 할지 모르겠습니다',
       aiGo: '질문하기',
       aiNote: '답변은 AI 도우미가 작성하며 관련 본문을 안내할 뿐입니다. 본문 자체는 실제 역본에서 가져옵니다. 목회 상담이 아닙니다.',
@@ -160,6 +187,8 @@
       h1: 'Rapua he kupu',
       aiLabel: 'Or describe what is going on, in your own words.',
       aiSummary: 'In short',
+      credit: 'Scripture text served by',
+      publicDomain: 'public domain',
       aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
       aiGo: 'Pātai',
       aiNote: 'Answers are written by an AI assistant and point you to passages; the passages themselves come from a real translation. It is not pastoral advice.',
@@ -322,7 +351,7 @@
       colA.className = 'ask-col';
       var edA = document.createElement('p');
       edA.className = 'ask-col__ed';
-      edA.textContent = main.translation;
+      edA.textContent = editionName(primary, main.translation);
       colA.appendChild(edA);
       colA.appendChild(verseList(slice(main, from, to), main.direction));
       cols.appendChild(colA);
@@ -333,7 +362,7 @@
         colB.className = 'ask-col';
         var edB = document.createElement('p');
         edB.className = 'ask-col__ed';
-        edB.textContent = t('parallel') + ' · ' + eng.translation;
+        edB.textContent = t('parallel') + ' · ' + editionName(ENGLISH, eng.translation);
         colB.appendChild(edB);
         colB.appendChild(verseList(slice(eng, from, to), eng.direction));
         cols.appendChild(colB);
@@ -505,6 +534,21 @@
   /* Static prose in the page markup — the "How this works" section, which
      includes the AI disclosure. The markup carries only the keys, so without
      this pass the section renders as a heading above four empty paragraphs. */
+  /* The source line under the page. It names the edition currently in use, so
+     a reader knows which Bible they are reading before any card renders — and
+     because /ask/ is the page an AI touches, where the provenance of the words
+     matters most. It was only stated in the collapsed "how this works" prose
+     before, which is the wrong place for it. */
+  function paintCredit() {
+    var el = document.querySelector('[data-ask-edition]');
+    if (!el) return;
+    var name = editionName(PRIMARY[lang] || 'web');
+    var extra = PRIMARY[lang] !== ENGLISH
+      ? name + ' + ' + editionName(ENGLISH)
+      : name;
+    el.textContent = extra + ' · ' + t('publicDomain');
+  }
+
   function paintProse() {
     document.querySelectorAll('[data-i18n]').forEach(function (n) {
       n.textContent = t(n.getAttribute('data-i18n'));
@@ -661,6 +705,7 @@
     paint();
     paintAi();
     paintProse();
+    paintCredit();
     elOut.hidden = true;
     elOut.innerHTML = '';
     elFoot.hidden = true;

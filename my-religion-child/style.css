@@ -573,6 +573,16 @@ a.nbc-btn--outline:hover,
 .nbc-partial a { color: var(--nbc-blue); }
 /* The language bar marks the ones whose content is still English. */
 .nbc-lang__item.is-partial .nbc-lang__link { opacity: .72; }
+/* Where the words come from. Quiet, but on the page rather than folded into a
+   prose section — /ask/ is the page an AI touches, so a reader should be able
+   to see the provenance of the scripture without reading an explanation. */
+.ask-credit {
+	margin: 30px 0 0;
+	font-size: .8rem;
+	line-height: 1.6;
+	color: var(--nbc-muted, #6a6b76);
+}
+.ask-credit a { color: var(--nbc-blue); }
 .ai-summary {
 	margin: 26px 0 0; padding: 14px 18px; max-width: 62ch;
 	background: var(--nbc-tint, #f7f5f3);
