@@ -47,6 +47,7 @@
       how4: "The assistant will not answer for the church on questions of doctrine or position, and it is not pastoral care. When a question is about something heavy, the reply says so and offers the church office instead. If it is ever the choice between a passage and a person, please choose the person.",
       h1: 'Find a Passage',
       aiLabel: 'Or describe what is going on, in your own words.',
+      aiSummary: 'In short',
       aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
       aiGo: 'Ask',
       aiNote: 'Answers are written by an AI assistant and point you to passages; the passages themselves come from a real translation. It is not pastoral advice.',
@@ -74,6 +75,7 @@
       how4: "AI 不会替教会回答教义或立场问题，它也不是牧养辅导。遇到沉重的问题，回复里会说明并附上教会办公室的联系方式。如果要在一段经文和一个人之间选，请选人。",
       h1: '按主题查经',
       aiLabel: '或者用你自己的话，说说此刻的处境。',
+      aiSummary: '小结',
       aiPlaceholder: '例如：我要做一个很难的决定，不知道该怎么祷告',
       aiGo: '提问',
       aiNote: '回应由 AI 助手撰写，只负责指出相关经文；经文原文来自真实译本。这不是牧养辅导。',
@@ -101,6 +103,7 @@
       how4: "AI 不會替教會回答教義或立場問題，它也不是牧養輔導。遇到沉重的問題，回覆裡會說明並附上教會辦公室的聯絡方式。如果要在一段經文和一個人之間選，請選人。",
       h1: '按主題查經',
       aiLabel: '或者用你自己的話，說說此刻的處境。',
+      aiSummary: '小結',
       aiPlaceholder: '例如：我要做一個很難的決定，不知道該怎麼禱告',
       aiGo: '提問',
       aiNote: '回應由 AI 助手撰寫，只負責指出相關經文；經文原文來自真實譯本。這不是牧養輔導。',
@@ -128,6 +131,7 @@
       how4: "이 도우미는 교리나 교회의 입장에 대해 교회를 대신해 답하지 않으며, 목회 상담도 아닙니다. 무거운 질문에는 그렇게 말씀드리고 교회 사무실 연락처를 안내합니다. 본문과 사람 중에 골라야 한다면 사람을 택해 주십시오.",
       h1: '주제별 말씀 찾기',
       aiLabel: '또는 지금의 상황을 직접 적어 주셔도 됩니다.',
+      aiSummary: '요약',
       aiPlaceholder: '예: 어려운 결정을 앞두고 있는데 어떻게 기도해야 할지 모르겠습니다',
       aiGo: '질문하기',
       aiNote: '답변은 AI 도우미가 작성하며 관련 본문을 안내할 뿐입니다. 본문 자체는 실제 역본에서 가져옵니다. 목회 상담이 아닙니다.',
@@ -155,6 +159,7 @@
       how4: "It will not answer for the church on doctrine, and it is not pastoral care. If it is ever the choice between a passage and a person, please choose the person.",
       h1: 'Rapua he kupu',
       aiLabel: 'Or describe what is going on, in your own words.',
+      aiSummary: 'In short',
       aiPlaceholder: 'e.g. I have to make a hard decision and I do not know how to pray about it',
       aiGo: 'Pātai',
       aiNote: 'Answers are written by an AI assistant and point you to passages; the passages themselves come from a real translation. It is not pastoral advice.',
@@ -539,6 +544,22 @@
       var card = card_for(r);
       elAiOut.appendChild(card);
     });
+
+    // A closing, after the passages — never before them. The order is the
+    // point: the reader meets scripture first and a summary of it second.
+    if (data.summary) {
+      var sum = document.createElement('div');
+      sum.className = 'ai-summary';
+      var lbl = document.createElement('span');
+      lbl.className = 'ai-summary__label';
+      lbl.textContent = t('aiSummary');
+      var txt = document.createElement('p');
+      txt.className = 'ai-summary__text';
+      txt.textContent = data.summary;
+      sum.appendChild(lbl);
+      sum.appendChild(txt);
+      elAiOut.appendChild(sum);
+    }
 
     if (data.talk_to_someone) {
       var human = document.createElement('div');

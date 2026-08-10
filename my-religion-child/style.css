@@ -548,3 +548,21 @@ a.nbc-btn--outline:hover,
 	cursor: pointer;
 }
 .nbc-copy__btn:hover { background: #1a577f; }
+
+/* The closing under the passages. Quieter than .ai-human, which is an offer of
+   help, and quieter than .ai-framing, which sets up what follows. This one only
+   ties off what the reader has already read, so it should not compete. */
+.ai-summary {
+	margin: 26px 0 0; padding: 14px 18px; max-width: 62ch;
+	background: var(--nbc-tint, #f7f5f3);
+	border-left: 3px solid var(--nbc-line);
+}
+.ai-summary__label {
+	display: block; margin-bottom: 5px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+	color: var(--nbc-red);
+}
+.ai-summary .ai-summary__text {
+	margin: 0; font-size: .97rem; line-height: 1.75; color: var(--nbc-ink);
+}

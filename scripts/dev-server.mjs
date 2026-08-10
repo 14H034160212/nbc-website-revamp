@@ -13,7 +13,7 @@ import { createServer } from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
 import { fileURLToPath } from "node:url";
-import { askClaude, checkQuestion, LANGUAGES } from "../functions/api/_ask-core.mjs";
+import { askClaude, checkQuestion, enforceSafetyFloor, LANGUAGES } from "../functions/api/_ask-core.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PORT = Number(process.env.PORT || 8788);
@@ -54,7 +54,9 @@ async function handleAsk(req, res) {
       { question: body.question.trim(), lang },
     );
     if (refused) return send(res, 200, JSON.stringify({ error: "declined" }));
-    return send(res, 200, JSON.stringify(result));
+    const floor = enforceSafetyFloor(result, body.question);
+    if (floor.raised) console.log("safety floor raised talk_to_someone");
+    return send(res, 200, JSON.stringify(floor.result));
   } catch (err) {
     console.error("ask failed:", err.status || "", err.message);
     return send(res, 502, JSON.stringify({ error: "failed" }));

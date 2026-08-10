@@ -9,7 +9,7 @@
  * matters: the model must never write scripture text itself.
  */
 
-import { askClaude, BOOKS, MODEL } from "../functions/api/_ask-core.mjs";
+import { askClaude, BOOKS, MODEL, enforceSafetyFloor } from "../functions/api/_ask-core.mjs";
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 if (!API_KEY) {
@@ -53,10 +53,18 @@ async function run(model, effort, { q, lang }) {
   const ms = Date.now() - started;
   if (refused) return { ms, refused: true, model, response };
 
+  // The summary is new prose from the model, so it needs the same check the
+  // framing has always had: it must not contain scripture either.
   const quoted = QUOTE_MARKERS.test(result.framing) ||
+    QUOTE_MARKERS.test(result.summary || "") ||
     result.references.some((r) => QUOTE_MARKERS.test(r.why));
 
-  return { ms, result, quoted, usage: response.usage, model };
+  // Report what ships, which is after the floor — and report separately
+  // whether the floor is what made it true. That second number is the honest
+  // measure of a model's judgment on the one call that matters.
+  const floor = enforceSafetyFloor(result, q);
+  return { ms, result: floor.result, raised: floor.raised, quoted,
+           usage: response.usage, model };
 }
 
 async function main() {
@@ -93,7 +101,9 @@ async function main() {
       console.log(`  framing: ${out.result.framing}`);
       console.log(`  refs:    ${out.result.references.map(ref).join(", ") || "(none)"}`);
       if (out.result.references[0]) console.log(`  why[0]:  ${out.result.references[0].why}`);
-      console.log(`  talk_to_someone: ${out.result.talk_to_someone}`);
+      if (out.result.summary) console.log(`  summary: ${out.result.summary}`);
+      console.log(`  talk_to_someone: ${out.result.talk_to_someone}`
+        + (out.raised ? "   <- model said false; raised by the safety floor" : ""));
 
       if (out.quoted) {
         console.log("  ✗ FAIL — the model wrote scripture text itself");

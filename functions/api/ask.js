@@ -19,7 +19,7 @@
  * secret degrades to the curated topical finder rather than erroring.
  */
 
-import { askClaude, checkQuestion, LANGUAGES } from "./_ask-core.mjs";
+import { askClaude, checkQuestion, enforceSafetyFloor, LANGUAGES } from "./_ask-core.mjs";
 
 const PER_IP_PER_HOUR = 10;
 const DEFAULT_DAILY_CAP = 300;
@@ -150,7 +150,14 @@ export async function onRequestPost({ request, env }) {
     );
 
     if (refused) return json({ error: "declined" }, 200);
-    return json(result);
+
+    // The model's judgment is a union with the deterministic floor, never an
+    // override. Logged when the floor does the raising, because that number is
+    // the honest measure of how often the model would have sent someone away
+    // with five verses and no phone number.
+    const floor = enforceSafetyFloor(result, question);
+    if (floor.raised) console.log("safety floor raised talk_to_someone");
+    return json(floor.result);
   } catch (err) {
     // Never leak provider errors or the key to the page.
     const status = err?.status;
