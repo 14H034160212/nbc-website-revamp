@@ -47,9 +47,16 @@ pages/                         每个文件 = 一个「自定义 HTML」区块�
   welcome-zh/ko/mi.html        三个母语落地页（Tier-0 方案，见下）
 
 functions/                     Cloudflare Pages Function：圣经 AI 问答
-  api/ask.js  api/_ask-core.mjs
+  api/ask.js  api/_ask-core.mjs  api/_providers.mjs
   README.md                    部署、选型与教会需要拍板的事
-scripts/                       本地测试与开发服务器
+scripts/
+  dev-server.mjs               本地服务器，可接任意模型
+  test-ask.mjs                 真实 API 测试 / 模型横向对比
+  test-safety-floor.mjs        安全兜底，21 条用例，离线
+  test-overflow.mjs            超限降级，10 条用例，离线
+  check-build.py               构建校验：链接、页数、译文是否失效
+  sync-commit-message.py       同步提交信息
+.github/workflows/sync.yml     每周自动同步官网内容
 
 content/
   alt-text.md                  首页 15 张缺 alt 图片的替代文本，逐张写好
@@ -177,6 +184,49 @@ Instagram、YouTube、Twitter、Contact Form 7 的 CSS/JS。句柄名是从线�
 每放开一节就把站点点一遍。判断某页到底加载了什么：以管理员身份访问
 `任意页面/?nbc_debug=assets`，页尾会列出该页实际加载的全部句柄。
 查菜单位置名用 `?nbc_debug=menus`。
+
+---
+
+## 自动同步
+
+`.github/workflows/sync.yml` —— **每周一新西兰时间凌晨 3 点**（周日聚会之后、有人来看之前）
+自动重新抓取 nbc.org.nz、重建原型、推送。Cloudflare Pages 见到推送就部署，
+所以一次绿色的运行就是一次上线。也可以在 Actions 页面手动点 **Run workflow** 立即跑一次。
+
+### 为什么是每周，不是每天
+
+这会把教会服务器上的每一页和每个资源都抓一遍。他们的内容是以**周**为单位变化的
+（一个讲道系列、一个学期的活动），每天抓就是很大的流量换很少的新消息。
+脚本本身也留了余地：`--wait=0.3 --limit-rate=1500k`。
+
+### 三道闸
+
+| 情况 | 结果 |
+|---|---|
+| 抓到的页面 < 40 | **不部署**。官网可能宕机——保留现有版本，好过用一个残缺版本覆盖它 |
+| 有失效链接／页面数 < 150／自建页面缺失 | **不部署**（退出码 1） |
+| 译文对不上了 | **照常部署**，但运行标红并列出具体是哪几句（退出码 2） |
+
+第三条是最要紧的一条，也是最容易被忽略的。**译文是按英文原文精确匹配的**——
+教会改写一句话，对应的译文就静默失效，那一段在「已翻译」的页面上悄悄变回英文。
+没有异常、没有报错，只是不再是中文了。
+
+所以 `scripts/check-build.py` 每次同步都会逐页比对，把失配的句子原样写进
+GitHub 的运行摘要，例如：
+
+```
+### Translations that went stale
+**/what-we-believe/** (zh-Hans)
+  - `Baptists believe in freedom of religion, and in the separation of church and state.`
+```
+
+拿这句去 `src/i18n/zh-Hans.json` 里改掉旧键即可。**新内容照样先上线** ——
+内容新一点比译文旧一点重要，但不能让它消失在一个绿色的对勾里。
+
+```sh
+python3 scripts/check-build.py                 # 本地跑同一套检查
+python3 scripts/check-build.py --determinism   # 额外验证重建零差异（会写文件）
+```
 
 ---
 
