@@ -190,13 +190,42 @@ jobs:
           # Assigned explicitly rather than relying on watch settings: a PR
           # opened by github-actions[bot] should land in someone's list, not
           # only in a feed they might have muted.
-          gh pr create --title "Draft translations for this week's changes" \
-                       --body-file /tmp/pr-body.md \
-                       --assignee "${{ github.repository_owner }}" \
-                       --label "translations" || \
-          gh pr create --title "Draft translations for this week's changes" \
-                       --body-file /tmp/pr-body.md \
-                       --assignee "${{ github.repository_owner }}"
+          #
+          # Creating one needs "Allow GitHub Actions to create and approve pull
+          # requests" under Settings -> Actions -> General. GitHub ties creating
+          # and approving to a single switch, which is its own comment on
+          # automation approving its own work. Without it the API answers
+          # "GitHub Actions is not permitted to create or approve pull requests".
+          #
+          # The branch is already pushed by then, so the drafts are never lost.
+          # If the PR cannot be opened, put the one-click URL in the summary
+          # rather than failing with the work stranded on a branch nobody knows
+          # about.
+          if gh pr create --title "Draft translations for this week's changes" \
+                          --body-file /tmp/pr-body.md \
+                          --assignee "${{ github.repository_owner }}" 2>/tmp/pr-err.txt; then
+            echo "opened a pull request"
+          else
+            cat /tmp/pr-err.txt
+            {
+              echo ""
+              echo "### Translations are waiting on a branch"
+              echo ""
+              echo "The drafts are pushed to \`$branch\`, but the pull request"
+              echo "could not be opened:"
+              echo ""
+              echo '```'
+              cat /tmp/pr-err.txt
+              echo '```'
+              echo ""
+              echo "**Open it in one click:**"
+              echo "https://github.com/${{ github.repository }}/pull/new/$branch"
+              echo ""
+              echo "To let this happen automatically, turn on *Allow GitHub Actions"
+              echo "to create and approve pull requests* under Settings → Actions →"
+              echo "General. Nothing is lost either way — the branch is pushed."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       # ── 4. report ────────────────────────────────────────────────────────
       - name: Say what happened
