@@ -512,6 +512,15 @@ height:300px !important;
   #nbc-bible-app .nbc-field{flex:1 1 100%}
   #nbc-bible-app .nbc-field--chap,#nbc-bible-app .nbc-field--ui{flex:1 1 46%}
   #nbc-bible-app .nbc-cols{padding:0}
+  /* Very narrow phones (iPhone SE 1st gen and older Android, 320px). The
+     verse rows bleed 8px each side so the click-highlight reaches past the
+     text; at 320px the theme's own container is already at the edge, so that
+     bleed is the difference between a full verse and a clipped one. Drop the
+     bleed here only — at 360px and up there is room and the highlight keeps
+     its shape. */
+  @media (max-width:360px){
+    #nbc-bible-app .nbc-v{margin:0;padding:2px 2px}
+  }
   #nbc-bible-app .nbc-nav{position:static;width:auto;height:auto;border-radius:3px;padding:10px 20px}
   #nbc-bible-app .nbc-stage{display:flex;flex-direction:column}
   #nbc-bible-app .nbc-stage .nbc-reader{order:-1;margin-bottom:18px}
