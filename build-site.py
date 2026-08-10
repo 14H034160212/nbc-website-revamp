@@ -74,11 +74,27 @@ LANGS = [
     ("mi", "Te Reo Māori", "/mi"),
 ]
 
-# Pages translated in full. The rest of the site stays English and falls back,
-# which is the tiered strategy in the proposal — not every page, just the ones
-# a visitor needs. Mirrors Polylang's /zh/who-we-are/ URL shape.
+# Two different things, kept apart because conflating them is what made
+# clicking 中文 throw you back to the home page:
+#
+#   * EVERY page gets a /zh/ /ko/ /mi/ copy, so choosing a language keeps you
+#     on the page you were reading. The chrome — menu, language bar, mobile
+#     bar, buttons — is translated on all of them, because that is injected
+#     after the translation pass and has its own strings.
+#   * TRANSLATED lists the pages whose *content* is genuinely translated.
+#     Only those claim hreflang alternates and canonicalise to themselves; the
+#     rest canonicalise to the English original and carry a visible note, so
+#     nobody is told a page is in their language when it is not.
 TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
               "/bible/", "/ask/", "/first-visit/"]
+
+
+# Filled during the build with every page that exists, so relink_within_language
+# knows which internal links have a copy in the current language. Every mirrored
+# page plus our own, which is all of them — but computed rather than assumed, so
+# a link to something that was never built still points at the English original
+# instead of a 404.
+ALL_PAGES = set(TRANSLATED)
 
 # The three feature pages are ours, not mirrored, so they are built first in
 # English and then copied per language from that output.
@@ -317,22 +333,30 @@ def banner(lang="en"):
 
 # Shown on a language link when the current page has no translation, so the
 # link is visibly a redirect rather than appearing broken.
+# Shown as a tooltip on the language link when this page's content is not
+# translated yet. The link still goes to the same page — the tooltip sets the
+# expectation rather than diverting the reader.
 NO_TRANSLATION = {
-    "zh-Hans": "本页暂无中文版 — 前往中文首页",
-    "ko": "이 페이지는 한국어 번역이 없습니다 — 한국어 홈으로 이동합니다",
-    "mi": "This page has no te reo Māori version yet — goes to the te reo home page",
+    "zh-Hans": "本页正文尚未翻译，菜单和按钮是中文的",
+    "ko": "이 페이지 본문은 아직 번역 전입니다. 메뉴와 버튼은 한국어입니다",
+    "mi": "This page is not translated yet — the menu and buttons are in te reo",
     "en": "",
 }
 
 
 def langbar(url_path, lang="en"):
     """
-    Point each language at the *same* page where a translation exists.
+    Point each language at the *same* page. Always.
 
-    Where it does not, fall back to that language's home page — the way
-    Polylang does. Pointing at the current URL instead (the obvious reading of
-    "fall back to English") produces a link that navigates nowhere, which reads
-    as broken rather than as "this page is English only".
+    This used to fall back to the language's home page wherever the content was
+    not translated, the way Polylang does. It is defensible and it is what a
+    reader hates: you are half way down On Sunday, you choose 한국어, and you
+    are on the home page. Losing your place is worse than reading English under
+    a Korean menu.
+
+    So every page now has a copy in every language. Where the content is not
+    translated yet the link still goes to the same page, and the page itself
+    says what is and is not translated — see partial_note().
     """
     base = url_path
     for _, _, prefix in LANGS:
@@ -340,21 +364,17 @@ def langbar(url_path, lang="en"):
             base = base[len(prefix):]
             break
 
-    translated = base in TRANSLATED
+    full = base in TRANSLATED
     items = []
     for code, label, prefix in LANGS:
-        if not prefix:                       # English is the source
-            target, hint = base, ""
-        elif translated:
-            target, hint = prefix + base, ""
-        else:
-            target, hint = prefix + "/", NO_TRANSLATION.get(code, "")
+        target = base if not prefix else prefix + base
+        hint = "" if (full or not prefix) else NO_TRANSLATION.get(code, "")
 
         classes = "nbc-lang__item"
         if code == lang:
             classes += " is-current"
         if hint:
-            classes += " is-fallback"
+            classes += " is-partial"
         title = f' title="{hint}"' if hint else ""
 
         items.append(
@@ -655,7 +675,11 @@ def relink_within_language(html, prefix, orig_url):
         if not target.endswith("/"):
             target += "/"
 
-        if target in TRANSLATED:
+        # Every page has a copy in every language now, so an internal link
+        # always stays in the language you are reading. Gating this on
+        # TRANSLATED was what sent you to the English Sermons from the Chinese
+        # On Sunday — the same crossing the language bar used to have.
+        if target in ALL_PAGES:
             target = prefix + target
         return f'{attr}{quote}{target}{"#" + fragment if fragment else ""}{quote}'
 
@@ -673,6 +697,50 @@ def fix_depth(html, extra):
     up = "../" * extra
     html = REL_ASSET.sub(lambda m: m.group(1) + m.group(2) + up + m.group(3) + m.group(2), html)
     return REL_CSS_URL.sub(lambda m: m.group(1) + m.group(2) + up + m.group(3) + m.group(4), html)
+
+
+PARTIAL_NOTE = {
+    "zh-Hans": "这一页的正文还没有翻译。菜单、按钮和页面框架是中文的，内容仍是英文 —— "
+               "与其用机器翻译一间教会讲信仰的话，不如先如实说明。"
+               '已翻译的页面：<a href="/zh/">首页</a>、<a href="/zh/services/">主日聚会</a>、'
+               '<a href="/zh/who-we-are/">关于我们</a>、<a href="/zh/first-visit/">第一次来</a>。',
+    "ko": "이 페이지의 본문은 아직 번역되지 않았습니다. 메뉴와 버튼은 한국어이지만 내용은 영어입니다. "
+          "교회가 믿음에 대해 하는 말을 기계 번역하느니, 아직 안 되었다고 말씀드리는 편이 낫다고 보았습니다. "
+          '번역된 페이지: <a href="/ko/">홈</a>, <a href="/ko/services/">주일 예배</a>, '
+          '<a href="/ko/who-we-are/">우리는</a>, <a href="/ko/first-visit/">첫 방문</a>.',
+    "mi": "This page is not translated yet. The menu and buttons carry the te reo we have; "
+          "the content is still English. Te reo is a taonga and we would rather say so than "
+          'guess. Translated pages: <a href="/mi/">home</a>, <a href="/mi/services/">On Sunday</a>, '
+          '<a href="/mi/who-we-are/">Who We Are</a>, <a href="/mi/first-visit/">first visit</a>.',
+}
+
+
+def add_partial_note(html, lang):
+    """
+    Directly under the language bar.
+
+    The first attempt put it at the top of .middle_content, which the theme
+    overlays with an absolutely-positioned header — the notice came out on top
+    of the logo and the menu. Under the language bar is both safe (our own
+    markup, ordinary flow) and the right place: the reader has just chosen a
+    language, and this explains what that choice did.
+    """
+    note = partial_note(lang)
+    if not note:
+        return html
+    i = html.find('<div class="nbc-langbar">')
+    if i == -1:
+        return html
+    end = html.index("</ul></div></div>", i) + len("</ul></div></div>")
+    return html[:end] + f'<div class="nbc-partial__wrap">{note}</div>' + html[end:]
+
+
+def partial_note(lang):
+    """Said once, in the reader's language, at the top of the content."""
+    text = PARTIAL_NOTE.get(lang)
+    if not text:
+        return ""
+    return f'<div class="nbc-partial" lang="{lang}">{text}</div>'
 
 
 MI_NOTE = (
@@ -856,6 +924,12 @@ def build():
         touched += 1
 
     # -- inject into every mirrored page, and build the translated copies ----
+    # Populated before the loop so a link from the first page to the last one
+    # already knows the last one exists.
+    ALL_PAGES.update("/" + f.relative_to(ROOT).as_posix()[: -len("index.html")]
+                     for f in pages)
+    ALL_PAGES.update(OUR_PAGES)
+
     translated_count = 0
     for f in sorted(pages):
         rel = f.relative_to(ROOT).as_posix()
@@ -866,26 +940,42 @@ def build():
         for gone in dropped:
             html = re.sub(r'(?:\.\./)*' + re.escape(gone), f"{REAL}/{gone}", html)
 
-        # Translated copies first, from the same source markup.
-        if url_path in TRANSLATED:
-            for code, _, prefix in LANGS:
-                if not prefix:
-                    continue
-                table = load_dictionary(code)
-                stats = {"hit": set(), "miss": set()}
-                out = translate_page(html, table, stats)
-                # One directory deeper than the English page, so every relative
-                # asset path needs one more ../ to resolve.
-                out = relink_within_language(out, prefix, url_path)
-                out = fix_depth(out, 1)
-                out = inject(out, prefix + url_path,
-                             REAL + prefix + url_path, lang=code)
-                if code == "mi":
-                    out = out.replace("</body>", MI_NOTE + "</body>", 1)
-                target = ROOT / (prefix + url_path).strip("/") / "index.html"
-                target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_text(out, encoding="utf-8")
-                translated_count += 1
+        # A copy in every language, for every page. Choosing a language keeps
+        # you on the page you were reading; whether its *content* is translated
+        # is a separate question, answered honestly per page below.
+        full = url_path in TRANSLATED
+        for code, _, prefix in LANGS:
+            if not prefix:
+                continue
+            table = load_dictionary(code)
+            stats = {"hit": set(), "miss": set()}
+            out = translate_page(html, table, stats)
+            # One directory deeper than the English page, so every relative
+            # asset path needs one more ../ to resolve.
+            out = relink_within_language(out, prefix, url_path)
+            out = fix_depth(out, 1)
+
+            # A page nobody has translated must not tell a search engine it is
+            # a Korean alternate of anything. It points at the English original
+            # and says so on the page.
+            canonical = REAL + (prefix + url_path if full else url_path)
+            out = inject(out, prefix + url_path, canonical, lang=code)
+
+            # Every page that is not in TRANSLATED says so. An earlier version
+            # used the share of strings matched, which was false precision: on
+            # a page like /ministries/kids/ the chrome is 27 of 34 strings, so
+            # a page with nothing but its menu translated scored 79% and stayed
+            # silent. Translated or not is the honest question.
+            if not full:
+                out = add_partial_note(out, code)
+            if code == "mi":
+                out = out.replace("</body>", MI_NOTE + "</body>", 1)
+
+            target = ROOT / (prefix + url_path).strip("/") / "index.html"
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(out, encoding="utf-8")
+            translated_count += 1
+            if full:                       # coverage is about the pages we claim
                 COVERAGE.setdefault(code, {"hit": set(), "miss": set()})
                 COVERAGE[code]["hit"] |= stats["hit"]
                 COVERAGE[code]["miss"] |= stats["miss"]
@@ -894,9 +984,8 @@ def build():
 
     print(f"  mirrored {len(pages)} pages, renamed {renamed} query-string assets, "
           f"rewrote {touched} stylesheets")
-    mirrored_translated = len([p for p in TRANSLATED if p not in OUR_PAGES])
-    print(f"  built {translated_count} translated pages "
-          f"({mirrored_translated} mirrored pages x {len(LANGS) - 1} languages)")
+    print(f"  built {translated_count} language copies of mirrored pages "
+          f"({translated_count // (len(LANGS) - 1)} pages x {len(LANGS) - 1} languages)")
     if dropped:
         for gone in dropped:
             print(f"  left on the church's server (over {TOO_BIG // 1024 // 1024} MB): {gone}")

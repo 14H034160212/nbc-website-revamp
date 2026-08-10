@@ -481,6 +481,27 @@ mark.todo {
 /* The closing under the passages. Quieter than .ai-human, which is an offer of
    help, and quieter than .ai-framing, which sets up what follows. This one only
    ties off what the reader has already read, so it should not compete. */
+/* Said once, at the top of a page whose content is not translated yet. Quiet
+   but not hidden: the reader chose a language and is about to get English, and
+   being told why is better than wondering whether the site is broken. */
+.nbc-partial__wrap {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 14px 20px 0;
+}
+.nbc-partial {
+	margin: 0 0 26px;
+	padding: 13px 18px;
+	background: var(--nbc-tint, #f7f5f3);
+	border-left: 3px solid var(--nbc-red);
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .92rem;
+	line-height: 1.7;
+	color: var(--nbc-ink);
+}
+.nbc-partial a { color: var(--nbc-blue); }
+/* The language bar marks the ones whose content is still English. */
+.nbc-lang__item.is-partial .nbc-lang__link { opacity: .72; }
 .ai-summary {
 	margin: 26px 0 0; padding: 14px 18px; max-width: 62ch;
 	background: var(--nbc-tint, #f7f5f3);
