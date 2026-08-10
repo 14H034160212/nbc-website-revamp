@@ -179,12 +179,27 @@ def main():
                  f"- broken references: **{broken}**"]
         if stale:
             lines += ["", "### Translations that went stale", "",
-                      "The English changed, so these pages are back to English "
-                      "in places while still claiming to be translated:", ""]
+                      "The English on these pages changed, so they are serving "
+                      "English again in places while still being advertised as "
+                      "translated. Nothing is auto-translated on purpose — a "
+                      "machine translation of a church's words about faith, "
+                      "live and unreviewed, is worse than the English. So these "
+                      "need a person.", ""]
             for code, urls in stale.items():
-                for url, misses in urls.items():
-                    lines.append(f"**{url}** ({code})")
-                    lines += [f"  - `{s[:100]}`" for s in misses[:8]]
+                lines.append(f"**{code}** — {sum(len(v) for v in urls.values())} "
+                             f"string(s) on {len(urls)} page(s)")
+                for url in urls:
+                    lines.append(f"  - {url}")
+            # Paste-ready, and NOT truncated: a key that has lost a character
+            # is a key that will never match again. Full strings, JSON-escaped,
+            # with empty values to fill in.
+            lines += ["", "### Paste into src/i18n/", ""]
+            for code, urls in stale.items():
+                keys = sorted({s for v in urls.values() for s in v})
+                block = json.dumps({k: "" for k in keys}, ensure_ascii=False, indent=2)
+                # Trim the outer braces so it drops straight into the existing file.
+                inner = "\n".join(block.split("\n")[1:-1])
+                lines += [f"`src/i18n/{code}.json`", "", "```json", inner, "```", ""]
         for p in problems:
             lines.append(f"- ❌ {p}")
         if not problems and not stale:

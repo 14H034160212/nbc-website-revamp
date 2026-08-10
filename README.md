@@ -235,17 +235,32 @@ Instagram、YouTube、Twitter、Contact Form 7 的 CSS/JS。句柄名是从线�
 教会改写一句话，对应的译文就静默失效，那一段在「已翻译」的页面上悄悄变回英文。
 没有异常、没有报错，只是不再是中文了。
 
-所以 `scripts/check-build.py` 每次同步都会逐页比对，把失配的句子原样写进
-GitHub 的运行摘要，例如：
+## 同步的英文内容会自动翻译吗
 
-```
-### Translations that went stale
-**/what-we-believe/** (zh-Hans)
-  - `Baptists believe in freedom of religion, and in the separation of church and state.`
+**不会，这是刻意的。** 译文是人写的、按英文原文精确匹配的键值对。教会改一句话、
+加一段话，对应的位置就回落成英文 —— 而**每一处都会被检出**，绝不静默。
+
+为什么不自动翻：把一间教会讲信仰的话交给机器翻译、不经审阅直接上线，
+比留着英文更糟。这个原则从第一天就定下了，`src/i18n/mi.json` 顶部那段说明也是同一回事。
+
+同步做的是：**英文内容保持最新，导航外壳保持母语，新增/改动的正文标记出来等人翻。**
+
+`scripts/check-build.py` 每次同步都逐页比对，并在 GitHub 运行摘要里输出
+**可以直接粘贴的 JSON**（完整、不截断——少一个字的键永远匹配不上）：
+
+```json
+  "From Term 4 we are adding a second gathering at 5pm on Sundays, with a simpler format and a shared meal afterwards. Everyone is welcome.": ""
 ```
 
-拿这句去 `src/i18n/zh-Hans.json` 里改掉旧键即可。**新内容照样先上线** ——
-内容新一点比译文旧一点重要，但不能让它消失在一个绿色的对勾里。
+把它粘进 `src/i18n/zh-Hans.json`，填上译文，提交即可。三种情况的处理方式：
+
+| 教会做了什么 | 结果 |
+|---|---|
+| 改写已有句子 | 那一段回落英文，**摘要里点名这一句** |
+| 新增一段话 | 同上——同样被检出 |
+| 新增一个页面 | 自动生成四个语言版本：导航外壳是母语的、正文英文，并挂上「本页正文尚未翻译」的提示条 |
+
+**新内容照样先上线** —— 内容新一点比译文旧一点重要，但不能让它消失在一个绿色的对勾里。
 
 ```sh
 python3 scripts/check-build.py                 # 本地跑同一套检查
