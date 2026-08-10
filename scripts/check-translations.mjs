@@ -84,6 +84,12 @@ const RATIO = {
   ko:        { min: 0.22, max: 1.8 },   // observed 0.30 – 1.27
 };
 
+// The settled terminology, loaded from the same file the translator is given.
+// One file, so the instruction and the check cannot drift apart — a glossary
+// the translator is told about but not held to is a suggestion, and a glossary
+// enforced without being stated is a trap.
+let GLOSSARY = { enforced: {}, guidance: {} };
+
 const problems = [];
 const notes = [];
 
@@ -230,6 +236,29 @@ function checkOne(lang, source, value) {
       + `${[...leftovers].slice(0, 6).join(", ")}\n    ${value.slice(0, 80)}`);
   }
 
+  // 8. Settled terminology.
+  //
+  //    The model rendered "separation of church and state" as 政教分离 one week
+  //    and 教会与国家分立 the next. Both are correct; only one is the term this
+  //    site uses. A statement of faith should not reword itself because a
+  //    workflow ran again.
+  //
+  //    Only the enforced tier is checked. The guidance tier is deliberately not
+  //    — "discipleship journey" is 门徒之路, not 门徒训练, and pinning that one
+  //    made the check wrong about a translation of mine that was right.
+  for (const [term, want] of Object.entries(GLOSSARY.enforced)) {
+    // Plurals, because \bsermon\b does not match "Sermons" — the page title is
+    // plural and 证道 sailed straight through the first version of this check.
+    // Irregular plurals (ministry/ministries) need their own glossary entry;
+    // this handles the regular ones rather than pretending to handle all.
+    const inSource = new RegExp(
+      `\\b${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:s|es)?\\b`, "i");
+    if (inSource.test(source) && !value.includes(want[lang])) {
+      problems.push(`${where}\n    "${term}" should be ${want[lang]} on this site`
+        + `\n    ${value.slice(0, 80)}`);
+    }
+  }
+
   // 6. Length sanity, on prose only.
   if (source.length >= RATIO_MIN_LENGTH) {
     const band = RATIO[lang];
@@ -245,6 +274,9 @@ function checkOne(lang, source, value) {
 }
 
 async function main() {
+  GLOSSARY = JSON.parse(
+    await readFile(join(ROOT, "src", "i18n", "glossary.json"), "utf8"));
+
   const onlyArg = process.argv.indexOf("--only");
   let only = null;
   if (onlyArg > -1) {

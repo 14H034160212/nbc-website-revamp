@@ -64,6 +64,41 @@ const LANGUAGE = {
   ko: "Korean (한국어)",
 };
 
+/**
+ * The glossary, rendered into the prompt.
+ *
+ * Same file the checker reads, so what the translator is asked for and what it
+ * is held to cannot drift apart. Enforced terms are stated as requirements
+ * because a draft using something else will be rejected; guidance terms are
+ * stated as guidance, because the right word depends on the sentence and a
+ * regex has no business deciding.
+ */
+async function glossaryFor(lang) {
+  const g = JSON.parse(
+    await readFile(join(ROOT, "src", "i18n", "glossary.json"), "utf8"));
+
+  const must = Object.entries(g.enforced)
+    .map(([en, t]) => `  ${en} -> ${t[lang]}`).join("\n");
+
+  const hints = Object.entries(g.guidance).map(([en, t]) => {
+    const note = t.note ? `  (${t.note})` : "";
+    return `  ${en} -> ${t[lang]}${note}`;
+  }).join("\n");
+
+  return `TERMINOLOGY
+
+These renderings are settled. Use them exactly; a draft that uses something
+else is rejected and waits for a person, so there is nothing to gain by
+varying them:
+
+${must}
+
+These depend on the sentence. Choose, and choose the same way the rest of the
+page does:
+
+${hints}`;
+}
+
 const SYSTEM = `You translate pages of a church website — Northcote Baptist Church in Hillcrest, Auckland — for readers who speak the target language at home.
 
 You are given the full visible text of one page, and a list of strings from that page that need translating. Return a translation for each.
@@ -139,9 +174,10 @@ ${strings.map((s, i) => `${i + 1}. ${JSON.stringify(s)}`).join("\n")}
 Copy each "source" back exactly as given.`;
 
   const { call, creds, model } = provider();
+  const system = `${SYSTEM}\n\n${await glossaryFor(lang)}`;
   const { text, refused } = await call(
     creds,
-    { system: SYSTEM, user, schema: SCHEMA, model,
+    { system, user, schema: SCHEMA, model,
       effort: "medium", maxTokens: 16000 },
   );
   if (refused) throw new Error(`${url} (${lang}): the model declined`);

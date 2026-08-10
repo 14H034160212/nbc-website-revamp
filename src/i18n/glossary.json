@@ -1,0 +1,86 @@
+{
+  "_note": "Terminology for the translator and the checker. Extracted from the 345 hand-written strings already in zh-Hans.json and ko.json rather than invented, so it describes how this site already reads. Two tiers, because not every term should be pinned.",
+  "_why": "The model translated 'separation of church and state' as 政教分离 one week and 教会与国家分立 the next. Both are correct; only one is the settled term, and a church's statement of faith should not change wording because a workflow ran again. Pinning the settled ones removes that, and leaving the rest unpinned keeps the judgment where it belongs.",
+  "_enforced": "Terms where one rendering is right regardless of context. scripts/check-translations.mjs fails a draft that uses something else, which routes it to a pull request rather than shipping it. Calibrated so the existing 345 strings pass.",
+  "enforced": {
+    "separation of church and state": {
+      "zh-Hans": "政教分离",
+      "ko": "정교 분리"
+    },
+    "Holy Spirit": {
+      "zh-Hans": "圣灵",
+      "ko": "성령"
+    },
+    "communion": {
+      "zh-Hans": "圣餐",
+      "ko": "성찬"
+    },
+    "Senior Pastor": {
+      "zh-Hans": "主任牧师",
+      "ko": "담임목사"
+    },
+    "Associate Pastor": {
+      "zh-Hans": "副牧师",
+      "ko": "부목사"
+    },
+    "sermon": {
+      "zh-Hans": "讲道",
+      "ko": "설교"
+    },
+    "prayer": {
+      "zh-Hans": "祷告",
+      "ko": "기도"
+    },
+    "scripture": {
+      "zh-Hans": "圣经",
+      "ko": "성경"
+    },
+    "morning tea": {
+      "zh-Hans": "茶点",
+      "ko": "다과"
+    }
+  },
+  "_guidance": "Terms the translator is told about but the checker does not enforce, because the right word depends on the sentence. Getting these wrong is a judgment call, and judgment calls belong in a pull request, not in a regex.",
+  "guidance": {
+    "Baptist": {
+      "zh-Hans": "浸信会",
+      "ko": "침례교 for the denomination; 뱁티스트 inside the church's own name, as in 노스코트 뱁티스트 교회 — a name is transliterated, a denomination is translated",
+      "note": "Northcote Baptist Church is a proper noun. 'Baptists believe…' is not."
+    },
+    "baptism": {
+      "zh-Hans": "洗礼 in general; 受洗 for the act of being baptised",
+      "ko": "세례 for baptism in general; 침례 specifically for immersion",
+      "note": "Baptists distinguish these on purpose. The statement of faith says 'the immersion of believers as the scriptural form of baptism' — both words appear in one sentence and they are not interchangeable."
+    },
+    "worship": {
+      "zh-Hans": "敬拜 for the act; 聚会 when the English means the gathering",
+      "ko": "예배 for the service; 찬양 for the songs",
+      "note": "'worship songs' is 敬拜诗歌 / 찬양, but 'join us in worship' is the gathering."
+    },
+    "ministry": {
+      "zh-Hans": "事工",
+      "ko": "사역",
+      "note": "Plural 'ministries' as a section heading is the same word; do not pluralise."
+    },
+    "membership": {
+      "zh-Hans": "会友",
+      "ko": "교인 / 교인 등록",
+      "note": "'membership in the Christian church' is belonging, not a subscription."
+    },
+    "fellowship": {
+      "zh-Hans": "团契 as a group; 相交 as the activity",
+      "ko": "교제",
+      "note": "Hillcrest Baptist Fellowship is a name and stays as it is."
+    },
+    "discipleship": {
+      "zh-Hans": "门徒训练 for a programme; 门徒之路 / 作门徒 for the walk",
+      "ko": "제자 훈련 for a programme; 제자의 길 for the walk",
+      "note": "'equipping others for their discipleship journey' is a road someone walks, not a course they enrol in. Pinning one rendering got this wrong, which is why it is here and not in enforced."
+    },
+    "home group": {
+      "zh-Hans": "家庭小组 as a standalone label or heading; 小组 inside a sentence that already carries the context",
+      "ko": "가정 모임",
+      "note": "青少年家庭小组 is a mouthful where 青少年小组 is not, and a sentence that already says 大家在家里 does not need 家庭 again. Pinning one form failed against four labels and three sentences that were each right."
+    }
+  }
+}
