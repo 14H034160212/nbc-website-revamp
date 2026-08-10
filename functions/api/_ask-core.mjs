@@ -17,6 +17,8 @@
  * (reproducing a text exactly).
  */
 
+import { PROVIDERS, extractJson } from "./_providers.mjs";
+
 export const MODEL = "claude-opus-5";
 
 /** Book names, 1-indexed by book number, for the model to choose from. */
@@ -251,75 +253,46 @@ export function checkQuestion(question) {
  *
  * The trade is small: one endpoint, one request shape, no streaming.
  */
-export async function askClaude({ apiKey }, { question, lang, model = MODEL, effort = "medium" }) {
-  const body = {
-    model,
-    // Adaptive thinking is on by default on Opus 5 and shares this budget with
-    // the reply. The reply itself is small (a framing plus five short `why`
-    // lines), so the headroom is almost entirely for thinking; 3000 was tight
-    // enough that a question worth thinking about could truncate the JSON.
-    max_tokens: 8000,
+export const MAX_TOKENS = 8000;   // adaptive thinking shares this with the reply
+
+/**
+ * Ask a model for references. Provider-agnostic.
+ *
+ * `provider` selects the transport; everything that decides *quality* — the
+ * prompt, the schema, the range checks, the safety floor — is the same for all
+ * of them. That is deliberate: it makes "would an open model be good enough?"
+ * a question a bake-off can answer, because only one variable moves.
+ *
+ *   askModel({ provider: "anthropic", apiKey })
+ *   askModel({ provider: "openai-compatible", baseUrl, apiKey }, { model })
+ *   askModel({ provider: "workers-ai", accountId, apiToken }, { model })
+ */
+export async function askModel(creds, { question, lang, model = MODEL, effort = "medium" }) {
+  const call = PROVIDERS[creds.provider || "anthropic"];
+  if (!call) throw new Error(`unknown provider: ${creds.provider}`);
+
+  const { text, usage, response, refused } = await call(creds, {
     system: SYSTEM_PROMPT,
-    messages: [{ role: "user", content: userPrompt(question, lang) }],
-    output_config: { format: { type: "json_schema", schema: OUTPUT_SCHEMA } },
-  };
-
-  // Haiku 4.5 rejects `effort`; every current Opus/Sonnet accepts it.
-  if (!model.startsWith("claude-haiku")) {
-    body.output_config.effort = effort;
-  }
-
-  const headers = {
-    "content-type": "application/json",
-    "x-api-key": apiKey,
-    "anthropic-version": "2023-06-01",
-  };
-
-  // A safety decline is retried on another model server-side rather than
-  // surfacing to the reader as a dead end. Opus-tier only.
-  if (model === "claude-opus-5" || model === "claude-fable-5") {
-    body.fallbacks = "default";
-    headers["anthropic-beta"] = "server-side-fallback-2026-07-01";
-  }
-
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
+    user: userPrompt(question, lang),
+    schema: OUTPUT_SCHEMA,
+    model, effort, maxTokens: MAX_TOKENS,
   });
+  if (refused) return { refused: true, response };
 
-  if (!res.ok) {
-    const detail = await res.text().catch(() => "");
-    const err = new Error(`anthropic ${res.status}: ${detail.slice(0, 300)}`);
-    err.status = res.status;
-    throw err;
-  }
-
-  const response = await res.json();
-
-  if (response.stop_reason === "refusal") {
-    return { refused: true, response };
-  }
-
-  const text = response.content.find((b) => b.type === "text")?.text;
-  if (!text) return { refused: true, response };
-
-  // Truncated output is not malformed JSON to be puzzled over — say what
-  // happened, so the log names the cause instead of a SyntaxError at column N.
-  if (response.stop_reason === "max_tokens") {
-    const err = new Error(`response hit max_tokens (${body.max_tokens}); raise it`);
-    err.status = "max_tokens";
-    throw err;
-  }
-
-  let parsed;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    const err = new Error(`model returned unparseable JSON: ${text.slice(0, 200)}`);
+  // Anthropic enforces the schema, so this is a formality there. On a host that
+  // only asks for JSON it is the difference between a working answer and a
+  // SyntaxError, which is why it is forgiving rather than strict.
+  const parsed = extractJson(text);
+  if (!parsed) {
+    const err = new Error(`model returned unparseable JSON: ${String(text).slice(0, 200)}`);
     err.status = "bad_json";
     throw err;
   }
 
-  return { result: validate(parsed), response };
+  return { result: validate(parsed), usage, response };
+}
+
+/** The production path, unchanged. Kept so callers do not have to name a provider. */
+export async function askClaude({ apiKey }, opts) {
+  return askModel({ provider: "anthropic", apiKey }, opts);
 }
