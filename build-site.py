@@ -90,7 +90,9 @@ TRANSLATED = ["/", "/who-we-are/", "/services/", "/contact/", "/give-2/",
               "/what-we-believe/", "/history/", "/sermons/", "/health-safety/",
               "/home-group/",
               "/ministries/", "/ministries/kids/", "/ministries/youth/",
-              "/ministries/intermediates/", "/ministries/young-adults/"]
+              "/ministries/intermediates/", "/ministries/young-adults/",
+              "/ministries/preschoolers/", "/ministries/community/",
+              "/ministries/after-school-programme/", "/ministries/globalmission/"]
 
 
 # Filled during the build with every page that exists, so relink_within_language
@@ -637,7 +639,7 @@ WIDGET_STRINGS = {
     "or adopted by Northcote Baptist Church.",
     # Proper nouns and data that are the same in every language.
     "Northcote Baptist Church", "Anna Hart Photography", "office@nbc.org.nz",
-    "67 Eban Avenue", "Aroha", "Whanaungatanga", "Manaakitanga", "Pono",
+    "67 Eban Avenue", "Aroha", "Whanaungatanga", "Manaakitanga", "Pono", "Aroha nui",
 }
 
 
