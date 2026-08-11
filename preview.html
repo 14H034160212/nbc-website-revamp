@@ -684,6 +684,42 @@ a.nbc-btn--outline:hover,
 	color: var(--nbc-muted, #6a6b76);
 }
 .nbc-embed a:not(.nbc-embed__go) { color: var(--nbc-blue); }
+
+/* The words inside a picture, set underneath it in the reader's language.
+   A picture cannot be translated, but what it says can be. */
+.nbc-imgtext {
+	max-width: 1160px;
+	margin: 0 auto 28px;
+	padding: 20px 24px;
+	background: var(--nbc-tint, #f7f5f3);
+	border-left: 3px solid var(--nbc-red);
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	box-sizing: border-box;
+}
+.nbc-imgtext .nbc-imgtext__lead {
+	margin: 0 0 12px;
+	font-size: .84rem;
+	letter-spacing: .04em;
+	text-transform: uppercase;
+	color: var(--nbc-muted, #6b6b6b);
+}
+.nbc-imgtext dl { margin: 0; }
+.nbc-imgtext dt {
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: 1rem;
+	color: var(--nbc-ink);
+	margin: 10px 0 2px;
+}
+.nbc-imgtext dd { margin: 0; font-size: .97rem; line-height: 1.7; }
+.nbc-imgtext .nbc-imgtext__note {
+	margin: 14px 0 0;
+	font-size: .86rem;
+	line-height: 1.6;
+	color: var(--nbc-muted, #6b6b6b);
+}
+@media (max-width: 767px) {
+	.nbc-imgtext { margin-left: 20px; margin-right: 20px; padding: 16px 18px; }
+}
 </style>
 <style>body{margin:0;background:#fff}
 .blk-head{position:sticky;top:0;z-index:40;padding:10px clamp(16px,4vw,34px);background:#eff1f5;

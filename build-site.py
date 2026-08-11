@@ -369,15 +369,9 @@ def row_is_bare_banner(html, row_id):
     if start < 0:
         return False
     open_tag = html.rfind("<div", 0, start)
-    depth, i = 0, open_tag
-    while i < len(html):
-        m = re.compile(r"<div\b|</div>").search(html, i)
-        if not m:
-            return False
-        depth += 1 if m.group(0) == "<div" else -1
-        i = m.end()
-        if depth == 0:
-            break
+    i = div_extent(html, open_tag)
+    if not i:
+        return False
     inner = html[open_tag:i]
     if MEDIA_IN_ROW.search(inner):
         return False
@@ -1149,6 +1143,120 @@ EMBED_CARD = {
 }
 
 
+# Two graphics on the home page carry their words as pixels: the church's
+# vision, mission and values, and the CREED wheel. Translating the page cannot
+# touch them, so a reader in Chinese or Korean meets a paragraph of English
+# inside a picture. The wording below is the wording already in the
+# dictionaries for the same sentences on /who-we-are/, so the two pages agree.
+#
+# Nothing is written here in te reo. The te reo pages are 36/357 translated on
+# purpose — the rest is waiting on a speaker, and inventing a church's account
+# of its own faith is exactly what that decision refuses to do.
+BAKED_IN = {
+    "NBC_vision-mission-values": {
+        "zh-Hans": {
+            "lead": "图中的文字（图片本身是英文的）",
+            "rows": [
+                ("异象", "我们是一个爱神的信仰群体，在基督里合一，作主门徒，并勇敢地服事。"),
+                ("使命", "使各世代、各文化的人成为耶稣的门徒，在祂里面成长，服事我们的世界。"),
+                ("价值观", ["Love 爱 / Aroha", "Connect 连结 / Whanaungatanga",
+                          "Serve 服事 / Manaakitanga", "Truth 真理 / Pono"]),
+            ],
+            "note": "价值观每一条后面的毛利语，是教会自己并列写在图上的，保留原样。",
+        },
+        "ko": {
+            "lead": "그림 속 문구 (이미지는 영어로 되어 있습니다)",
+            "rows": [
+                ("비전", "우리는 하나님을 사랑하고, 그리스도 안에서 하나 되며, 제자를 삼고, "
+                        "담대히 섬기는 믿음의 공동체입니다."),
+                ("사명", "모든 세대와 문화 가운데서 예수님의 제자를 삼고, 그분 안에서 자라며 "
+                        "세상을 섬기는 것입니다."),
+                ("핵심 가치", ["Love 사랑 / Aroha", "Connect 연결 / Whanaungatanga",
+                            "Serve 섬김 / Manaakitanga", "Truth 진리 / Pono"]),
+            ],
+            "note": "각 가치 뒤의 마오리어는 교회가 그림에 나란히 적어 둔 것으로, 그대로 두었습니다.",
+        },
+    },
+    "Creed": {
+        "zh-Hans": {
+            "lead": "图中的文字（图片本身是英文的）",
+            "rows": [
+                ("Creed for Mission Effectiveness", "宣教果效的五个环节。CREED 取五个英文词的首字母："),
+                ("Contact", "接触 —— 与人建立最初的接触"),
+                ("Relate", "建立关系"),
+                ("Educate", "教导"),
+                ("Evangelise", "传福音"),
+                ("Disciple", "造就门徒"),
+            ],
+            "note": "五个英文词的首字母连起来正好是 CREED，所以英文原词保留。",
+        },
+        "ko": {
+            "lead": "그림 속 문구 (이미지는 영어로 되어 있습니다)",
+            "rows": [
+                ("Creed for Mission Effectiveness", "선교의 열매를 위한 다섯 단계. CREED는 "
+                                                    "영어 다섯 낱말의 첫 글자입니다:"),
+                ("Contact", "만남 — 처음 이어지는 자리"),
+                ("Relate", "관계 맺기"),
+                ("Educate", "가르침"),
+                ("Evangelise", "복음 전하기"),
+                ("Disciple", "제자 삼기"),
+            ],
+            "note": "다섯 낱말의 첫 글자를 모으면 CREED가 되므로 영어 원어를 그대로 두었습니다.",
+        },
+    },
+}
+
+
+def div_extent(html, start):
+    """End offset of the <div> whose opening tag begins at `start`."""
+    depth, i = 0, start
+    scan = re.compile(r"<div\b|</div>")
+    while i < len(html):
+        m = scan.search(html, i)
+        if not m:
+            return None
+        depth += 1 if m.group(0) == "<div" else -1
+        i = m.end()
+        if depth == 0:
+            return i
+    return None
+
+
+def caption_baked_in(html, lang):
+    """Put the words that are stuck inside a picture underneath it, in the
+    reader's language."""
+    groups = {}
+    for key, table in BAKED_IN.items():
+        text = table.get(lang)
+        if not text:
+            continue
+        # Match the image's own path, not the bare word: "Creed" on its own
+        # would fire on any page that happens to use it in a sentence.
+        m = re.search(r"/" + re.escape(key) + r"(?:-\d+x\d+)?\.(?:jpe?g|png)", html)
+        if not m:
+            continue
+        pos = m.start()
+        open_tag = html.rfind('<div id="cmsmasters_row_', 0, pos)
+        end = div_extent(html, open_tag) if open_tag >= 0 else None
+        if not end:
+            continue
+        groups.setdefault(end, []).append(text)
+    # Back to front, so an insertion never moves an offset still to be used.
+    for end in sorted(groups, reverse=True):
+        block = "".join(
+            '<div class="nbc-imgtext"><p class="nbc-imgtext__lead">%s</p><dl>%s</dl>'
+            '<p class="nbc-imgtext__note">%s</p></div>' % (
+                escape(t["lead"]),
+                "".join("<dt>%s</dt><dd>%s</dd>" % (
+                    escape(a),
+                    "<br>".join(escape(x) for x in b) if isinstance(b, list) else escape(b))
+                    for a, b in t["rows"]),
+                escape(t["note"]))
+            for t in groups[end])
+        html = html[:end] + block + html[end:]
+    return html
+
+
 def replace_external_embeds(html, lang):
     """Swap an untranslatable embed for a card in the reader's own language."""
     card = EMBED_CARD.get(lang)
@@ -1430,6 +1538,7 @@ def build():
             if not full:
                 out = add_partial_note(out, code)
             out = replace_external_embeds(out, code)
+            out = caption_baked_in(out, code)
             if code == "mi":
                 out = out.replace("</body>", MI_NOTE + "</body>", 1)
 
