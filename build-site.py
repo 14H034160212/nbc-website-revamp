@@ -1052,6 +1052,15 @@ def relink_within_language(html, prefix, orig_url):
     return PAGE_LINK.sub(fix, html)
 
 
+# A responsive image carries the same picture twice: once in `src` and once,
+# at six sizes, in `srcset`. The browser chooses from `srcset` and ignores
+# `src` — so shifting only `src` by a ../ leaves the attribute that actually
+# gets used pointing at /zh/wp-content/, which is nowhere, and the picture
+# silently does not appear on any translated page.
+REL_SRCSET = re.compile(r'(\bsrcset=)(["\'])([^"\']*)\2')
+SRCSET_URL = re.compile(r'(^|,\s*)((?!https?:|//|#|data:|/)[^\s,]+)')
+
+
 def fix_depth(html, extra):
     """
     Add `extra` levels of ../ to every relative reference.
@@ -1062,6 +1071,10 @@ def fix_depth(html, extra):
     """
     up = "../" * extra
     html = REL_ASSET.sub(lambda m: m.group(1) + m.group(2) + up + m.group(3) + m.group(2), html)
+    html = REL_SRCSET.sub(
+        lambda m: m.group(1) + m.group(2)
+        + SRCSET_URL.sub(lambda u: u.group(1) + up + u.group(2), m.group(3))
+        + m.group(2), html)
     return REL_CSS_URL.sub(lambda m: m.group(1) + m.group(2) + up + m.group(3) + m.group(4), html)
 
 
