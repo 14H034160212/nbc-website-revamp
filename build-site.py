@@ -272,6 +272,43 @@ def normalise_volatile(html):
     return RENDER_TIME.sub(r"\g<1>0.000", html)
 
 
+HEADING_RULE = re.compile(
+    r"(#cmsmasters_heading_[A-Za-z0-9_]+\s+\.cmsmasters_heading[^{]*)\{([^}]*)\}")
+CSS_SIZE = re.compile(r"font-size:\s*(\d+)px")
+CSS_LEADING = re.compile(r"line-height:\s*(\d+)px")
+
+
+def cap_mobile_headings(html):
+    """Stop oversized headings from running off the side of a phone.
+
+    The page builder writes each heading's size into its own `#id` rule, so a
+    heading can be 26px on one page and 52px on the next with no class telling
+    them apart — no stylesheet we add could target only the large ones. At 52px
+    a single word ("wholeheartedly,") is 378px wide, wider than the 350px column
+    a 390px phone leaves; the line cannot wrap out of trouble, so the tail is
+    simply cut off. The cap is emitted next to the rule it caps, at the same
+    specificity, inside a phone-only media query: the desktop size is the one
+    the church chose and is left exactly as it is.
+    """
+    if "nbc-cap" in html:
+        return html
+
+    def cap(m):
+        head, body = m.group(1), m.group(2)
+        size = CSS_SIZE.search(body)
+        if not size or int(size.group(1)) < 40:
+            return m.group(0)
+        old = int(size.group(1))
+        new = max(28, round(old * 0.62))
+        lead = CSS_LEADING.search(body)
+        leading = (f"line-height:{round(int(lead.group(1)) * new / old)}px;"
+                   if lead else "")
+        return (f"{m.group(0)}\n/* nbc-cap */@media (max-width:767px){{"
+                f"{head.strip()}{{font-size:{new}px;{leading}}}}}")
+
+    return HEADING_RULE.sub(cap, html)
+
+
 def strip_query_filenames(root):
     """
     style.css?ver=1.0.0.css -> style.css
@@ -1002,8 +1039,11 @@ def partial_note(lang):
     return f'<div class="nbc-partial" lang="{lang}">{text}</div>'
 
 
+# Appended after the footer, so it is the last thing on the page — which on a
+# phone put it underneath the fixed action bar. It carries a class now so the
+# stylesheet can give it the same clearance the footer gets.
 MI_NOTE = (
-    '<div style="background:#f7f7f9;border-top:1px solid #e4e4e4;'
+    '<div class="nbc-mi-note" style="background:#f7f7f9;border-top:1px solid #e4e4e4;'
     'padding:16px 20px;font:14px/1.65 \'Source Sans Pro\',Arial,sans-serif;'
     'color:#5c5d69;text-align:center">'
     '<b lang="mi">He kupu whakamārama</b> &middot; Only short, standard phrases on this '
@@ -1193,8 +1233,8 @@ def build():
     for f in sorted(pages):
         rel = f.relative_to(ROOT).as_posix()
         url_path = "/" + rel[: -len("index.html")]
-        html = normalise_volatile(
-            strip_query_links(f.read_text(encoding="utf-8", errors="replace")))
+        html = cap_mobile_headings(normalise_volatile(
+            strip_query_links(f.read_text(encoding="utf-8", errors="replace"))))
 
         # Files we removed for size stay on the church's own server.
         for gone in dropped:

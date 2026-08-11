@@ -361,6 +361,52 @@ textarea:focus-visible,
 	   negative margin means nothing moves, so the header looks identical —
 	   only the area that responds to a thumb changes. Inside the mobile
 	   media query, so the desktop header is untouched. */
+	/* --- things that do not fit a phone -----------------------------------
+	   Found by measuring all 220 pages at 390px rather than sampling. Each of
+	   these is clipped by an ancestor, so none of them scrolls the page — which
+	   is worse, not better: the content is simply cut off with no way to reach
+	   it. */
+
+	/* The theme's buttons do not wrap. "Children and Youth Safety Manual
+	   English Version" makes a 413px button on a 390px screen, and the end of
+	   it is sliced off. */
+	.cmsmasters_button {
+		max-width: 100%;
+		white-space: normal;
+		box-sizing: border-box;
+		text-align: center;
+		line-height: 1.4;
+	}
+	.cmsmasters_button span { white-space: normal; }
+
+	/* A last line of defence for the headings: the per-heading cap the build
+	   writes handles the sizes we can see, but a language we have not measured
+	   may still hand us a word longer than the column. Better a broken word
+	   than a missing one. */
+	.cmsmasters_heading, h1, h2, h3, h4 {
+		overflow-wrap: break-word;
+		max-width: 100%;
+	}
+
+	/* A table wider than the screen, clipped, is data nobody can read. Let it
+	   scroll inside its own box instead — the page still does not move
+	   sideways. */
+	.cmsmasters_table_responsive,
+	.entry-content table,
+	table.cmsmasters_table {
+		display: block;
+		max-width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	/* The te reo note is appended after the footer, so it is the last thing on
+	   the page and the action bar was sitting on top of it. Same clearance the
+	   footer gets. */
+	body.nbc-has-actionbar .nbc-mi-note {
+		padding-bottom: calc(16px + var(--nbc-bar-h) + 1px + env(safe-area-inset-bottom, 0px)) !important;
+	}
+
 	body.nbc-has-actionbar #footer,
 	body.nbc-has-actionbar .footer_wrap {
 		padding-bottom: calc(var(--nbc-bar-h) + 1px + env(safe-area-inset-bottom, 0px));
