@@ -361,6 +361,7 @@ CHROME = {
         "real": "The real site &rarr;",
         "about": "About this package",
         "skip": "Skip to content",
+        "quicklinks": "Quick links",
         "sunday": "Sunday 10am", "findus": "Find us", "give": "Give",
     },
     "zh-Hans": {
@@ -370,6 +371,7 @@ CHROME = {
         "real": "访问真实网站 &rarr;",
         "about": "关于这份方案",
         "skip": "跳到正文",
+        "quicklinks": "快捷入口",
         "sunday": "主日 10:00", "findus": "地图", "give": "奉献",
     },
     "ko": {
@@ -379,6 +381,7 @@ CHROME = {
         "real": "실제 웹사이트 &rarr;",
         "about": "이 제안에 대하여",
         "skip": "본문으로 건너뛰기",
+        "quicklinks": "빠른 이동",
         "sunday": "주일 오전 10시", "findus": "찾아오는 길", "give": "헌금",
     },
     # te reo entries are the ones a native speaker confirmed; the rest stay
@@ -390,6 +393,7 @@ CHROME = {
         "real": "The real site &rarr;",
         "about": "About this package",
         "skip": "Peke ki te ihirangi",
+        "quicklinks": "Quick links",
         "sunday": "Rātapu 10am", "findus": "Kimihia mātou", "give": "Koha",
     },
 }
@@ -469,7 +473,7 @@ def langbar(url_path, lang="en"):
 
 def actionbar(prefix="", lang="en"):
     c = lambda k: chrome(lang, k)
-    return f"""<nav class="nbc-actionbar" aria-label="Quick links">
+    return f"""<nav class="nbc-actionbar" aria-label="{c('quicklinks')}">
 <a class="nbc-actionbar__link" href="{prefix}/services/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>{c('sunday')}</span></a>
 <a class="nbc-actionbar__link" href="{FILLS['MAP_URL']}" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>{c('findus')}</span></a>
 <a class="nbc-actionbar__link" href="{prefix}/give-2/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 6.6a4.3 4.3 0 0 0-6.1 0L12 9.3 9.3 6.6a4.3 4.3 0 1 0-6.1 6.1L12 21.5l8.8-8.8a4.3 4.3 0 0 0 0-6.1z"/></svg><span>{c('give')}</span></a>
@@ -610,6 +614,15 @@ def hreflang_links(url_path):
 # Text between tags, excluding anything inside a script/style/comment. The
 # negative lookahead keeps us out of tags themselves.
 TEXT_NODE = re.compile(r">([^<>]+)<")
+
+# Attributes whose value a person actually perceives — read on screen, shown
+# in a tooltip, or spoken by a screen reader. Deliberately not href/src/class.
+TRANSLATABLE_ATTR = re.compile(
+    r'\b(alt|title|placeholder|aria-label)=(["\'])([^"\']*)\2')
+
+# <input type="submit" value="Send"> — the word on the button.
+SUBMIT_VALUE = re.compile(
+    r'<input[^>]*\btype="submit"[^>]*\bvalue="([^"]*)"[^>]*>')
 SKIP_REGION = re.compile(r"<(script|style|noscript)\b.*?</\1>", re.S | re.I)
 
 
@@ -697,6 +710,37 @@ def translate_page(html, table, stats):
         return m.group(0)
 
     out = TEXT_NODE.sub(swap, guarded)
+
+    # Attributes. Text between tags is not the only text a reader sees:
+    # placeholder="Search..." is the word inside the search box, title="RSS"
+    # is what a tooltip says, and aria-label is what a screen reader says out
+    # loud — in English, on a page whose lang attribute claims otherwise.
+    # These were never translated at all, which is a gap you only notice by
+    # auditing rendered attributes rather than trusting the coverage report.
+    def swap_attr(m):
+        name, quote, raw = m.group(1), m.group(2), m.group(3)
+        key = re.sub(r"\s+", " ", unescape(raw)).strip()
+        if len(key) < 3 or not re.search(r"[A-Za-z]{3}", key):
+            return m.group(0)
+        if key in table:
+            stats["hit"].add(key)
+            return f'{name}={quote}{escape(table[key], quote=True)}{quote}'
+        stats["miss"].add(key)
+        return m.group(0)
+
+    out = TRANSLATABLE_ATTR.sub(swap_attr, out)
+
+    # A submit button's value is the word on the button. Plain value= is not in
+    # the list above because Contact Form 7 also uses it for internal ids like
+    # wpcf7-f6-p347-o1, and translating one of those would break the form —
+    # so this matches only inputs that are actually submit buttons.
+    out = SUBMIT_VALUE.sub(
+        lambda mm: mm.group(0).replace(
+            f'value="{mm.group(1)}"',
+            f'value="{escape(table[mm.group(1)], quote=True)}"')
+        if mm.group(1) in table else mm.group(0),
+        out)
+
     return re.sub(r"\x00(\d+)\x00", lambda m: holes[int(m.group(1))], out)
 
 
@@ -850,6 +894,39 @@ PARTIAL_NOTE = {
           'guess. Translated pages: <a href="/mi/">home</a>, <a href="/mi/services/">On Sunday</a>, '
           '<a href="/mi/who-we-are/">Who We Are</a>, <a href="/mi/first-visit/">first visit</a>.',
 }
+
+
+# An embedded form is a document from someone else's server, rendered inside
+# its own browsing context. Our translation replaces text in *our* HTML; the
+# form's words are fetched separately from nbc.infoodle.com and the same-origin
+# policy means we can neither read nor rewrite them. The honest response is not
+# to pretend, but to say so — a reader who has chosen 中文 and then meets a
+# wall of English should know it is the form, not a broken page.
+#
+# The real fix belongs to the church: a form in the reader's language, and this
+# page pointing at that one instead.
+EXTERNAL_FORM = re.compile(r'<iframe[^>]*\bsrc="https://nbc\.infoodle\.com[^"]*"[^>]*>')
+
+FORM_NOTE = {
+    "zh-Hans": "下面的表单来自教会使用的第三方系统，只有英文版，我们无法翻译它。"
+               '填写时需要协助，请联系办公室：<a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>'
+               " 或致电 <a href=\"tel:+6494807064\">(09) 480 7064</a>。",
+    "ko": "아래 양식은 교회가 사용하는 외부 시스템에서 제공되며 영어로만 되어 있어 저희가 번역할 수 없습니다. "
+          '작성에 도움이 필요하시면 사무실로 연락 주세요: <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>'
+          " 또는 <a href=\"tel:+6494807064\">(09) 480 7064</a>.",
+    "mi": "The form below comes from an external system the church uses and is in "
+          'English only. For help filling it in, email <a href="mailto:office@nbc.org.nz">'
+          'office@nbc.org.nz</a> or call <a href="tel:+6494807064">(09) 480 7064</a>.',
+}
+
+
+def note_external_forms(html, lang):
+    """Put a line in the reader's language above any form we cannot translate."""
+    text = FORM_NOTE.get(lang)
+    if not text or not EXTERNAL_FORM.search(html):
+        return html
+    note = f'<div class="nbc-extform" lang="{lang}">{text}</div>'
+    return EXTERNAL_FORM.sub(lambda m: note + m.group(0), html, count=1)
 
 
 def add_partial_note(html, lang):
@@ -1106,6 +1183,7 @@ def build():
             # silent. Translated or not is the honest question.
             if not full:
                 out = add_partial_note(out, code)
+            out = note_external_forms(out, code)
             if code == "mi":
                 out = out.replace("</body>", MI_NOTE + "</body>", 1)
 

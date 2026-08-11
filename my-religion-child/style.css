@@ -555,6 +555,17 @@ a.nbc-btn--outline:hover,
 /* Said once, at the top of a page whose content is not translated yet. Quiet
    but not hidden: the reader chose a language and is about to get English, and
    being told why is better than wondering whether the site is broken. */
+.nbc-extform {
+	margin: 0 0 20px;
+	padding: 13px 18px;
+	background: var(--nbc-tint, #f7f5f3);
+	border-left: 3px solid var(--nbc-red);
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+	font-size: .92rem;
+	line-height: 1.7;
+	color: var(--nbc-ink);
+}
+.nbc-extform a { color: var(--nbc-blue); }
 .nbc-partial__wrap {
 	max-width: 1200px;
 	margin: 0 auto;
