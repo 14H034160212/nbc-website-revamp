@@ -398,12 +398,21 @@
       var s = document.createElement('span');
       s.className = 'nbc-v'; s.dataset.ref = json.book_name + ' ' + json.chapter + ':' + v.verse;
       var n = document.createElement('span'); n.className = 'nbc-n'; n.textContent = v.verse;
-      s.appendChild(n); s.appendChild(document.createTextNode(v.text.trim()));
+      s.appendChild(n); s.appendChild(document.createTextNode(tidy(v.text)));
       body.appendChild(s);
     });
     head.appendChild(h); head.appendChild(ed); head.appendChild(body);
     return head;
   }
+
+  /* getBible's Union Traditional data puts spaces between Han characters —
+     all 35 verses of Proverbs 3, for instance: "你要專 心 仰賴 耶和華". The
+     Simplified edition is clean, so this is one dataset's quirk. Only a space
+     with a Han character on both sides is removed; Korean spaces are word
+     boundaries and survive, as do English and te reo. */
+  var CJK_R = '[\u3400-\u4dbf\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]';
+  var HAN_SPACE = new RegExp('(' + CJK_R + ')\\s+(?=' + CJK_R + ')', 'g');
+  function tidy(t) { return String(t || '').replace(HAN_SPACE, '$1').trim(); }
 
   function render(){
     elReader.innerHTML = '<div class="nbc-skel"><i></i><i></i><i></i><i></i><i></i></div>';

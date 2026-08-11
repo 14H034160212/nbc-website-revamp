@@ -300,6 +300,21 @@
   }
 
   /* ---- rendering -------------------------------------------------------- */
+  /* getBible's Union Traditional data has spaces between Han characters —
+     every one of the 35 verses in Proverbs 3, for instance: "你要專 心 仰賴
+     耶和華". The Simplified edition is clean, so this is a quirk of that one
+     dataset rather than something to work around everywhere.
+
+     Only a space with a Han character on both sides comes out. Korean spaces
+     are word boundaries and must survive; so must English and te reo. Checked
+     against all four before shipping. */
+  var CJK = '[\u3400-\u4dbf\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]';
+  var HAN_SPACE = new RegExp('(' + CJK + ')\\s+(?=' + CJK + ')', 'g');
+
+  function tidy(text) {
+    return String(text || '').replace(HAN_SPACE, '$1').trim();
+  }
+
   function verseList(verses, dir) {
     var d = document.createElement('div');
     d.className = 'ask-verses';
@@ -311,7 +326,7 @@
       n.className = 'ask-verse__n';
       n.textContent = v.verse;
       p.appendChild(n);
-      p.appendChild(document.createTextNode(v.text.trim()));
+      p.appendChild(document.createTextNode(tidy(v.text)));
       d.appendChild(p);
     });
     return d;
