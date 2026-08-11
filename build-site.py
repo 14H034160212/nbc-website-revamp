@@ -309,6 +309,154 @@ def cap_mobile_headings(html):
     return HEADING_RULE.sub(cap, html)
 
 
+def image_size(path):
+    """Width and height from the file's own header, or None.
+
+    Deliberately not Pillow: the weekly sync runs this on a bare GitHub
+    runner, and a build that stops because an image library is missing is a
+    worse failure than a banner that crops.
+    """
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    if data[:8] == b"\x89PNG\r\n\x1a\n" and data[12:16] == b"IHDR":
+        return (int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big"))
+    if data[:3] == b"GIF":
+        return (int.from_bytes(data[6:8], "little"), int.from_bytes(data[8:10], "little"))
+    if data[:2] == b"\xff\xd8":
+        i = 2
+        while i + 9 < len(data):
+            if data[i] != 0xFF:
+                i += 1
+                continue
+            marker = data[i + 1]
+            # The size lives in a start-of-frame segment; C4/C8/CC are tables
+            # and restarts that happen to sit in the same numeric range.
+            if 0xC0 <= marker <= 0xCF and marker not in (0xC4, 0xC8, 0xCC):
+                return (int.from_bytes(data[i + 7:i + 9], "big"),
+                        int.from_bytes(data[i + 5:i + 7], "big"))
+            if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+                i += 2
+                continue
+            i += 2 + int.from_bytes(data[i + 2:i + 4], "big")
+        return None
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        if data[12:16] == b"VP8 ":
+            return (int.from_bytes(data[26:28], "little") & 0x3FFF,
+                    int.from_bytes(data[28:30], "little") & 0x3FFF)
+        if data[12:16] == b"VP8X":
+            return (int.from_bytes(data[24:27], "little") + 1,
+                    int.from_bytes(data[27:30], "little") + 1)
+    return None
+
+
+ROW_BG = re.compile(
+    r"#(cmsmasters_(?:row|fb)_\w+)\s*\{([^}]*background-image:\s*url\(([^)]+)\)[^}]*)\}")
+SCRIPTY = re.compile(r"<(script|style)\b.*?</\1>", re.S | re.I)
+TAG = re.compile(r"<[^>]+>")
+MEDIA_IN_ROW = re.compile(r"<(img|iframe|video|form|input|table)\b", re.I)
+
+
+def row_is_bare_banner(html, row_id):
+    """True when this row is a picture and nothing else.
+
+    A hero with a headline over it is supposed to crop on a narrow screen —
+    that is what a photographic background is for. A row holding only a
+    picture is a different thing: crop it and the picture is what you lose.
+    """
+    start = html.find(f'id="{row_id}"')
+    if start < 0:
+        return False
+    open_tag = html.rfind("<div", 0, start)
+    depth, i = 0, open_tag
+    while i < len(html):
+        m = re.compile(r"<div\b|</div>").search(html, i)
+        if not m:
+            return False
+        depth += 1 if m.group(0) == "<div" else -1
+        i = m.end()
+        if depth == 0:
+            break
+    inner = html[open_tag:i]
+    if MEDIA_IN_ROW.search(inner):
+        return False
+    text = TAG.sub(" ", SCRIPTY.sub(" ", inner)).replace("&nbsp;", " ")
+    return not text.strip()
+
+
+PADDING_RULE = re.compile(
+    r"#(%s)(\s+\.cmsmasters_row_outer_parent)?\s*\{[^}]*?padding-(top|bottom):\s*(\d+)px")
+HERO_MAX_PAD = 110
+
+
+def cap_hero_padding(html, row_id):
+    """Trim a hero's desktop spacing back to a phone's proportions."""
+    rules = []
+    for m in re.finditer(PADDING_RULE.pattern % re.escape(row_id), html):
+        scope, side, px = m.group(2) or "", m.group(3), int(m.group(4))
+        if px <= HERO_MAX_PAD:
+            continue
+        rules.append(f"/* nbc-fit */@media (max-width:767px){{"
+                     f"#{row_id}{scope}{{padding-{side}:{HERO_MAX_PAD}px!important;}}}}")
+    return rules
+
+
+def fit_mobile_banners(html):
+    """Give a picture-only banner the shape of its own picture on a phone.
+
+    The row keeps whatever height the desktop layout gave it — home-group's is
+    614px of padding — and `background-size: cover` then has to fill a 390x614
+    box with a 1500x750 photo. It can only do that by scaling to the height and
+    slicing 68% off the sides, which is how a banner reading HOMEGROUP arrives
+    on a phone reading MEGROU. Sizing the row from the image's own proportions
+    means `cover` has nothing left to crop. Desktop is untouched.
+    """
+    if "nbc-fit" in html:
+        return html
+    out = []
+    for m in ROW_BG.finditer(html):
+        row_id, body, url = m.group(1), m.group(2), m.group(3).strip("\"' ")
+        # cover crops to fill; auto is worse still — /prayer-6/ paints a
+        # 2560px-wide photo at natural size behind a 390px screen. Either way
+        # the picture is the thing being lost.
+        if not re.search(r"background-size:\s*(cover|auto)", body):
+            continue
+        if not row_is_bare_banner(html, row_id):
+            # A hero with a headline over it has to keep enough room for the
+            # headline, so its picture is allowed to crop. What it does not
+            # need is the desktop's spacing: /who-we-are/ arrives on a phone
+            # as 888px of photograph, taller than the screen, and the reader
+            # scrolls two screenfuls before reaching a word. Capping the
+            # padding both shortens that and leaves more of the photo visible.
+            out.extend(cap_hero_padding(html, row_id))
+            continue
+        rel = re.search(r"wp-content/.*$", url)
+        if not rel:
+            continue
+        size = image_size(ROOT / rel.group(0))
+        if not size or not size[0] or not size[1]:
+            continue
+        w, h = size
+        out.append(
+            f"/* nbc-fit */@media (max-width:767px){{"
+            f"#{row_id}{{aspect-ratio:{w}/{h};background-size:contain;"
+            f"background-position:center;background-attachment:scroll;"
+            f"padding-top:0!important;padding-bottom:0!important;"
+            f"min-height:0!important;}}"
+            f"#{row_id} .cmsmasters_row_outer_parent{{"
+            f"padding-top:0!important;padding-bottom:0!important;}}}}")
+    if not out:
+        return html
+    # The last style block in the page, so these land after the row's own
+    # `cover` rule rather than before it — they carry no extra specificity and
+    # would otherwise lose to it.
+    end = html.rfind("</style>")
+    if end < 0:
+        return html
+    return html[:end] + "\n" + "\n".join(out) + "\n" + html[end:]
+
+
 def strip_query_filenames(root):
     """
     style.css?ver=1.0.0.css -> style.css
@@ -1233,8 +1381,8 @@ def build():
     for f in sorted(pages):
         rel = f.relative_to(ROOT).as_posix()
         url_path = "/" + rel[: -len("index.html")]
-        html = cap_mobile_headings(normalise_volatile(
-            strip_query_links(f.read_text(encoding="utf-8", errors="replace"))))
+        html = fit_mobile_banners(cap_mobile_headings(normalise_volatile(
+            strip_query_links(f.read_text(encoding="utf-8", errors="replace")))))
 
         # Files we removed for size stay on the church's own server.
         for gone in dropped:
