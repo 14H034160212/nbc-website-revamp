@@ -896,37 +896,82 @@ PARTIAL_NOTE = {
 }
 
 
-# An embedded form is a document from someone else's server, rendered inside
-# its own browsing context. Our translation replaces text in *our* HTML; the
-# form's words are fetched separately from nbc.infoodle.com and the same-origin
-# policy means we can neither read nor rewrite them. The honest response is not
-# to pretend, but to say so — a reader who has chosen 中文 and then meets a
-# wall of English should know it is the form, not a broken page.
+# An embedded form or calendar is a document from someone else's server,
+# rendered in its own browsing context. Our translation replaces text in *our*
+# HTML; that document's words are fetched separately from nbc.infoodle.com and
+# the same-origin policy means we can neither read nor rewrite them — the rule
+# exists so one site cannot tamper with another's embedded page.
 #
-# The real fix belongs to the church: a form in the reader's language, and this
-# page pointing at that one instead.
-EXTERNAL_FORM = re.compile(r'<iframe[^>]*\bsrc="https://nbc\.infoodle\.com[^"]*"[^>]*>')
+# So on a translated page we do not embed it at all. A card in the reader's
+# language explains what it is and opens it in a new tab. The English still
+# has to be filled in, but it is met at infoodle rather than dropped into the
+# middle of a Chinese page, where it reads as a broken site rather than as a
+# form somebody has not got to yet.
+#
+# The trade is one click. The alternative was a page that claims to be in your
+# language and then is not.
+#
+# The real fix is the church's: a form in the reader's language on their own
+# system, and TRANSLATED_EMBED pointing at it.
+EXTERNAL_EMBED = re.compile(
+    r'<iframe[^>]*\bsrc="(https://nbc\.infoodle\.com[^"]*)"[^>]*>(?:</iframe>)?')
 
-FORM_NOTE = {
-    "zh-Hans": "下面的表单来自教会使用的第三方系统，只有英文版，我们无法翻译它。"
-               '填写时需要协助，请联系办公室：<a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>'
-               " 或致电 <a href=\"tel:+6494807064\">(09) 480 7064</a>。",
-    "ko": "아래 양식은 교회가 사용하는 외부 시스템에서 제공되며 영어로만 되어 있어 저희가 번역할 수 없습니다. "
-          '작성에 도움이 필요하시면 사무실로 연락 주세요: <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>'
-          " 또는 <a href=\"tel:+6494807064\">(09) 480 7064</a>.",
-    "mi": "The form below comes from an external system the church uses and is in "
-          'English only. For help filling it in, email <a href="mailto:office@nbc.org.nz">'
-          'office@nbc.org.nz</a> or call <a href="tel:+6494807064">(09) 480 7064</a>.',
+# Fill these in when the church has a version in that language, and the page
+# will embed it again instead of linking out.
+TRANSLATED_EMBED = {}
+
+EMBED_CARD = {
+    "zh-Hans": {
+        "title": "这份表单只有英文版",
+        "body": "它来自教会使用的第三方系统（infoodle），我们无法翻译它的内容。"
+                "为了不让这一页夹着一大段英文，这里改成一个链接。",
+        "button": "打开表单（英文）",
+        "help": '填写时需要协助，请联系办公室 <a href="mailto:office@nbc.org.nz">'
+                'office@nbc.org.nz</a> 或致电 <a href="tel:+6494807064">(09) 480 7064</a>，'
+                "我们很乐意帮忙。",
+    },
+    "ko": {
+        "title": "이 양식은 영어로만 제공됩니다",
+        "body": "교회가 사용하는 외부 시스템(infoodle)에서 제공되어 내용을 번역할 수 없습니다. "
+                "이 페이지 한가운데에 영어가 길게 들어가지 않도록 링크로 대신합니다.",
+        "button": "양식 열기 (영어)",
+        "help": '작성에 도움이 필요하시면 사무실로 연락 주세요. '
+                '<a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> 또는 '
+                '<a href="tel:+6494807064">(09) 480 7064</a>. 기꺼이 도와드리겠습니다.',
+    },
+    "mi": {
+        "title": "This form is in English only",
+        "body": "It comes from an external system the church uses (infoodle), so we "
+                "cannot translate what it says. Rather than drop a block of English "
+                "into this page, here is a link to it.",
+        "button": "Open the form (English)",
+        "help": 'For help filling it in, email <a href="mailto:office@nbc.org.nz">'
+                'office@nbc.org.nz</a> or call <a href="tel:+6494807064">(09) 480 7064</a>.',
+    },
 }
 
 
-def note_external_forms(html, lang):
-    """Put a line in the reader's language above any form we cannot translate."""
-    text = FORM_NOTE.get(lang)
-    if not text or not EXTERNAL_FORM.search(html):
+def replace_external_embeds(html, lang):
+    """Swap an untranslatable embed for a card in the reader's own language."""
+    card = EMBED_CARD.get(lang)
+    if not card:
         return html
-    note = f'<div class="nbc-extform" lang="{lang}">{text}</div>'
-    return EXTERNAL_FORM.sub(lambda m: note + m.group(0), html, count=1)
+
+    def swap(m):
+        url = TRANSLATED_EMBED.get((lang, m.group(1)), m.group(1))
+        if url != m.group(1):
+            return m.group(0).replace(m.group(1), url)   # a translated one exists
+        return (
+            f'<div class="nbc-embed" lang="{lang}">'
+            f'<p class="nbc-embed__title">{card["title"]}</p>'
+            f'<p class="nbc-embed__body">{card["body"]}</p>'
+            f'<p><a class="nbc-embed__go" href="{m.group(1)}" '
+            f'target="_blank" rel="noopener">{card["button"]} &rarr;</a></p>'
+            f'<p class="nbc-embed__help">{card["help"]}</p>'
+            "</div>"
+        )
+
+    return EXTERNAL_EMBED.sub(swap, html)
 
 
 def add_partial_note(html, lang):
@@ -1183,7 +1228,7 @@ def build():
             # silent. Translated or not is the honest question.
             if not full:
                 out = add_partial_note(out, code)
-            out = note_external_forms(out, code)
+            out = replace_external_embeds(out, code)
             if code == "mi":
                 out = out.replace("</body>", MI_NOTE + "</body>", 1)
 

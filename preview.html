@@ -561,17 +561,6 @@ a.nbc-btn--outline:hover,
 /* Said once, at the top of a page whose content is not translated yet. Quiet
    but not hidden: the reader chose a language and is about to get English, and
    being told why is better than wondering whether the site is broken. */
-.nbc-extform {
-	margin: 0 0 20px;
-	padding: 13px 18px;
-	background: var(--nbc-tint, #f7f5f3);
-	border-left: 3px solid var(--nbc-red);
-	font-family: 'Source Sans Pro', Arial, sans-serif;
-	font-size: .92rem;
-	line-height: 1.7;
-	color: var(--nbc-ink);
-}
-.nbc-extform a { color: var(--nbc-blue); }
 .nbc-partial__wrap {
 	max-width: 1200px;
 	margin: 0 auto;
@@ -614,6 +603,41 @@ a.nbc-btn--outline:hover,
 .ai-summary .ai-summary__text {
 	margin: 0; font-size: .97rem; line-height: 1.75; color: var(--nbc-ink);
 }
+
+/* Stands in for an embed we cannot translate. Deliberately looks like a piece
+   of the page rather than an error: the form is fine, it is just in English. */
+.nbc-embed {
+	margin: 24px 0;
+	padding: 22px 24px;
+	background: var(--nbc-tint, #f7f5f3);
+	border: 1px solid var(--nbc-line);
+	border-left: 3px solid var(--nbc-red);
+	font-family: 'Source Sans Pro', Arial, sans-serif;
+}
+.nbc-embed .nbc-embed__title {
+	margin: 0 0 8px;
+	font-family: 'Fjalla One', Arial, sans-serif;
+	font-size: 1.1rem;
+	color: var(--nbc-ink);
+}
+.nbc-embed .nbc-embed__body { margin: 0 0 16px; font-size: .97rem; line-height: 1.75; }
+.nbc-embed .nbc-embed__go {
+	display: inline-block;
+	padding: 11px 22px;
+	background: var(--nbc-red);
+	color: #fff;
+	font-size: .95rem;
+	text-decoration: none;
+	border-radius: 2px;
+}
+.nbc-embed .nbc-embed__go:hover { background: var(--nbc-ink); color: #fff; }
+.nbc-embed .nbc-embed__help {
+	margin: 16px 0 0;
+	font-size: .88rem;
+	line-height: 1.7;
+	color: var(--nbc-muted, #6a6b76);
+}
+.nbc-embed a:not(.nbc-embed__go) { color: var(--nbc-blue); }
 </style>
 <style>body{margin:0;background:#fff}
 .blk-head{position:sticky;top:0;z-index:40;padding:10px clamp(16px,4vw,34px);background:#eff1f5;
