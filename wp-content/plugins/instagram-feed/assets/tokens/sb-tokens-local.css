@@ -1,0 +1,74 @@
+/**
+ * Smash Balloon design tokens — local plugin mirror.
+ *
+ * Single source of truth for design tokens used by Instagram Feed Pro.
+ * Mirrored verbatim from `@smashballoons/tokens` v0.4.0 (npm). To bump
+ * the snapshot: copy the relevant slice of `dist/tokens.css` from the
+ * package and update the `Mirror version` line below. Consumer CSS
+ * references the aliases at the bottom of this file and does not need
+ * to be touched when values change.
+ *
+ * Future migration: when sb-common centralizes token distribution, the
+ * `Package mirror` block can be replaced with an @import / wp_enqueue
+ * of the official package without breaking the alias contract below.
+ *
+ * Mirror version: @smashballoons/tokens@0.4.0
+ * Slice scope:    fg + focus + opacity-disabled + duration (semantic
+ *                 layer required by SMASH-1378 a11y PRs). Extend in
+ *                 follow-up PRs as new tokens (border, bg, motion) are
+ *                 adopted.
+ */
+
+:root {
+	/* ===== Package mirror — @smashballoons/tokens@0.4.0 ===== */
+
+	/* Color primitives referenced by the semantic layer below. */
+	--sb-color-gray-600: #4a5565;
+	--sb-color-gray-700: #364153;
+	--sb-color-wp-light-blue-600: #007ca8;
+
+	/* Duration primitives — referenced directly by consumer transitions
+	   and overridden by the reduced-motion @media block below. */
+	--sb-duration-75:   75ms;
+	--sb-duration-100:  100ms;
+	--sb-duration-150:  150ms;
+	--sb-duration-200:  200ms;
+	--sb-duration-300:  300ms;
+	--sb-duration-500:  500ms;
+	--sb-duration-700:  700ms;
+	--sb-duration-1000: 1000ms;
+
+	/* Opacity */
+	--sb-opacity-disabled: 0.5;
+
+	/* Semantic foreground */
+	--sb-fg-muted:  var(--sb-color-gray-700);
+	--sb-fg-subtle: var(--sb-color-gray-600);
+
+	/* Semantic focus */
+	--sb-focus-ring: var(--sb-color-wp-light-blue-600);
+
+	/* ===== Plugin-local aliases (stable consumer-site names) =====
+	   Bump the package values above; consumers reference these aliases
+	   and do not need to be renamed. Drop an alias here when a follow-up
+	   PR migrates its usage sites to the package name directly. */
+	--sb-text-secondary: var(--sb-fg-muted);
+	--sb-text-tertiary:  var(--sb-fg-subtle);
+}
+
+/* Reduced-motion override — zeroes every duration token so any consumer
+   transition that uses `var(--sb-duration-*)` inherits the override
+   automatically. Transforms / @keyframes still need an explicit
+   `prefers-reduced-motion: no-preference` wrap at the consumer site. */
+@media (prefers-reduced-motion: reduce) {
+	:root {
+		--sb-duration-75:   0.01ms;
+		--sb-duration-100:  0.01ms;
+		--sb-duration-150:  0.01ms;
+		--sb-duration-200:  0.01ms;
+		--sb-duration-300:  0.01ms;
+		--sb-duration-500:  0.01ms;
+		--sb-duration-700:  0.01ms;
+		--sb-duration-1000: 0.01ms;
+	}
+}
