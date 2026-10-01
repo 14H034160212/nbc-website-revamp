@@ -582,6 +582,10 @@ mark.todo {
 	border-left: 3px solid var(--nbc-blue);
 }
 .ai-langhint p { margin: 0 0 12px; font-size: .97rem; line-height: 1.7; color: var(--nbc-ink); }
+.ai-langhint p.is-asked { margin-bottom: 4px; }
+.ai-langhint p.is-selected { color: var(--nbc-body); font-size: .92rem; }
+.ai-langhint__actions button span { display: block; }
+.ai-langhint__actions button span.is-selected { font-size: .8rem; opacity: .85; }
 .ai-langhint__actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .ai-langhint__actions button {
 	padding: 8px 16px; border-radius: 3px; cursor: pointer;

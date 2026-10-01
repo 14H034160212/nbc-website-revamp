@@ -698,6 +698,29 @@
     return s.replace(/\{to\}/g, langName(to)).replace(/\{cur\}/g, langName(lang));
   }
 
+  // A string from one language's table, whatever the page is set to.
+  function tIn(code, k) { return (UI[code] || UI.en)[k] || UI.en[k]; }
+
+  /* The same words in both languages, the question's first. Whoever typed in
+     English on the Chinese page may not read Chinese, and the hint is the one
+     thing on the page that has to reach them. Te reo has no strings of its
+     own here and falls back to English; if both lines come out the same, one
+     is shown. */
+  function both(k, to, tag) {
+    var frag = document.createDocumentFragment();
+    var first = fill(tIn(to, k), to);
+    var second = fill(tIn(lang, k), to);
+    [[to, first, 'is-asked'], [lang, second, 'is-selected']].forEach(function (x, i) {
+      if (i === 1 && second === first) return;
+      var el = document.createElement(tag);
+      el.lang = (UI[x[0]] && UI[x[0]][k]) ? x[0] : 'en';
+      el.className = x[2];
+      el.textContent = x[1];
+      frag.appendChild(el);
+    });
+    return frag;
+  }
+
   /* Asked before the request, not after: the answer is written in the selected
      language, and a reader who notices only once it arrives has to switch and
      pay for the same question twice. Either button asks; neither is a dead end. */
@@ -705,14 +728,12 @@
     elAiOut.innerHTML = '';
     var box = document.createElement('div');
     box.className = 'ai-langhint';
-    var p = document.createElement('p');
-    p.textContent = fill(t('langHint'), to);
-    box.appendChild(p);
+    box.appendChild(both('langHint', to, 'p'));
 
     var sw = document.createElement('button');
     sw.type = 'button';
     sw.className = 'ai-langhint__switch';
-    sw.textContent = fill(t('langSwitch'), to);
+    sw.appendChild(both('langSwitch', to, 'span'));
     sw.addEventListener('click', function () {
       elLang.value = to;
       setLang(to, null);
@@ -722,7 +743,7 @@
     var keep = document.createElement('button');
     keep.type = 'button';
     keep.className = 'ai-langhint__keep';
-    keep.textContent = fill(t('langKeep'), to);
+    keep.appendChild(both('langKeep', to, 'span'));
     keep.addEventListener('click', function () { sendAi(question); });
 
     var row = document.createElement('div');
