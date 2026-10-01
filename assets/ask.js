@@ -76,6 +76,9 @@
       aiFailed: 'Something went wrong. Please try again, or pick a question above.',
       aiBusy: 'A lot of people are asking right now. Please try again shortly.',
       aiLimited: 'You have asked a few questions in a short time. Please try again later.',
+      langHint: 'Your question looks like it is written in {to}, but the language selected is {cur}. The answer and the passages will be in {cur}.',
+      langSwitch: 'Switch to {to} and ask',
+      langKeep: 'Ask in {cur}',
       aiOff: 'The question box is not switched on for this deployment. The curated questions below work without it.',
       aiHuman: 'Some things are better talked through with a person. You can reach the church office on <a href="tel:+6494807064">(09) 480 7064</a> or <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a> any weekday.',
       lead: 'Pick what is going on. We will show you where the Bible speaks to it.',
@@ -106,6 +109,9 @@
       aiFailed: '出了点问题，请重试，或从上面的问题里选一个。',
       aiBusy: '现在提问的人有点多，请稍后再试。',
       aiLimited: '你在短时间内问了几次，请稍后再试。',
+      langHint: '你的问题看起来是用{to}写的，但当前选择的语言是{cur}，回答和经文都会用{cur}显示。',
+      langSwitch: '切换到{to}并提问',
+      langKeep: '继续用{cur}提问',
       aiOff: '这个部署没有开启提问框。下面的常见处境查经不需要它也能用。',
       aiHuman: '有些事更适合和人聊聊。平日都可以联系教会办公室：<a href="tel:+6494807064">(09) 480 7064</a> 或 <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>。',
       lead: '选一个此刻的处境，我们把圣经里相关的经文找出来给你。',
@@ -136,6 +142,9 @@
       aiFailed: '出了點問題，請重試，或從上面的問題裡選一個。',
       aiBusy: '現在提問的人有點多，請稍後再試。',
       aiLimited: '你在短時間內問了幾次，請稍後再試。',
+      langHint: '你的問題看起來是用{to}寫的，但目前選擇的語言是{cur}，回答和經文都會以{cur}顯示。',
+      langSwitch: '切換到{to}並提問',
+      langKeep: '繼續用{cur}提問',
       aiOff: '這個部署沒有開啟提問框。下面的常見處境查經不需要它也能用。',
       aiHuman: '有些事更適合和人聊聊。平日都可以聯絡教會辦公室：<a href="tel:+6494807064">(09) 480 7064</a> 或 <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>。',
       lead: '選一個此刻的處境，我們把聖經裡相關的經文找出來給你。',
@@ -166,6 +175,9 @@
       aiFailed: '문제가 발생했습니다. 다시 시도하시거나 위의 질문 중에서 골라 주십시오.',
       aiBusy: '지금 이용자가 많습니다. 잠시 후 다시 시도해 주십시오.',
       aiLimited: '짧은 시간에 여러 번 질문하셨습니다. 잠시 후 다시 시도해 주십시오.',
+      langHint: '질문이 {to}(으)로 작성된 것 같습니다. 현재 선택된 언어는 {cur}이며, 답변과 성경 본문도 {cur}(으)로 표시됩니다.',
+      langSwitch: '{to}(으)로 바꿔서 질문하기',
+      langKeep: '{cur}(으)로 질문하기',
       aiOff: '이 배포에서는 질문 상자가 켜져 있지 않습니다. 아래 주제별 찾기는 그대로 사용하실 수 있습니다.',
       aiHuman: '어떤 이야기는 사람과 나누는 편이 좋습니다. 평일에 교회 사무실로 연락하실 수 있습니다: <a href="tel:+6494807064">(09) 480 7064</a>, <a href="mailto:office@nbc.org.nz">office@nbc.org.nz</a>.',
       lead: '지금의 상황을 골라 주십시오. 성경이 무엇이라 말하는지 찾아 드립니다.',
@@ -654,11 +666,82 @@
     elAiInput.focus();
   }
 
-  elAiForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-    var question = elAiInput.value.trim();
-    if (question.length < 4) return;
+  /* Which language the question is written in, by script — only as far as
+     script can tell. Latin letters cannot separate English from te reo, so a
+     Latin question under Te Reo Māori is never flagged; Han cannot separate
+     简体 from 繁體, so the two Chinese settings never flag each other. A few
+     Latin letters inside Chinese or Korean ("John 3:16", "NBC") do not count. */
+  function scriptLang(q) {
+    var han = (q.match(/[㐀-鿿豈-﫿]/g) || []).length;
+    var hangul = (q.match(/[가-힯ᄀ-ᇿ㄰-㆏]/g) || []).length;
+    var latin = (q.match(/[A-Za-z]/g) || []).length;
+    if (hangul >= 2 && hangul >= han) return 'ko';
+    if (han >= 2) return 'zh-Hans';
+    if (!han && !hangul && latin >= 8) return 'en';
+    return null;
+  }
 
+  function suggestedLang(q) {
+    var wrote = scriptLang(q);
+    if (!wrote) return null;
+    if (wrote === 'en') return (lang === 'en' || lang === 'mi') ? null : 'en';
+    if (wrote === 'zh-Hans') return (lang === 'zh-Hans' || lang === 'zh-Hant') ? null : 'zh-Hans';
+    return lang === wrote ? null : wrote;
+  }
+
+  function langName(code) {
+    for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === code) return LANGS[i][1];
+    return code;
+  }
+
+  function fill(s, to) {
+    return s.replace(/\{to\}/g, langName(to)).replace(/\{cur\}/g, langName(lang));
+  }
+
+  /* Asked before the request, not after: the answer is written in the selected
+     language, and a reader who notices only once it arrives has to switch and
+     pay for the same question twice. Either button asks; neither is a dead end. */
+  function offerLang(question, to) {
+    elAiOut.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'ai-langhint';
+    var p = document.createElement('p');
+    p.textContent = fill(t('langHint'), to);
+    box.appendChild(p);
+
+    var sw = document.createElement('button');
+    sw.type = 'button';
+    sw.className = 'ai-langhint__switch';
+    sw.textContent = fill(t('langSwitch'), to);
+    sw.addEventListener('click', function () {
+      elLang.value = to;
+      setLang(to, null);
+      sendAi(question);
+    });
+
+    var keep = document.createElement('button');
+    keep.type = 'button';
+    keep.className = 'ai-langhint__keep';
+    keep.textContent = fill(t('langKeep'), to);
+    keep.addEventListener('click', function () { sendAi(question); });
+
+    var row = document.createElement('div');
+    row.className = 'ai-langhint__actions';
+    row.appendChild(sw);
+    row.appendChild(keep);
+    box.appendChild(row);
+    elAiOut.appendChild(box);
+    elAiOut.hidden = false;
+    sw.focus();
+  }
+
+  // Bumped on every send and every language switch. A reply that comes back
+  // after either is for a page that no longer exists: its framing is in the
+  // old language while its cards would render in the new one.
+  var aiSeq = 0;
+
+  function sendAi(question) {
+    var mine = ++aiSeq;
     elAiGo.disabled = true;
     elAiOut.hidden = false;
     elAiOut.innerHTML = '<p class="ask-card__loading">' + t('aiThinking') + '</p>';
@@ -670,15 +753,25 @@
     }).then(function (r) {
       return r.json().then(function (body) { return { status: r.status, body: body }; });
     }).then(function (res) {
+      if (mine !== aiSeq) return;
       if (res.status === 429) return aiError(String(res.body.error).indexOf('day') > -1 ? 'aiBusy' : 'aiLimited');
       if (res.status === 503) return aiError('aiBusy');
       if (res.body && res.body.error) return aiError('aiFailed');
       renderAi(res.body);
     }).catch(function () {
-      aiError('aiFailed');
+      if (mine === aiSeq) aiError('aiFailed');
     }).then(function () {
-      elAiGo.disabled = false;
+      if (mine === aiSeq) elAiGo.disabled = false;
     });
+  }
+
+  elAiForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var question = elAiInput.value.trim();
+    if (question.length < 4) return;
+    var to = suggestedLang(question);
+    if (to) return offerLang(question, to);
+    sendAi(question);
   });
 
   /* ---- language: self-contained, no dependency on the rest of the page ---
@@ -724,6 +817,14 @@
     elOut.hidden = true;
     elOut.innerHTML = '';
     elFoot.hidden = true;
+
+    // An AI answer is written in the language it was asked in; leaving it up
+    // would put that language above cards in this one. The question stays in
+    // the box, so asking again is one click.
+    aiSeq++;
+    elAiOut.hidden = true;
+    elAiOut.innerHTML = '';
+    elAiGo.disabled = false;
 
     // Switching language mid-read re-shows the same passages in the new
     // language rather than dumping the reader back to an empty page.
