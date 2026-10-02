@@ -668,3 +668,14 @@ mark.todo {
 @media (max-width: 767px) {
 	.nbc-imgtext { margin-left: 20px; margin-right: 20px; padding: 16px 18px; }
 }
+
+/* Two Facebook links under "Find us on Social Media" on /contact/: the
+   church's page and the youth page. They sit on the coloured "Follow us"
+   card, so they take its white text, not the site's link blue. */
+.nbc-follow {
+	display: flex; flex-direction: column; align-items: center; gap: 4px;
+	margin: 4px 0 0; padding: 0 12px; text-align: center;
+	font-family: 'Source Sans Pro', Arial, sans-serif; font-size: .95rem; line-height: 1.5;
+}
+.nbc-follow a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+.nbc-follow a:hover, .nbc-follow a:focus { color: #fff; text-decoration-thickness: 2px; }

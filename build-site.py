@@ -1280,6 +1280,36 @@ def replace_external_embeds(html, lang):
     return EXTERNAL_EMBED.sub(swap, html)
 
 
+# The contact page says "Find us on Social Media" under a "Follow us" heading
+# that links to the church page, and stops there: the youth page, which a
+# parent or a teenager is looking for, is not mentioned anywhere on it. In
+# WordPress this is two lines typed into the page; here it goes in at build
+# time, in English, ahead of translation, so the dictionary translates it like
+# the church's own words.
+SOCIAL_LINKS = (
+    '<p class="nbc-follow">'
+    '<a href="https://www.facebook.com/NorthcoteBaptistChurch/" rel="noopener">'
+    'Northcote Baptist Church on Facebook</a>'
+    '<a href="https://www.facebook.com/youthnbc/" rel="noopener">'
+    'NBC Youth on Facebook (Years 9–13)</a></p>'
+)
+SOCIAL_AFTER = re.compile(
+    r'<h6 class="cmsmasters_heading">\s*Find us on Social Media\s*</h6>\s*</div>\s*(?:</em>\s*)?(?:</p>)?')
+
+
+def add_social_links(html, url_path):
+    if url_path != "/contact/":
+        return html
+    m = SOCIAL_AFTER.search(html)
+    if not m:
+        # The church rewrote that part of the page. Say so rather than guess
+        # where the links belong; check-build will not notice their absence.
+        print("  WARNING: /contact/ no longer says 'Find us on Social Media'; "
+              "Facebook links not added")
+        return html
+    return html[:m.end()] + SOCIAL_LINKS + html[m.end():]
+
+
 def add_partial_note(html, lang):
     """
     Directly under the language bar.
@@ -1504,6 +1534,7 @@ def build():
         url_path = "/" + rel[: -len("index.html")]
         html = fit_mobile_banners(cap_mobile_headings(normalise_volatile(
             strip_query_links(f.read_text(encoding="utf-8", errors="replace")))))
+        html = add_social_links(html, url_path)
 
         # Files we removed for size stay on the church's own server.
         for gone in dropped:
